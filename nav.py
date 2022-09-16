@@ -68,6 +68,9 @@ class NavControl(UserControl):
         self.page.theme_mode = 'dark'
         self.page.update()
 
+    def on_logout(self, e):
+        pass
+
     def on_cate_click(self, e):
         cate_id = self.dct_cate.get(e.control)
         right_ctn = self.page.controls[0].controls[1]
@@ -171,7 +174,9 @@ class NavControl(UserControl):
                                                                text='关于我们',
                                                                on_click=self.on_about_click),
                                                  PopupMenuItem(icon=icons.ACCOUNT_BOX, text='账户安全'),
-                                                 PopupMenuItem(icon=icons.LOGOUT, text='退出登录'),
+                                                 PopupMenuItem(icon=icons.LOGOUT,
+                                                               text='退出登录',
+                                                               on_click=self.on_logout),
                                                  ],
                                           icon=icons.HELP,
                                           )
