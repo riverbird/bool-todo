@@ -22,25 +22,13 @@ class TaskListControl(UserControl):
         str_today = datetime.now().strftime('%Y-%m-%d')
         headers = {'Authorization': f'jwt {self.token}'}
         if list_name == 'today':
-            req = requests.get(url=f'https://restapi.10qu.com.cn/todo_search/?task_time={str_today}',
-                               headers=headers)
-            json_req = json.loads(req.text)
-            lst_ret = json_req.get('results')
+            lst_ret = APIRequest.query_tasks_by_date(self.token, str_today)
         elif list_name == 'future':
-            req = requests.get(url='https://restapi.10qu.com.cn/todo_type_profile/',
-                               headers=headers)
-            json_req = json.loads(req.text)
-            lst_ret = json_req.get('result')
+            lst_ret = APIRequest.query_future_tasks(self.token)
         elif list_name == 'expired':
-            req = requests.get(url='https://restapi.10qu.com.cn/todo_type_profile/?flag=expired',
-                               headers=headers)
-            json_req = json.loads(req.text)
-            lst_ret = json_req.get('result')
+            lst_ret = APIRequest.query_expired_tasks(self.token)
         elif isinstance(list_name, int):
-            req = requests.get(url=f'https://restapi.10qu.com.cn/user_todo/?todo_from_id={list_name}',
-                               headers=headers)
-            json_req = json.loads(req.text)
-            lst_ret = json_req.get('result')
+            lst_ret = APIRequest.query_tasks_by_cate_id(self.token, list_name)
         if len(lst_ret) == 0:
             return
         if self.container_empty in self.col_today.controls:
@@ -50,7 +38,10 @@ class TaskListControl(UserControl):
             if self.show_finished is False:
                 if itm.get('task_status') is True:
                     continue
-            task_item = Task(itm.get('task_name'),
+            task_item = Task(self,
+                             self.token,
+                             itm.get('task_name'),
+                             itm.get('id'),
                              itm.get('task_time'),
                              itm.get('task_status'))
             self.col_task.controls.append(task_item)

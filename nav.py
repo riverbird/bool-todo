@@ -100,20 +100,12 @@ class NavControl(UserControl):
         self.page.update()
 
     def update_user_info(self):
-        headers = {'Authorization': f'jwt {self.token}'}
-        req = requests.get(url='https://restapi.10qu.com.cn/user_info/',
-                           headers=headers)
-        json_req = json.loads(req.text)
-        dct_ret = json_req.get('results')
+        dct_ret = APIRequest.query_user_info(self.token)
         self.text_user.value = dct_ret.get('nick_name', '用户名')
         self.img_avatar.src = dct_ret.get('avatar_url', f'/icons/head.png')
 
     def update_todolist(self):
-        headers = {'Authorization': f'jwt {self.token}'}
-        req = requests.get(url='https://restapi.10qu.com.cn/todo_profile/?show_expired=1',
-                           headers=headers)
-        json_req = json.loads(req.text)
-        dct_ret = json_req.get('result')
+        dct_ret = APIRequest.query_todolist(self.token)
 
         todo_data = dct_ret[0].get('todo_data')
         self.lt_today.title = Text(f'今天 {todo_data[1].get("count")}')
@@ -122,8 +114,9 @@ class NavControl(UserControl):
         self.lt_all.title = Text(f'全部 {todo_data[0].get("count")}')
 
         todo_data = dct_ret[1].get('todo_data')
-        self.dct_cate = {} # ListTile:CateId
-        self.dct_cate_title = {} # CateId: CateName
+        self.dct_cate = {}  # ListTile:CateId
+        self.dct_cate_title = {}  # CateId: CateName
+        # self.col_nav.controls.clear()
         for itm in todo_data:
             lt_cate = ListTile(leading=Icon(icons.LIST),
                                title=Text(f'{itm.get("name")} {itm.get("count")}'),

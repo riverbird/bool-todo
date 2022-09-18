@@ -4,6 +4,7 @@ from flet import Text, Card, Container, Column, Row, TextButton, TextField, Imag
     UserControl, padding
 from nav import NavControl
 from dashboard import DashboardControl
+from api_request import APIRequest
 
 
 class LoginControl(UserControl):
@@ -27,10 +28,7 @@ class LoginControl(UserControl):
 
     def on_login_click(self, e):
         if self.view_status == 0:
-            user_input = {'username': self.tf_phone_num.value,
-                          'password': self.tf_password.value}
-            req = requests.post(url='https://restapi.10qu.com.cn/username_login/',
-                                data=user_input)
+            req = APIRequest.login_by_password(self.tf_phone_num.value, self.tf_password.value)
             json_req = json.loads(req.text)
             if req.status_code == 200 and json_req.get('code') == '0':
                 dct_ret = json_req.get('result')

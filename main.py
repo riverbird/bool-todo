@@ -4,7 +4,6 @@ from login import LoginControl
 
 
 def main(page: Page):
-
     page.title = '拾趣清单'
     page.bgcolor = '#f2f4f8'
     page.vertical_alignment = 'center'
@@ -21,4 +20,6 @@ def main(page: Page):
 
 
 flet.app(target=main,
-         assets_dir='assets')
+         assets_dir='assets',
+         # view=flet.WEB_BROWSER,
+         )
