@@ -50,7 +50,7 @@ class LoginControl(UserControl):
                                                               dct_ret.get('token')),
                                            # width=300,
                                            # height=self.page.window_height + 10,
-                                           height=800,
+                                           # height=800,
                                            expand=1,
                                            padding=padding.only(right=10, top=10),
                                            # margin=margin.only(bottom=10),

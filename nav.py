@@ -218,8 +218,8 @@ class NavControl(UserControl):
                 self.col_cate,
             ],
             spacing=0,
-            expand=True,
-            # height=800,
+            # expand=True,
+            height=800,
             alignment='start',
             scroll='hidden',
         )
