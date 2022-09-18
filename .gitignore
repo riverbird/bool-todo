@@ -1,2 +1,7 @@
 
 *.pyc
+dist
+build
+main.spec
+output/main.exe
+requests.spec

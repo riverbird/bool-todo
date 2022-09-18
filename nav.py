@@ -3,7 +3,9 @@ from requests.auth import HTTPBasicAuth
 from flet import Text, Container, Column, Icon, Row, TextButton, TextField, Image, \
     icons, alignment, colors, border, margin, border_radius, padding, \
     UserControl, ListTile, IconButton, CircleAvatar, PopupMenuButton, PopupMenuItem, \
-    AlertDialog, Divider
+    AlertDialog, Divider, SnackBar
+import login
+from api_request import APIRequest
 from tasklist import TaskListControl
 from dashboard import DashboardControl
 
@@ -69,7 +71,18 @@ class NavControl(UserControl):
         self.page.update()
 
     def on_logout(self, e):
-        pass
+        req_result = APIRequest.logout(self.token)
+        if req_result is True:
+            self.page.clean()
+            self.page.bgcolor = '#f2f4f8'
+            self.page.vertical_alignment = 'center'
+            self.page.horizontal_alignment = 'center'
+            self.page.add(login.LoginControl())
+            self.page.update()
+            return
+        self.page.snack_bar = SnackBar(Text("用户退出登录请求失败!"))
+        self.page.snack_bar.open = True
+        self.page.update()
 
     def on_cate_click(self, e):
         cate_id = self.dct_cate.get(e.control)
