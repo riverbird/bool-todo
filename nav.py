@@ -43,6 +43,7 @@ class NavControl(UserControl):
                                                       self.page.height,
                                                       self.token,
                                                       list_name,
+                                                      list_title_text,
                                                       False),
                               expand=4,
                               padding=padding.only(left=10, top=10, bottom=20, right=20),
@@ -50,10 +51,6 @@ class NavControl(UserControl):
         self.page.controls[0].controls.append(ctn_today)
         self.col_nav.update()
         self.page.update()
-
-    def on_today_click(self, e):
-        self.lt_today.selected = False
-        self.col_nav.update()
 
     def on_about_ok_click(self, e):
         self.dlg_about.open = False
@@ -86,12 +83,14 @@ class NavControl(UserControl):
 
     def on_cate_click(self, e):
         cate_id = self.dct_cate.get(e.control)
+        cate_title = self.dct_cate_title.get(cate_id)
         right_ctn = self.page.controls[0].controls[1]
         self.page.controls[0].controls.remove(right_ctn)
         ctn_tasks = Container(content=TaskListControl(self.page.width,
                                                       self.page.height,
                                                       self.token,
                                                       cate_id,
+                                                      cate_title,
                                                       False),
                               expand=4,
                               padding=padding.only(left=10, top=10, bottom=20, right=20),
@@ -123,7 +122,8 @@ class NavControl(UserControl):
         self.lt_all.title = Text(f'全部 {todo_data[0].get("count")}')
 
         todo_data = dct_ret[1].get('todo_data')
-        self.dct_cate = {}
+        self.dct_cate = {} # ListTile:CateId
+        self.dct_cate_title = {} # CateId: CateName
         for itm in todo_data:
             lt_cate = ListTile(leading=Icon(icons.LIST),
                                title=Text(f'{itm.get("name")} {itm.get("count")}'),
@@ -132,6 +132,7 @@ class NavControl(UserControl):
                                on_click=self.on_cate_click)
             self.col_nav.controls.append(lt_cate)
             self.dct_cate[lt_cate] = itm.get('from_id')
+            self.dct_cate_title[itm.get('from_id')] = itm.get("name")
 
     def build(self):
         self.dlg_about = AlertDialog(modal=True,

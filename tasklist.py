@@ -2,17 +2,19 @@ import requests, json
 from datetime import datetime
 from flet import Text, Container, Column, Icon, Row, TextButton, TextField, Image, \
     icons, alignment, colors, border, margin, border_radius, padding, \
-    UserControl, ListTile, Switch
+    UserControl, ListTile, Switch, SnackBar
 from task import Task
+from api_request import APIRequest
 
 
 class TaskListControl(UserControl):
-    def __init__(self, page_width, page_height, token, list_name, show_finished):
+    def __init__(self, page_width, page_height, token, list_name, list_title, show_finished):
         super().__init__()
         self.page_width = page_width
         self.page_height = page_height
         self.token = token
         self.list_name = list_name
+        self.list_title = list_title
         self.show_finished = show_finished
 
     def query_tasks_by_list(self, list_name):
@@ -58,32 +60,71 @@ class TaskListControl(UserControl):
         self.query_tasks_by_list(self.list_name)
         self.update()
 
+    def on_input_task_submit(self, e):
+        task_name = self.input_task.value
+        str_today = datetime.today().strftime('%Y-%m-%d')
+        if len(task_name) == 0:
+            self.page.snack_bar = SnackBar(Text("任务信息不允许为空!"))
+            self.page.snack_bar.open = True
+            self.page.update()
+            return
+        req_result = APIRequest.add_task(self.token,
+                                         task_name,
+                                         0,
+                                         str_today,
+                                         self.list_name,
+                                         3)
+        if req_result is False:
+            self.page.snack_bar = SnackBar(Text("添加任务失败!"))
+            self.page.snack_bar.open = True
+            self.page.update()
+            return
+        self.query_tasks_by_list(self.list_name)
+        self.input_task.value = ''
+        self.update()
+
     def build(self):
+        dct_title = {"today": "今天",
+                     "future": "未来七天",
+                     "expired": "已过期",
+                     "all": "全部",
+                     self.list_name: self.list_title}
+
         self.input_task = TextField(hint_text='添加任务',
                                     prefix_icon=icons.ADD,
                                     expand=True,
                                     filled=False,
                                     height=50,
-                                    bgcolor=colors.GREEN_200, )
+                                    bgcolor=colors.GREEN_200,
+                                    on_submit=self.on_input_task_submit)
         self.col_task = Column(alignment='start',
                                # expand=True,
                                spacing=15,
                                scroll='hidden',
                                )
-        col_empty = Column([Icon(name=icons.LIST_SHARP, color=colors.BLACK12, size=128),
-                            Text('没有可完成的任务，加油！', size=24, text_align='center')],
+        col_empty = Column([Icon(name=icons.LIST_SHARP,
+                                 color=colors.BLACK12,
+                                 size=128,
+                                 # expand=True,
+                                 ),
+                            Text('没有可完成的任务，加油！',
+                                 size=24,
+                                 text_align='center',
+                                 # expand=True,
+                                 )],
                            alignment='center',
                            horizontal_alignment='center',
-                           expand=True,
+                           # expand=True,
                            )
         self.container_empty = Container(content=col_empty,
-                                         expand=True,
+                                         # expand=True,
+                                         alignment=alignment.bottom_left,
                                          )
 
         self.col_today = Column(
             [
                 Container(content=Row([Container(content=Icon(name=icons.LIST, color=colors.BLACK38)),
-                                       Container(content=Text('今天', size=24, weight='bold')),
+                                       Container(content=Text(dct_title.get(self.list_name), size=24, weight='bold')),
                                        Container(content=Switch(label='显示已完成',
                                                                 value=False,
                                                                 on_change=self.on_switch_show_finished),
