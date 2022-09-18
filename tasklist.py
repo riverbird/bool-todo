@@ -31,8 +31,8 @@ class TaskListControl(UserControl):
             lst_ret = APIRequest.query_tasks_by_cate_id(self.token, list_name)
         if len(lst_ret) == 0:
             return
-        if self.container_empty in self.col_today.controls:
-            self.col_today.controls.remove(self.container_empty)
+        if self.container_empty in self.col_tasklist.controls:
+            self.col_tasklist.controls.remove(self.container_empty)
         self.col_task.controls.clear()
         for itm in lst_ret:
             if self.show_finished is False:
@@ -74,6 +74,12 @@ class TaskListControl(UserControl):
         self.input_task.value = ''
         self.update()
 
+        nav_control = self.page.controls[0].controls[0].content
+        nav_control.update_todolist()
+        nav_control.col_nav.update()
+        nav_control.update()
+        self.input_task.focus()
+
     def build(self):
         dct_title = {"today": "今天",
                      "future": "未来七天",
@@ -91,6 +97,7 @@ class TaskListControl(UserControl):
         self.col_task = Column(alignment='start',
                                # expand=True,
                                spacing=15,
+                               height=600,
                                scroll='hidden',
                                )
         col_empty = Column([Icon(name=icons.LIST_SHARP,
@@ -105,14 +112,16 @@ class TaskListControl(UserControl):
                                  )],
                            alignment='center',
                            horizontal_alignment='center',
-                           # expand=True,
+                           expand=True,
+                           # height=500,
                            )
         self.container_empty = Container(content=col_empty,
                                          # expand=True,
-                                         alignment=alignment.bottom_left,
+                                         # height=500,
+                                         alignment=alignment.center,
                                          )
 
-        self.col_today = Column(
+        self.col_tasklist = Column(
             [
                 Container(content=Row([Container(content=Icon(name=icons.LIST, color=colors.BLACK38)),
                                        Container(content=Text(dct_title.get(self.list_name), size=24, weight='bold')),
@@ -125,30 +134,35 @@ class TaskListControl(UserControl):
                                       vertical_alignment='center',
                                       # vertical_alignment='start',
                                       spacing=15,
-                                      height=50,
+                                      # height=50,
                                       # expand=1,
-                                      )
+                                      ),
+                          height=50,
                           ),
                 self.container_empty,
                 Container(content=self.col_task,
-                          # expand=3,
+                          # expand=True,
+                          padding=padding.only(bottom=15,)
                           ),
                 Container(content=Row([self.input_task, ],
                                       alignment='end',
                                       # vertical_alignment='end',
                                       ),
-                          alignment=alignment.bottom_left,
-                          height=60,
-                          padding=padding.only(top=10),
+                          alignment=alignment.top_left,
+                          height=50,
+                          # margin=margin.only(bottom=10,)
+                          # padding=padding.only(top=10, bottom=10),
                           # expand=1,
                           ),
             ],
             alignment='spaceBetween',
-            scroll='hidden'
+            expand=True,
+            # scroll='hidden',
+            # height=800,
             # alignment='start',
             # horizontal_alignment='start',
         )
 
         self.query_tasks_by_list(self.list_name)
 
-        return self.col_today
+        return self.col_tasklist

@@ -47,7 +47,7 @@ class DashboardControl(UserControl):
                                                          False),
                                  expand=4,
                                  # height=600,
-                                 padding=padding.only(left=10, top=10, bottom=20, right=20),
+                                 padding=padding.only(left=10, top=10, right=20),
                                  )
         rows_today = Row([Container(content=nav.NavControl(self.page.width,
                                                            self.page.height,

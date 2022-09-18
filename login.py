@@ -45,24 +45,27 @@ class LoginControl(UserControl):
                 self.page.padding = 0
                 # self.page.scroll = 'auto'
                 # self.page.auto_scroll = True
-                rows_today = Row([Container(content=NavControl(self.page.width,
-                                                               self.page.height,
-                                                               dct_ret.get('token')),
-                                            # width=300,
-                                            expand=1,
-                                            padding=padding.only(right=10, top=10),
-                                            bgcolor=colors.WHITE,
-                                            ),
-                                  Container(content=DashboardControl(dct_ret.get('token')),
-                                            expand=4,
-                                            height=600,
-                                            padding=padding.only(left=10, top=10, bottom=20, right=20),
-                                            ),
-                                  ],
-                                 alignment='spaceAround',
-                                 vertical_alignment='start',
-                                 )
-                self.page.add(rows_today)
+                rows_main = Row([Container(content=NavControl(self.page.width,
+                                                              self.page.height,
+                                                              dct_ret.get('token')),
+                                           # width=300,
+                                           # height=self.page.window_height + 10,
+                                           height=800,
+                                           expand=1,
+                                           padding=padding.only(right=10, top=10),
+                                           # margin=margin.only(bottom=10),
+                                           bgcolor=colors.WHITE,
+                                           ),
+                                 Container(content=DashboardControl(dct_ret.get('token')),
+                                           expand=4,
+                                           height=600,
+                                           padding=padding.only(left=10, top=10, bottom=20, right=20),
+                                           ),
+                                 ],
+                                alignment='spaceAround',
+                                vertical_alignment='start',
+                                )
+                self.page.add(rows_main)
 
     def build(self):
         self.view_status = 0  # 用于甄别具体是何登录注册视图

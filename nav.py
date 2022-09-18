@@ -1,8 +1,6 @@
-import requests, json
-from requests.auth import HTTPBasicAuth
-from flet import Text, Container, Column, Icon, Row, TextButton, TextField, Image, \
+from flet import Text, Container, Column, Icon, Row, TextButton, Image, \
     icons, alignment, colors, border, margin, border_radius, padding, \
-    UserControl, ListTile, IconButton, CircleAvatar, PopupMenuButton, PopupMenuItem, \
+    UserControl, ListTile, CircleAvatar, PopupMenuButton, PopupMenuItem, \
     AlertDialog, Divider, SnackBar
 import login
 from api_request import APIRequest
@@ -39,16 +37,16 @@ class NavControl(UserControl):
             list_name = 'expired'
         right_ctn = self.page.controls[0].controls[1]
         self.page.controls[0].controls.remove(right_ctn)
-        ctn_today = Container(content=TaskListControl(self.page.width,
-                                                      self.page.height,
-                                                      self.token,
-                                                      list_name,
-                                                      list_title_text,
-                                                      False),
-                              expand=4,
-                              padding=padding.only(left=10, top=10, bottom=20, right=20),
-                              )
-        self.page.controls[0].controls.append(ctn_today)
+        ctn_tasklist = Container(content=TaskListControl(self.page.width,
+                                                         self.page.height,
+                                                         self.token,
+                                                         list_name,
+                                                         list_title_text,
+                                                         False),
+                                 expand=4,
+                                 padding=padding.only(left=10, top=10, bottom=20, right=20),
+                                 )
+        self.page.controls[0].controls.append(ctn_tasklist)
         self.col_nav.update()
         self.page.update()
 
@@ -60,7 +58,6 @@ class NavControl(UserControl):
     def on_about_click(self, e):
         self.page.dialog = self.dlg_about
         self.dlg_about.open = True
-        # self.update()
         self.page.update()
 
     def on_dark_click(self, e):
@@ -93,7 +90,7 @@ class NavControl(UserControl):
                                                       cate_title,
                                                       False),
                               expand=4,
-                              padding=padding.only(left=10, top=10, bottom=20, right=20),
+                              padding=padding.only(left=10, top=10, right=20),
                               )
         self.page.controls[0].controls.append(ctn_tasks)
         self.col_nav.update()
@@ -116,16 +113,19 @@ class NavControl(UserControl):
         todo_data = dct_ret[1].get('todo_data')
         self.dct_cate = {}  # ListTile:CateId
         self.dct_cate_title = {}  # CateId: CateName
-        # self.col_nav.controls.clear()
+        self.col_cate.controls.clear()
         for itm in todo_data:
             lt_cate = ListTile(leading=Icon(icons.LIST),
                                title=Text(f'{itm.get("name")} {itm.get("count")}'),
                                selected=False,
                                dense=True,
                                on_click=self.on_cate_click)
-            self.col_nav.controls.append(lt_cate)
+            # self.col_nav.controls.append(lt_cate)
+            self.col_cate.controls.append(lt_cate)
             self.dct_cate[lt_cate] = itm.get('from_id')
             self.dct_cate_title[itm.get('from_id')] = itm.get("name")
+
+        # self.col_nav.height = self.page.window_height
 
     def build(self):
         self.dlg_about = AlertDialog(modal=True,
@@ -194,7 +194,7 @@ class NavControl(UserControl):
                             vertical_alignment='center',
                             spacing=10)
 
-        self.col_cate = Column()
+        self.col_cate = Column(spacing=1)
         self.col_nav = Column(
             [
                 self.row_head,
@@ -218,7 +218,8 @@ class NavControl(UserControl):
                 self.col_cate,
             ],
             spacing=0,
-            # expand=True,
+            expand=True,
+            # height=800,
             alignment='start',
             scroll='hidden',
         )

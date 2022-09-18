@@ -21,6 +21,11 @@ class Task(UserControl):
                 self.task_control.query_tasks_by_list(self.task_control.list_name)
                 self.task_control.update()
 
+                nav_control = self.page.controls[0].controls[0].content
+                nav_control.update_todolist()
+                nav_control.col_nav.update()
+                nav_control.update()
+
 
     def build(self):
         self.cb_task = Checkbox(value=self.finished, on_change=self.on_checkbox_change)
