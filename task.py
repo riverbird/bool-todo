@@ -2,20 +2,18 @@ from flet import Text, Container, Column, Icon, Row, TextButton, TextField, Imag
     icons, alignment, colors, border, margin, border_radius, padding, \
     UserControl, ListTile, Switch, VerticalDivider, Checkbox, AnimatedSwitcher
 from api_request import APIRequest
+from task_detail import TaskDetail
 
 class Task(UserControl):
-    def __init__(self, task_control, token, task_name, task_id, task_time, finished):
+    def __init__(self, task_control, token, task_info):
         super().__init__()
         self.task_control = task_control
         self.token = token
-        self.task_name = task_name
-        self.task_id = task_id
-        self.task_time = task_time
-        self.finished = finished
+        self.task_info = task_info
 
     def on_checkbox_change(self, e):
         if self.cb_task.value is True:
-            ret_result = APIRequest.update_task_status(self.token, self.task_id)
+            ret_result = APIRequest.update_task_status(self.token, self.task_info.get('id'))
             if ret_result is True:
                 self.update()
                 self.task_control.query_tasks_by_list(self.task_control.list_name)
@@ -26,13 +24,28 @@ class Task(UserControl):
                 nav_control.col_nav.update()
                 nav_control.update()
 
+    def on_task_item_click(self, e):
+        if len(self.page.controls[0].controls) == 3:
+            detail_control = self.page.controls[0].controls[2]
+            self.page.controls[0].controls.remove(detail_control)
+            self.page.update()
+            return
+        detail_info = TaskDetail(self)
+        ctn_detail = Container(content=detail_info,
+                               width=300,
+                               # on_hover=self.on_detail_hover,
+                               )
+        self.page.controls[0].controls.append(ctn_detail)
+        self.page.update()
 
     def build(self):
-        self.cb_task = Checkbox(value=self.finished, on_change=self.on_checkbox_change)
+        self.cb_task = Checkbox(value=self.task_info.get('task_status'), on_change=self.on_checkbox_change)
         row_task = Row(controls=[VerticalDivider(width=8, thickness=3, color='blue'),
                                  self.cb_task,
-                                 Column(controls=[Text(self.task_name, size=16, italic=self.finished),
-                                                  Text(self.task_time, size=12)])
+                                 Column(controls=[Text(self.task_info.get('task_name'),
+                                                       size=16,
+                                                       italic=self.task_info.get('task_status')),
+                                                  Text(self.task_info.get('task_time'), size=12)])
                                  ],
                        alignment='start',
                        )
@@ -41,5 +54,6 @@ class Task(UserControl):
                                    border_radius=border_radius.all(5),
                                    # margin=margin.all(10),
                                    padding=padding.all(5),
+                                   on_click=self.on_task_item_click,
                                    )
         return container_task

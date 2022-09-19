@@ -40,10 +40,7 @@ class TaskListControl(UserControl):
                     continue
             task_item = Task(self,
                              self.token,
-                             itm.get('task_name'),
-                             itm.get('id'),
-                             itm.get('task_time'),
-                             itm.get('task_status'))
+                             itm)
             self.col_task.controls.append(task_item)
 
     def on_switch_show_finished(self, e):
