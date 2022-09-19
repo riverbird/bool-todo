@@ -219,7 +219,7 @@ class NavControl(UserControl):
             ],
             spacing=0,
             # expand=True,
-            height=800,
+            height=780,
             alignment='start',
             scroll='hidden',
         )

@@ -97,7 +97,7 @@ class TaskListControl(UserControl):
         self.col_task = Column(alignment='start',
                                # expand=True,
                                spacing=15,
-                               height=600,
+                               height=650,
                                scroll='hidden',
                                )
         col_empty = Column([Icon(name=icons.LIST_SHARP,
