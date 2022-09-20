@@ -26,8 +26,12 @@ class TaskDetail(UserControl):
         return dct_result
 
     def build(self):
-        cb_name = Checkbox(label=self.task.task_info.get('task_name'),
+        cb_name = Checkbox(
+                           # label=self.task.task_info.get('task_name'),
                            value=self.task.task_info.get('task_status'))
+        tf_task_name = TextField(value=self.task.task_info.get('task_name'),
+                                 expand=True,
+                                 border_width=0,)
         dpd_cate = Dropdown(width=300,
                             height=50,
                             hint_text='清单',
@@ -37,36 +41,52 @@ class TaskDetail(UserControl):
         lst_cates = dct_cates.values()
         for itm in lst_cates:
             dpd_cate.options.append(dropdown.Option(itm))
+        cate_id = self.task.task_info.get('todo_from')
+        dpd_cate.value = dct_cates.get(cate_id)
 
+        dpd_date = Dropdown(width=300,
+                            height=50,
+                            hint_text='日期',
+                            icon=icons.DATE_RANGE,
+                            options=[dropdown.Option('今天'),
+                                     dropdown.Option('明天'),
+                                     dropdown.Option('下周一'),
+                                     dropdown.Option(self.task.task_info.get('task_time'))]
+                            )
+        dpd_date.value = self.task.task_info.get('task_time')
+
+        lst_repeat = ['无', '每天', '每周工作日', '每周', '每月', '每年']
         dpd_repeat = Dropdown(width=300,
                               height=50,
                               hint_text='重复',
                               icon=icons.REPEAT,
-                              options=[dropdown.Option('无'),
-                                       dropdown.Option('每天'),
-                                       dropdown.Option('每周工作日'),
-                                       dropdown.Option('每周'),
-                                       dropdown.Option('每月'),
-                                       dropdown.Option('每年')])
+                              )
+        for itm in lst_repeat:
+            dpd_repeat.options.append(dropdown.Option(itm))
+        dpd_repeat.value = lst_repeat[self.task.task_info.get('task_repeat')]
+
+        lst_level = ['重要紧急', '重要不紧急', '不重要紧急', '不重要不紧急']
         dpd_level = Dropdown(width=300,
                              height=50,
                              hint_text='象限',
                              icon=icons.LABEL_IMPORTANT,
-                             options=[dropdown.Option('重要紧急'),
-                                      dropdown.Option('重要不紧急'),
-                                      dropdown.Option('不重要紧急'),
-                                      dropdown.Option('不重要不紧急')])
+                             )
+        for itm in lst_level:
+            dpd_level.options.append(dropdown.Option(itm))
+        dpd_level.value = lst_level[self.task.task_info.get('type')]
+
         card_basic = Card(
             content=Container(
                 content=Column(
                     [dpd_cate,
+                     dpd_date,
                      dpd_repeat,
                      dpd_level,
                      ],
                 ),
                 bgcolor='white',
                 # expand=True,
-                padding=padding.only(left=10, right=10,top=20, bottom=20),
+                padding=padding.only(left=10, right=10, top=20, bottom=20),
             )
         )
 
@@ -85,6 +105,10 @@ class TaskDetail(UserControl):
             )
         )
 
+        row_top = Row(
+            [cb_name, tf_task_name],
+        )
+
         # create_time = datetime.strptime(self.task.task_info.get('create_time'),
         #                                 "%Y-%m-%d %H:%M:%S")
         create_time = self.task.task_info.get('create_time').split('.')[0]
@@ -101,7 +125,7 @@ class TaskDetail(UserControl):
                                              on_click=self.on_close_click),
                           alignment=alignment.top_right,
                           ),
-                Container(content=cb_name,
+                Container(content=row_top,
                           height=100,
                           bgcolor='white',
                           alignment=alignment.center_left,

@@ -35,8 +35,9 @@ class NavControl(UserControl):
             list_name = 'future'
         elif list_title_text == '已过期':
             list_name = 'expired'
-        right_ctn = self.page.controls[0].controls[1]
-        self.page.controls[0].controls.remove(right_ctn)
+        # cnt_tasklist = self.page.controls[0].controls[1]
+        # self.page.controls[0].controls.remove(cnt_tasklist)
+        del self.page.controls[0].controls[1:]
         ctn_tasklist = Container(content=TaskListControl(self.page.width,
                                                          self.page.height,
                                                          self.token,
@@ -81,8 +82,9 @@ class NavControl(UserControl):
     def on_cate_click(self, e):
         cate_id = self.dct_cate.get(e.control)
         cate_title = self.dct_cate_title.get(cate_id)
-        right_ctn = self.page.controls[0].controls[1]
-        self.page.controls[0].controls.remove(right_ctn)
+        # cnt_tasklist = self.page.controls[0].controls[1]
+        # self.page.controls[0].controls.remove(cnt_tasklist)
+        del self.page.controls[0].controls[1:]
         ctn_tasks = Container(content=TaskListControl(self.page.width,
                                                       self.page.height,
                                                       self.token,
