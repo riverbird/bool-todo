@@ -125,3 +125,12 @@ class APIRequest(object):
             if json_req.get('code') == '0':
                 return True
         return False
+
+    @staticmethod
+    def update_task_time(token, task_id, task_time):
+        headers = {'Authorization': f'jwt {token}'}
+        user_input = {'task_time': task_time}
+        req = requests.put(url=f'https://restapi.10qu.com.cn/todo/{task_id}/',
+                           headers=headers,
+                           data=user_input)
+        return req.status_code == 200

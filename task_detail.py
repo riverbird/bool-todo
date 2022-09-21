@@ -1,9 +1,9 @@
 from flet import Text, Container, Column, Icon, Row, TextButton, TextField, Image, \
     icons, alignment, colors, border, margin, border_radius, padding, \
     UserControl, ListTile, Switch, VerticalDivider, Checkbox, AnimatedSwitcher, Card, \
-    Dropdown, IconButton, dropdown
+    Dropdown, IconButton, dropdown, SnackBar
 from api_request import APIRequest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class TaskDetail(UserControl):
@@ -25,13 +25,49 @@ class TaskDetail(UserControl):
             dct_result[itm.get('from_id')] = itm.get('name')
         return dct_result
 
+    def task_date_change(self, e):
+        # 计算日期
+        new_date = self.task.task_info.get('task_time')
+        selected_value = self.dpd_date.value
+        if selected_value == '今天':
+            new_date = datetime.today().strftime('%Y-%m-%d')
+        elif selected_value == '明天':
+            new_date = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
+        elif selected_value == '下周一':
+            delta = 1 - datetime.today().isoweekday()
+            if delta <= 0:
+                delta += 7
+            new_date = datetime.today() + timedelta(delta)
+
+        # 调用更新任务日期接口
+        update_status = APIRequest.update_task_time(self.task.token,
+                                                    self.task.task_info.get('id'),
+                                                    new_date)
+
+        # 如果任务日期更新失败
+        if update_status is False:
+            self.page.snack_bar = SnackBar(Text("更新任务时间失败!"))
+            self.page.snack_bar.open = True
+            self.page.update()
+            return
+
+        # 更新导航栏
+        nav_control = self.page.controls[0].controls[0].content
+        nav_control.update_todolist()
+        nav_control.col_nav.update()
+        nav_control.update()
+
+        # 更新任务
+        self.task.tt_task_time.value = new_date
+        self.task.update()
+
     def build(self):
         cb_name = Checkbox(
-                           # label=self.task.task_info.get('task_name'),
-                           value=self.task.task_info.get('task_status'))
+            # label=self.task.task_info.get('task_name'),
+            value=self.task.task_info.get('task_status'))
         tf_task_name = TextField(value=self.task.task_info.get('task_name'),
                                  expand=True,
-                                 border_width=0,)
+                                 border_width=0, )
         dpd_cate = Dropdown(width=300,
                             height=50,
                             hint_text='清单',
@@ -44,16 +80,18 @@ class TaskDetail(UserControl):
         cate_id = self.task.task_info.get('todo_from')
         dpd_cate.value = dct_cates.get(cate_id)
 
-        dpd_date = Dropdown(width=300,
-                            height=50,
-                            hint_text='日期',
-                            icon=icons.DATE_RANGE,
-                            options=[dropdown.Option('今天'),
-                                     dropdown.Option('明天'),
-                                     dropdown.Option('下周一'),
-                                     dropdown.Option(self.task.task_info.get('task_time'))]
-                            )
-        dpd_date.value = self.task.task_info.get('task_time')
+        self.dpd_date = Dropdown(width=300,
+                                 height=50,
+                                 hint_text='日期',
+                                 icon=icons.DATE_RANGE,
+                                 options=[dropdown.Option('今天'),
+                                          dropdown.Option('明天'),
+                                          dropdown.Option('下周一'),
+                                          dropdown.Option(self.task.task_info.get('task_time')),
+                                          ],
+                                 on_change=self.task_date_change,
+                                 )
+        self.dpd_date.value = self.task.task_info.get('task_time')
 
         lst_repeat = ['无', '每天', '每周工作日', '每周', '每月', '每年']
         dpd_repeat = Dropdown(width=300,
@@ -79,7 +117,7 @@ class TaskDetail(UserControl):
             content=Container(
                 content=Column(
                     [dpd_cate,
-                     dpd_date,
+                     self.dpd_date,
                      dpd_repeat,
                      dpd_level,
                      ],

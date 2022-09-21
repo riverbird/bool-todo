@@ -39,13 +39,14 @@ class Task(UserControl):
         self.page.update()
 
     def build(self):
+        self.tt_task_time = Text(self.task_info.get('task_time'), size=12)
         self.cb_task = Checkbox(value=self.task_info.get('task_status'), on_change=self.on_checkbox_change)
         row_task = Row(controls=[VerticalDivider(width=8, thickness=3, color='blue'),
                                  self.cb_task,
                                  Column(controls=[Text(self.task_info.get('task_name'),
                                                        size=16,
                                                        italic=self.task_info.get('task_status')),
-                                                  Text(self.task_info.get('task_time'), size=12)])
+                                                  self.tt_task_time])
                                  ],
                        alignment='start',
                        )
