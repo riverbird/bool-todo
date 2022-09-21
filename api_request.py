@@ -134,3 +134,59 @@ class APIRequest(object):
                            headers=headers,
                            data=user_input)
         return req.status_code == 200
+
+    @staticmethod
+    def update_task_cate(token, task_time, task_id_from, task_id_to):
+        headers = {'Authorization': f'jwt {token}'}
+        user_input = {'task_time': task_time,
+                      'todo_from': task_id_to}
+        req = requests.put(url=f'https://restapi.10qu.com.cn/todo/{task_id_from}/',
+                           headers=headers,
+                           data=user_input)
+        return req.status_code == 200
+
+    @staticmethod
+    def update_task_repeat(token, task_id, task_time, task_repeat):
+        headers = {'Authorization': f'jwt {token}'}
+        user_input = {'task_time': task_time,
+                      'task_repeat': task_repeat}
+        req = requests.put(url=f'https://restapi.10qu.com.cn/todo/{task_id}/',
+                           headers=headers,
+                           data=user_input)
+        return req.status_code == 200
+
+    @staticmethod
+    def update_task_level(token, task_id, task_time, task_level):
+        headers = {'Authorization': f'jwt {token}'}
+        user_input = {'task_time': task_time,
+                      'type': task_level}
+        req = requests.put(url=f'https://restapi.10qu.com.cn/todo/{task_id}/',
+                           headers=headers,
+                           data=user_input)
+        return req.status_code == 200
+
+    @staticmethod
+    def update_task_name(token, task_id, task_name):
+        headers = {'Authorization': f'jwt {token}'}
+        user_input = {'task_name': task_name}
+        req = requests.put(url=f'https://restapi.10qu.com.cn/todo/{task_id}/',
+                           headers=headers,
+                           data=user_input)
+        return req.status_code == 200
+
+    @staticmethod
+    def update_task_desc(token, task_id, task_time, task_desc):
+        headers = {'Authorization': f'jwt {token}'}
+        user_input = {'task_time': task_time,
+                      'task_desc': task_desc}
+        req = requests.put(url=f'https://restapi.10qu.com.cn/todo/{task_id}/',
+                           headers=headers,
+                           data=user_input)
+        return req.status_code == 200
+
+    @staticmethod
+    def delete_task(token, task_id):
+        headers = {'Authorization': f'jwt {token}'}
+        req = requests.delete(url=f'https://restapi.10qu.com.cn/todo/{task_id}/',
+                              headers=headers)
+        return req.status_code == 204
