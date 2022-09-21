@@ -144,7 +144,11 @@ class DashboardControl(UserControl):
                        expand=True,
                        alignment='center')
         col_dash = Column([Text(f'欢迎您，{dct_info.get("nickname")}', weight='bold', size=24, ),
-                           Text('以下是当前任务统计数据', weight='bold', size=18, color=colors.BLACK38, ),
+                           Text('以下是当前任务统计数据',
+                                weight='bold',
+                                size=18,
+                                # color=colors.BLACK38,
+                                ),
                            Container(content=row_info, expand=True)]
                           )
 

@@ -190,3 +190,12 @@ class APIRequest(object):
         req = requests.delete(url=f'https://restapi.10qu.com.cn/todo/{task_id}/',
                               headers=headers)
         return req.status_code == 204
+
+    @staticmethod
+    def add_task_list(token, list_name):
+        headers = {'Authorization': f'jwt {token}'}
+        user_input = {'name': list_name}
+        req = requests.post(url='https://restapi.10qu.com.cn/todo_from/',
+                            headers=headers,
+                            data=user_input)
+        return req.status_code == 201

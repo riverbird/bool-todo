@@ -70,7 +70,7 @@ class LoginControl(UserControl):
                                    expand=1,
                                    padding=padding.only(right=10, top=10, bottom=10),
                                    # margin=margin.only(right=10, bottom=10),
-                                   bgcolor=colors.WHITE,
+                                   # bgcolor=colors.WHITE,
                                    ),
                          Container(content=DashboardControl(dct_ret.get('token')),
                                    expand=4,

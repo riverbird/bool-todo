@@ -222,7 +222,7 @@ class TaskDetail(UserControl):
                      self.dpd_level,
                      ],
                 ),
-                bgcolor='white',
+                # bgcolor='white',
                 # expand=True,
                 padding=padding.only(left=10, right=10, top=20, bottom=20),
             )
@@ -239,7 +239,7 @@ class TaskDetail(UserControl):
             content=Container(
                 content=self.tf_comment,
                 # expand=True,
-                bgcolor='white',
+                # bgcolor='white',
                 # height=200,
                 padding=padding.all(10),
             )
@@ -253,30 +253,36 @@ class TaskDetail(UserControl):
         #                                 "%Y-%m-%d %H:%M:%S")
         create_time = self.task.task_info.get('create_time').split('.')[0]
         row_bottom = Row(
-            [Icon(name=icons.FORWARD, color=colors.BLACK38),
-             Text(f"{create_time}  创建", color=colors.BLACK38),
+            [Icon(name=icons.FORWARD,
+                  # color=colors.BLACK38
+                  ),
+             Text(f"{create_time}  创建",
+                  # color=colors.BLACK38
+                  ),
              IconButton(icon=icons.DELETE,
-                        icon_color=colors.BLACK38,
+                        # icon_color=colors.BLACK38,
                         on_click=self.on_task_delete),
              ],
         )
 
         col_detail = Column(
             [
-                Container(content=IconButton(icon=icons.CLOSE, icon_size=24, icon_color=colors.BLACK38,
+                Container(content=IconButton(icon=icons.CLOSE,
+                                             icon_size=24,
+                                             # icon_color=colors.BLACK38,
                                              on_click=self.on_close_click),
                           alignment=alignment.top_right,
                           ),
                 Container(content=row_top,
                           height=100,
-                          bgcolor='white',
+                          # bgcolor='white',
                           alignment=alignment.center_left,
                           padding=padding.only(left=10, right=10),
                           ),
                 card_basic,
                 card_comment,
                 Container(content=row_bottom,
-                          bgcolor='white',
+                          # bgcolor='white',
                           padding=padding.all(10),
                           alignment=alignment.bottom_left)
 

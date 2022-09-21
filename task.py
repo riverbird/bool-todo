@@ -51,7 +51,7 @@ class Task(UserControl):
                        alignment='start',
                        )
         container_task = Container(content=row_task,
-                                   bgcolor=colors.WHITE,
+                                   # bgcolor=colors.WHITE,
                                    border_radius=border_radius.all(5),
                                    # margin=margin.all(10),
                                    padding=padding.all(5),

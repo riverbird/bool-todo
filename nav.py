@@ -1,7 +1,7 @@
 from flet import Text, Container, Column, Icon, Row, TextButton, Image, \
     icons, alignment, colors, border, margin, border_radius, padding, \
     UserControl, ListTile, CircleAvatar, PopupMenuButton, PopupMenuItem, \
-    AlertDialog, Divider, SnackBar
+    AlertDialog, Divider, SnackBar, TextField
 import login
 from api_request import APIRequest
 from tasklist import TaskListControl
@@ -61,8 +61,19 @@ class NavControl(UserControl):
         self.dlg_about.open = True
         self.page.update()
 
+    def on_dlg_add_cate_click(self, e):
+        self.page.dialog = self.dlg_add_cate
+        self.dlg_add_cate.open = True
+        self.page.update()
+
     def on_dark_click(self, e):
-        self.page.theme_mode = 'dark'
+        if self.page.theme_mode == 'light':
+            self.page.theme_mode = 'dark'
+            self.pmi_color.text = '浅色模式'
+        else:
+            self.page.theme_mode = 'light'
+            self.pmi_color.text = '深色模式'
+        self.pmi_color.update()
         self.page.update()
 
     def on_logout(self, e):
@@ -129,6 +140,27 @@ class NavControl(UserControl):
 
         # self.col_nav.height = self.page.window_height
 
+    def on_dlg_add_cate_ok_click(self, e):
+        update_status = APIRequest.add_task_list(self.task.token,
+                                                 self.tf_cate.value)
+        if update_status is False:
+            self.page.snack_bar = SnackBar(Text("添加清单失败!"))
+            self.page.snack_bar.open = True
+            self.page.update()
+            return
+
+        nav_control = self.page.controls[0].controls[0].content
+        nav_control.update_todolist()
+        nav_control.col_nav.update()
+        nav_control.update()
+
+        self.dlg_add_cate.open = False
+        self.page.update()
+
+    def on_dlg_add_cate_cancel_click(self, e):
+        self.dlg_add_cate.open = False
+        self.page.update()
+
     def build(self):
         self.dlg_about = AlertDialog(modal=True,
                                      title=Text('关于'),
@@ -147,6 +179,23 @@ class NavControl(UserControl):
                                      on_dismiss=lambda e: print("Modal dialog dismissed!"),
 
                                      )
+
+        self.tf_cate = TextField(hint_text='请输入清单名称')
+        self.dlg_add_cate = AlertDialog(modal=True,
+                                        title=Text('添加清单'),
+                                        content=Column(controls=[self.tf_cate,
+                                                                 ],
+                                                       alignment='start',
+                                                       width=300,
+                                                       height=100,
+                                                       ),
+                                        actions=[TextButton("确定", on_click=self.on_dlg_add_cate_ok_click),
+                                                 TextButton("取消", on_click=self.on_dlg_add_cate_cancel_click)],
+                                        actions_alignment="end",
+                                        title_padding=20,
+                                        on_dismiss=lambda e: print("Modal dialog dismissed!"),
+
+                                        )
 
         self.lt_today = ListTile(leading=Icon(icons.TODAY),
                                  title=Text("今天"),
@@ -176,13 +225,14 @@ class NavControl(UserControl):
         #                                content=Text('头像'))
 
         self.text_user = Text('用户名', size=14)
-        self.pmb_option = PopupMenuButton(items=[PopupMenuItem(icon=icons.DARK_MODE,
-                                                               text='深色模式',
-                                                               on_click=self.on_dark_click),
+        self.pmi_color = PopupMenuItem(icon=icons.DARK_MODE,
+                                       text='深色模式',
+                                       on_click=self.on_dark_click)
+        self.pmb_option = PopupMenuButton(items=[self.pmi_color,
                                                  PopupMenuItem(icon=icons.HELP,
                                                                text='关于我们',
                                                                on_click=self.on_about_click),
-                                                 PopupMenuItem(icon=icons.ACCOUNT_BOX, text='账户安全'),
+                                                 # PopupMenuItem(icon=icons.ACCOUNT_BOX, text='账户安全'),
                                                  PopupMenuItem(icon=icons.LOGOUT,
                                                                text='退出登录',
                                                                on_click=self.on_logout),
@@ -218,6 +268,12 @@ class NavControl(UserControl):
                     leading=Icon(icons.LIST_ALT)
                 ),
                 self.col_cate,
+                ListTile(
+                    title=Text('添加清单'),
+                    leading=Icon(icons.ADD),
+                    dense=True,
+                    on_click=self.on_dlg_add_cate_click,
+                ),
             ],
             spacing=0,
             # expand=True,
@@ -229,4 +285,4 @@ class NavControl(UserControl):
         self.update_user_info()
         self.update_todolist()
 
-        return [self.col_nav, self.dlg_about]
+        return [self.col_nav, self.dlg_about, self.dlg_add_cate]
