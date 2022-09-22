@@ -1,6 +1,6 @@
-import requests, json
+import json
 from flet import Text, Card, Container, Column, Row, TextButton, TextField, Image, \
-    FilledButton, Tabs, Tab, icons, alignment, colors, border, margin, border_radius, \
+    FilledButton, Tabs, Tab, alignment, colors, border, margin, border_radius, \
     UserControl, padding, SnackBar
 from nav import NavControl
 from dashboard import DashboardControl
@@ -36,6 +36,7 @@ class LoginControl(UserControl):
 
     # 用户名密码登录
     def on_login_click(self, e):
+        # self.page.bgcolor = '#f2f4f8' if self.page.theme_mode == 'light' else colors.BLACK87
         if self.view_status != 0:
             return
         req = APIRequest.login_by_password(self.tf_phone_num.value, self.tf_password.value)
@@ -70,12 +71,14 @@ class LoginControl(UserControl):
                                    expand=1,
                                    padding=padding.only(right=10, top=10, bottom=10),
                                    # margin=margin.only(right=10, bottom=10),
-                                   # bgcolor=colors.WHITE,
+                                   # bgcolor=colors.WHITE if self.page.theme_mode == 'light' else colors.BLACK87,
+                                   bgcolor=colors.WHITE,
                                    ),
                          Container(content=DashboardControl(dct_ret.get('token')),
                                    expand=4,
                                    height=600,
                                    padding=padding.only(left=10, top=10, bottom=20, right=20),
+                                   # bgcolor='#f2f4f8' if self.page.theme_mode == 'light' else colors.BLACK87,
                                    ),
                          ],
                         alignment='spaceAround',
@@ -155,8 +158,10 @@ class LoginControl(UserControl):
     def build(self):
         self.view_status = 0  # 用于甄别具体是何登录注册视图
         self.tf_phone_num = TextField(label='手机号',
+                                      border='underline',
                                       value='13588459825')
         self.tf_password = TextField(label='密码',
+                                     border='underline',
                                      value='123456',
                                      password=True,
                                      can_reveal_password=True)
@@ -166,10 +171,12 @@ class LoginControl(UserControl):
                 content=Column(
                     [
                         self.tf_phone_num,
-                        Row(
-                            [self.tf_password,
-                             TextButton('忘记密码')]
-                        ),
+                        # Row(
+                        #     [self.tf_password,
+                        #      TextButton('忘记密码'),
+                        #      ]
+                        # ),
+                        self.tf_password,
                         FilledButton(text='登录', width=300, on_click=self.on_login_click),
                         TextButton('验证码登录', on_click=self.on_id_code_login_click)
                     ]
@@ -180,7 +187,8 @@ class LoginControl(UserControl):
             )
         )
 
-        self.tf_verify_code = TextField(label='验证码')
+        self.tf_verify_code = TextField(label='验证码',
+                                        border='underline',)
         self.card_login_id_code = Card(
             elevation=0,
             content=Container(
@@ -201,8 +209,14 @@ class LoginControl(UserControl):
             )
         )
 
-        self.tf_pass_1 = TextField(label='请输入密码', password=True, can_reveal_password=True)
-        self.tf_pass_2 = TextField(label='请确认密码', password=True, can_reveal_password=True)
+        self.tf_pass_1 = TextField(label='请输入密码',
+                                   border='underline',
+                                   password=True,
+                                   can_reveal_password=True)
+        self.tf_pass_2 = TextField(label='请确认密码',
+                                   border='underline',
+                                   password=True,
+                                   can_reveal_password=True)
         self.card_reg = Card(
             elevation=0,
             content=Container(

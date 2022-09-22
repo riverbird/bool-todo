@@ -1,6 +1,6 @@
 from flet import Text, Container, Column, Icon, Row, TextButton, Image, \
-    icons, alignment, colors, border, margin, border_radius, padding, \
-    UserControl, ListTile, CircleAvatar, PopupMenuButton, PopupMenuItem, \
+    icons, border_radius, padding, \
+    UserControl, ListTile, PopupMenuButton, PopupMenuItem, \
     AlertDialog, Divider, SnackBar, TextField
 import login
 from api_request import APIRequest
@@ -162,6 +162,11 @@ class NavControl(UserControl):
         self.page.update()
 
     def build(self):
+        md_info = """
+## 拾趣清单v2.0(alpha)
+西安鸿途四海网络科技有限公司 出品
+官网: [http://www.10qu.com.cn](http://www.10qu.com.cn)
+        """
         self.dlg_about = AlertDialog(modal=True,
                                      title=Text('关于'),
                                      content=Column(controls=[Divider(height=1, color='gray'),
@@ -173,6 +178,8 @@ class NavControl(UserControl):
                                                     width=300,
                                                     height=100,
                                                     ),
+                                     # content=Markdown(md_info,
+                                     #                  expand=True),
                                      actions=[TextButton("确定", on_click=self.on_about_ok_click), ],
                                      actions_alignment="end",
                                      title_padding=20,
@@ -228,7 +235,7 @@ class NavControl(UserControl):
         self.pmi_color = PopupMenuItem(icon=icons.DARK_MODE,
                                        text='深色模式',
                                        on_click=self.on_dark_click)
-        self.pmb_option = PopupMenuButton(items=[self.pmi_color,
+        self.pmb_option = PopupMenuButton(items=[# self.pmi_color,
                                                  PopupMenuItem(icon=icons.HELP,
                                                                text='关于我们',
                                                                on_click=self.on_about_click),
@@ -262,7 +269,7 @@ class NavControl(UserControl):
                 self.lt_today,
                 self.lt_week,
                 self.lt_pass,
-                self.lt_all,
+                # self.lt_all,
                 ListTile(
                     title=Text("清单", weight='bold'),
                     leading=Icon(icons.LIST_ALT)

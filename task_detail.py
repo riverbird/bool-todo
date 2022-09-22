@@ -1,6 +1,6 @@
-from flet import Text, Container, Column, Icon, Row, TextButton, TextField, Image, \
-    icons, alignment, colors, border, margin, border_radius, padding, \
-    UserControl, ListTile, Switch, VerticalDivider, Checkbox, AnimatedSwitcher, Card, \
+from flet import Text, Container, Column, Icon, Row, TextField, \
+    icons, alignment,  padding, \
+    UserControl, Checkbox,  Card, \
     Dropdown, IconButton, dropdown, SnackBar
 from api_request import APIRequest
 from datetime import datetime, timedelta
@@ -48,7 +48,7 @@ class TaskDetail(UserControl):
             delta = 1 - datetime.today().isoweekday()
             if delta <= 0:
                 delta += 7
-            new_date = datetime.today() + timedelta(delta)
+            new_date = (datetime.today() + timedelta(delta)).strftime('%Y-%m-%d')
         # 调用更新任务日期接口
         update_status = APIRequest.update_task_time(self.task.token,
                                                     self.task.task_info.get('id'),
@@ -144,7 +144,7 @@ class TaskDetail(UserControl):
 
     def on_task_delete(self, e):
         update_status = APIRequest.delete_task(self.task.token,
-                                                    self.task.task_info.get('id'))
+                                               self.task.task_info.get('id'))
         if update_status is False:
             self.page.snack_bar = SnackBar(Text("删除失败!"))
             self.page.snack_bar.open = True
@@ -206,7 +206,7 @@ class TaskDetail(UserControl):
         self.dpd_level = Dropdown(width=300,
                                   height=50,
                                   hint_text='象限',
-                                  icon=icons.LABEL_IMPORTANT,
+                                  icon=icons.PRIORITY_HIGH,
                                   on_change=self.on_task_level_change,
                                   )
         for itm in lst_level:
@@ -248,6 +248,14 @@ class TaskDetail(UserControl):
         row_top = Row(
             [self.cb_name, self.tf_task_name],
         )
+        card_top = Card(
+            Container(content=row_top,
+                      height=100,
+                      # bgcolor='white',
+                      alignment=alignment.center_left,
+                      padding=padding.only(left=10, right=10),
+                      )
+        )
 
         # create_time = datetime.strptime(self.task.task_info.get('create_time'),
         #                                 "%Y-%m-%d %H:%M:%S")
@@ -273,12 +281,7 @@ class TaskDetail(UserControl):
                                              on_click=self.on_close_click),
                           alignment=alignment.top_right,
                           ),
-                Container(content=row_top,
-                          height=100,
-                          # bgcolor='white',
-                          alignment=alignment.center_left,
-                          padding=padding.only(left=10, right=10),
-                          ),
+                card_top,
                 card_basic,
                 card_comment,
                 Container(content=row_bottom,

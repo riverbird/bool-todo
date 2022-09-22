@@ -1,8 +1,7 @@
-import requests, json
 from datetime import datetime
-from flet import Text, Container, Column, Icon, Row, TextButton, TextField, Image, \
-    icons, alignment, colors, border, margin, border_radius, padding, \
-    UserControl, ListTile, Switch, SnackBar
+from flet import Text, Container, Column, Icon, Row, TextField, \
+    icons, alignment, colors, padding, \
+    UserControl, Switch, SnackBar, ListView
 from task import Task
 from api_request import APIRequest
 
@@ -33,7 +32,8 @@ class TaskListControl(UserControl):
             return
         if self.container_empty in self.col_tasklist.controls:
             self.col_tasklist.controls.remove(self.container_empty)
-        self.col_task.controls.clear()
+        # self.col_task.controls.clear()
+        self.lv_task.controls.clear()
         for itm in lst_ret:
             if self.show_finished is False:
                 if itm.get('task_status') is True:
@@ -41,7 +41,8 @@ class TaskListControl(UserControl):
             task_item = Task(self,
                              self.token,
                              itm)
-            self.col_task.controls.append(task_item)
+            # self.col_task.controls.append(task_item)
+            self.lv_task.controls.append(task_item)
 
     def on_switch_show_finished(self, e):
         self.show_finished = e.control.value
@@ -87,16 +88,22 @@ class TaskListControl(UserControl):
         self.input_task = TextField(hint_text='添加任务',
                                     prefix_icon=icons.ADD,
                                     expand=True,
-                                    filled=False,
+                                    filled=True,
+                                    border='none',
+                                    border_radius=10,
                                     height=50,
-                                    bgcolor=colors.GREEN_200,
+                                    bgcolor='#CEE8E8',
                                     on_submit=self.on_input_task_submit)
         self.col_task = Column(alignment='start',
                                # expand=True,
                                spacing=15,
                                height=620,
-                               scroll='hidden',
-                               )
+                               scroll='hidden')
+        self.lv_task = ListView(expand=True,
+                                spacing=10,
+                                padding=20,
+                                # auto_scroll=True,
+                                )
         col_empty = Column([Icon(name=icons.LIST_SHARP,
                                  color=colors.BLACK12,
                                  size=128,
@@ -138,8 +145,9 @@ class TaskListControl(UserControl):
                           padding=padding.only(top=20, bottom=20),
                           ),
                 self.container_empty,
-                Container(content=self.col_task,
+                Container(content=self.lv_task,
                           # expand=True,
+                          height=650,
                           padding=padding.only(bottom=15,)
                           ),
                 Container(content=Row([self.input_task, ],

@@ -5,7 +5,7 @@ from login import LoginControl
 
 def main(page: Page):
     page.title = '拾趣清单'
-    # page.bgcolor = '#f2f4f8'
+    page.bgcolor = '#f2f4f8'
     page.vertical_alignment = 'center'
     page.horizontal_alignment = 'center'
     page.theme_mode = 'light'

@@ -1,8 +1,6 @@
-import requests, json
-from datetime import datetime
-from flet import Text, Container, Column, Icon, Row, TextButton, TextField, Image, \
-    icons, alignment, colors, border, margin, border_radius, padding, \
-    UserControl, ListTile, Switch, VerticalDivider, Checkbox, Card, GridView
+from flet import Text, Container, Column, Icon, Row,  \
+    icons, colors, padding, \
+    UserControl,  Card
 from api_request import APIRequest
 from tasklist import TaskListControl
 import nav
@@ -147,7 +145,7 @@ class DashboardControl(UserControl):
                            Text('以下是当前任务统计数据',
                                 weight='bold',
                                 size=18,
-                                # color=colors.BLACK38,
+                                color=colors.BLACK38,
                                 ),
                            Container(content=row_info, expand=True)]
                           )
