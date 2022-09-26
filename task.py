@@ -1,6 +1,6 @@
 from flet import Text, Container, Column, Row, \
     colors, border_radius, padding, \
-    UserControl, Checkbox, Card
+    UserControl, Checkbox, Card, alignment, Alignment, Icon, icons
 from api_request import APIRequest
 from task_detail import TaskDetail
 
@@ -60,7 +60,13 @@ class Task(UserControl):
             Column(controls=[Text(self.task_info.get('task_name'),
                                   size=16,
                                   italic=self.task_info.get('task_status')),
-                             self.tt_task_time])
+                             Row([self.tt_task_time,
+                                  Icon(name=icons.REPEAT,
+                                       size=12,
+                                       color=colors.BLACK54,
+                                       visible=self.task_info.get('task_repeat') > 0),
+                                  ]),
+                             ]),
         ],
             alignment='start',
         )

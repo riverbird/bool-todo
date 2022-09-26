@@ -107,11 +107,13 @@ class APIRequest(object):
                       'task_time': task_time,
                       'todo_from': task_cate,
                       'type': task_type}
+        if task_cate is None or task_cate == '' or task_cate in ['today', 'future', 'expired']:
+            del user_input['todo_from']
         req = requests.post(url='https://restapi.10qu.com.cn/todo/',
                             headers=headers,
                             data=user_input)
         # json_req = json.loads(req.text)
-        return req.status_code in [200, 201]
+        return req.status_code == 201
 
     @staticmethod
     def update_task_status(token, task_id):

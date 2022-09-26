@@ -16,8 +16,9 @@ class NavControl(UserControl):
         self.token = token
 
     def on_dashboard_click(self, e):
-        right_ctn = self.page.controls[0].controls[1]
-        self.page.controls[0].controls.remove(right_ctn)
+        # right_ctn = self.page.controls[0].controls[1:]
+        # self.page.controls[0].controls.remove(right_ctn)
+        del self.page.controls[0].controls[1:]
         dashboard = Container(content=DashboardControl(self.token),
                               expand=4,
                               height=600,

@@ -159,10 +159,11 @@ class LoginControl(UserControl):
         self.view_status = 0  # 用于甄别具体是何登录注册视图
         self.tf_phone_num = TextField(label='手机号',
                                       border='underline',
-                                      value='13588459825')
+                                      # value='13588459825',
+                                      )
         self.tf_password = TextField(label='密码',
                                      border='underline',
-                                     value='123456',
+                                     # value='123456',
                                      password=True,
                                      can_reveal_password=True)
         self.card_login = Card(
