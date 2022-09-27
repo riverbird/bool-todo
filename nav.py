@@ -1,7 +1,7 @@
 from flet import Text, Container, Column, Icon, Row, TextButton, Image, \
     icons, border_radius, padding, \
     UserControl, ListTile, PopupMenuButton, PopupMenuItem, \
-    AlertDialog, Divider, SnackBar, TextField
+    AlertDialog, Divider, SnackBar, TextField, colors
 import login
 from api_request import APIRequest
 from tasklist import TaskListControl
@@ -46,7 +46,7 @@ class NavControl(UserControl):
                                                          list_title_text,
                                                          False),
                                  expand=4,
-                                 padding=padding.only(left=10, top=10, bottom=20, right=20),
+                                 padding=padding.only(left=10, top=10, bottom=20, right=10),
                                  )
         self.page.controls[0].controls.append(ctn_tasklist)
         self.col_nav.update()
@@ -110,6 +110,10 @@ class NavControl(UserControl):
         self.col_nav.update()
         self.page.update()
 
+    def on_list_tile_hover(self, e):
+        e.control.bgcolor = colors.BLACK12 if e.data == "true" else colors.WHITE
+        e.control.update()
+
     def update_user_info(self):
         dct_ret = APIRequest.query_user_info(self.token)
         self.text_user.value = dct_ret.get('nick_name', '用户名')
@@ -134,8 +138,10 @@ class NavControl(UserControl):
                                selected=False,
                                dense=True,
                                on_click=self.on_cate_click)
+            ctn_cate = Container(content=lt_cate,
+                                 on_hover=self.on_list_tile_hover)
             # self.col_nav.controls.append(lt_cate)
-            self.col_cate.controls.append(lt_cate)
+            self.col_cate.controls.append(ctn_cate)
             self.dct_cate[lt_cate] = itm.get('from_id')
             self.dct_cate_title[itm.get('from_id')] = itm.get("name")
 
@@ -236,17 +242,17 @@ class NavControl(UserControl):
         self.pmi_color = PopupMenuItem(icon=icons.DARK_MODE,
                                        text='深色模式',
                                        on_click=self.on_dark_click)
-        self.pmb_option = PopupMenuButton(items=[# self.pmi_color,
-                                                 PopupMenuItem(icon=icons.HELP,
-                                                               text='关于我们',
-                                                               on_click=self.on_about_click),
-                                                 # PopupMenuItem(icon=icons.ACCOUNT_BOX, text='账户安全'),
-                                                 PopupMenuItem(icon=icons.LOGOUT,
-                                                               text='退出登录',
-                                                               on_click=self.on_logout),
-                                                 ],
-                                          icon=icons.HELP,
-                                          )
+        self.pmb_option = PopupMenuButton(items=[  # self.pmi_color,
+            PopupMenuItem(icon=icons.HELP,
+                          text='关于我们',
+                          on_click=self.on_about_click),
+            # PopupMenuItem(icon=icons.ACCOUNT_BOX, text='账户安全'),
+            PopupMenuItem(icon=icons.LOGOUT,
+                          text='退出登录',
+                          on_click=self.on_logout),
+        ],
+            icon=icons.HELP,
+        )
         self.row_head = Row(controls=[self.img_avatar,
                                       self.text_user,
                                       self.pmb_option],
@@ -258,29 +264,37 @@ class NavControl(UserControl):
         self.col_nav = Column(
             [
                 self.row_head,
-                ListTile(
+                Container(content=ListTile(
                     title=Text("仪表盘", weight='bold'),
                     leading=Icon(icons.DASHBOARD),
                     on_click=self.on_dashboard_click,
+                ),
+                    on_hover=self.on_list_tile_hover
                 ),
                 ListTile(
                     title=Text("列表", weight='bold'),
                     leading=Icon(icons.LIST_ALT_SHARP)
                 ),
-                self.lt_today,
-                self.lt_week,
-                self.lt_pass,
+                Container(content=self.lt_today,
+                          on_hover=self.on_list_tile_hover,
+                          ),
+                Container(content=self.lt_week,
+                          on_hover=self.on_list_tile_hover),
+                Container(content=self.lt_pass,
+                          on_hover=self.on_list_tile_hover),
                 # self.lt_all,
                 ListTile(
                     title=Text("清单", weight='bold'),
                     leading=Icon(icons.LIST_ALT)
                 ),
                 self.col_cate,
-                ListTile(
+                Container(content=ListTile(
                     title=Text('添加清单'),
                     leading=Icon(icons.ADD),
                     dense=True,
                     on_click=self.on_dlg_add_cate_click,
+                ),
+                    on_hover=self.on_list_tile_hover
                 ),
             ],
             spacing=0,

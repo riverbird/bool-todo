@@ -101,7 +101,7 @@ class TaskListControl(UserControl):
                                scroll='hidden')
         self.lv_task = ListView(expand=True,
                                 spacing=10,
-                                padding=20,
+                                padding=10,
                                 # auto_scroll=True,
                                 )
         col_empty = Column([Icon(name=icons.LIST_SHARP,
