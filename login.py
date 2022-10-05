@@ -56,35 +56,7 @@ class LoginControl(UserControl):
         # x = self.page.client_storage.get('nickname')
         # self.page.client_storage.update()
 
-        self.page.clean()
-        self.page.horizontal_alignment = 'start'
-        self.page.vertical_alignment = 'start'
-        self.page.padding = 0
-        # self.page.scroll = 'auto'
-        # self.page.auto_scroll = True
-        rows_main = Row([Container(content=NavControl(self.page.width,
-                                                      self.page.height,
-                                                      dct_ret.get('token')),
-                                   # width=300,
-                                   # height=self.page.window_height + 10,
-                                   # height=800,
-                                   expand=1,
-                                   padding=padding.only(right=10, top=10, bottom=10),
-                                   # margin=margin.only(right=10, bottom=10),
-                                   # bgcolor=colors.WHITE if self.page.theme_mode == 'light' else colors.BLACK87,
-                                   bgcolor=colors.WHITE,
-                                   ),
-                         Container(content=DashboardControl(dct_ret.get('token')),
-                                   expand=4,
-                                   height=600,
-                                   padding=padding.only(left=10, top=10, bottom=20, right=20),
-                                   # bgcolor='#f2f4f8' if self.page.theme_mode == 'light' else colors.BLACK87,
-                                   ),
-                         ],
-                        alignment='spaceAround',
-                        vertical_alignment='start',
-                        )
-        self.page.add(rows_main)
+        self.show_main_interface(dct_ret.get('token'))
 
     def on_code_login_click(self, e):
         if self.view_status != 1:
@@ -105,33 +77,7 @@ class LoginControl(UserControl):
         # x = self.page.client_storage.get('nickname')
         # self.page.client_storage.update()
 
-        self.page.clean()
-        self.page.horizontal_alignment = 'start'
-        self.page.vertical_alignment = 'start'
-        self.page.padding = 0
-        # self.page.scroll = 'auto'
-        # self.page.auto_scroll = True
-        rows_main = Row([Container(content=NavControl(self.page.width,
-                                                      self.page.height,
-                                                      dct_ret.get('token')),
-                                   # width=300,
-                                   # height=self.page.window_height + 10,
-                                   # height=800,
-                                   expand=1,
-                                   padding=padding.only(right=10, top=10, bottom=10),
-                                   # margin=margin.only(right=10, bottom=10),
-                                   bgcolor=colors.WHITE,
-                                   ),
-                         Container(content=DashboardControl(dct_ret.get('token')),
-                                   expand=4,
-                                   height=600,
-                                   padding=padding.only(left=10, top=10, bottom=20, right=20),
-                                   ),
-                         ],
-                        alignment='spaceAround',
-                        vertical_alignment='start',
-                        )
-        self.page.add(rows_main)
+        self.show_main_interface(dct_ret.get('token'))
 
     # 用户通过用户名密码进行注册
     def on_reg_click(self, e):
@@ -155,15 +101,49 @@ class LoginControl(UserControl):
         self.page.snack_bar.open = True
         self.page.update()
 
+    def show_main_interface(self, token):
+        self.page.clean()
+        self.page.horizontal_alignment = 'start'
+        self.page.vertical_alignment = 'start'
+        self.page.padding = 0
+        # self.page.scroll = 'auto'
+        # self.page.auto_scroll = True
+        rows_main = Row([Container(content=NavControl(self.page.width,
+                                                      self.page.height,
+                                                      token),
+                                   # width=300,
+                                   # height=self.page.window_height + 10,
+                                   # height=800,
+                                   expand=1,
+                                   padding=padding.only(right=10, top=10, bottom=10),
+                                   # margin=margin.only(right=10, bottom=10),
+                                   # bgcolor=colors.WHITE if self.page.theme_mode == 'light' else colors.BLACK87,
+                                   bgcolor=colors.WHITE,
+                                   ),
+                         Container(content=DashboardControl(token),
+                                   expand=4,
+                                   # height=600,
+                                   padding=padding.only(left=10, top=10, bottom=20, right=20),
+                                   # bgcolor='#f2f4f8' if self.page.theme_mode == 'light' else colors.BLACK87,
+                                   ),
+                         ],
+                        alignment='spaceAround',
+                        vertical_alignment='start',
+                        )
+        ctn_main = Container(content=rows_main,
+                             expand=True,
+                             )
+        self.page.add(ctn_main)
+
     def build(self):
         self.view_status = 0  # 用于甄别具体是何登录注册视图
         self.tf_phone_num = TextField(label='手机号',
                                       border='underline',
-                                      # value='13588459825',
+                                      value='13588459825',
                                       )
         self.tf_password = TextField(label='密码',
                                      border='underline',
-                                     # value='123456',
+                                     value='123456',
                                      password=True,
                                      can_reveal_password=True)
         self.card_login = Card(

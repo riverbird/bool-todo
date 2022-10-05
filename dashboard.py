@@ -1,6 +1,6 @@
-from flet import Text, Container, Column, Icon, Row,  \
+from flet import Text, Container, Column, Icon, Row, \
     icons, colors, padding, \
-    UserControl,  Card
+    UserControl, Card
 from api_request import APIRequest
 from tasklist import TaskListControl
 import nav
@@ -47,20 +47,24 @@ class DashboardControl(UserControl):
                                  # height=600,
                                  padding=padding.only(left=10, top=10, right=20),
                                  )
-        rows_today = Row([Container(content=nav.NavControl(self.page.width,
-                                                           self.page.height,
-                                                           self.token),
-                                    # width=300,
-                                    expand=1,
-                                    padding=padding.only(right=10, top=10),
-                                    bgcolor=colors.WHITE,
-                                    ),
-                          ctn_tasklist,
-                          ],
-                         alignment='spaceAround',
-                         vertical_alignment='start',
-                         )
-        self.page.add(rows_today)
+        ctn_nav = Container(content=nav.NavControl(self.page.width,
+                                                   self.page.height,
+                                                   self.token),
+                            # width=300,
+                            expand=1,
+                            padding=padding.only(right=10, top=10),
+                            bgcolor=colors.WHITE,
+                            )
+        rows_main = Row([ctn_nav,
+                         ctn_tasklist,
+                         ],
+                        alignment='spaceAround',
+                        vertical_alignment='start',
+                        )
+        ctn_main = Container(content=rows_main,
+                             expand=True,
+                             )
+        self.page.add(ctn_main)
         self.page.update()
 
     def on_today_click(self, e):

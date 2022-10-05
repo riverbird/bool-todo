@@ -16,15 +16,14 @@ class NavControl(UserControl):
         self.token = token
 
     def on_dashboard_click(self, e):
-        # right_ctn = self.page.controls[0].controls[1:]
-        # self.page.controls[0].controls.remove(right_ctn)
-        del self.page.controls[0].controls[1:]
+        del self.page.controls[0].content.controls[1:]
         dashboard = Container(content=DashboardControl(self.token),
                               expand=4,
                               height=600,
                               padding=padding.only(left=10, top=10, bottom=20, right=20),
                               )
-        self.page.controls[0].controls.append(dashboard)
+        # self.page.controls[0].controls.append(dashboard)
+        self.page.controls[0].content.controls.append(dashboard)
         self.page.update()
 
     def on_list_click(self, e):
@@ -36,9 +35,7 @@ class NavControl(UserControl):
             list_name = 'future'
         elif list_title_text == '已过期':
             list_name = 'expired'
-        # cnt_tasklist = self.page.controls[0].controls[1]
-        # self.page.controls[0].controls.remove(cnt_tasklist)
-        del self.page.controls[0].controls[1:]
+        del self.page.controls[0].content.controls[1:]
         ctn_tasklist = Container(content=TaskListControl(self.page.width,
                                                          self.page.height,
                                                          self.token,
@@ -48,7 +45,8 @@ class NavControl(UserControl):
                                  expand=4,
                                  padding=padding.only(left=10, top=10, bottom=20, right=10),
                                  )
-        self.page.controls[0].controls.append(ctn_tasklist)
+        # self.page.controls[0].controls.append(ctn_tasklist)
+        self.page.controls[0].content.controls.append(ctn_tasklist)
         self.col_nav.update()
         self.page.update()
 
@@ -96,7 +94,8 @@ class NavControl(UserControl):
         cate_title = self.dct_cate_title.get(cate_id)
         # cnt_tasklist = self.page.controls[0].controls[1]
         # self.page.controls[0].controls.remove(cnt_tasklist)
-        del self.page.controls[0].controls[1:]
+        # del self.page.controls[0].controls[1:]
+        del self.page.controls[0].content.controls[1:]
         ctn_tasks = Container(content=TaskListControl(self.page.width,
                                                       self.page.height,
                                                       self.token,
@@ -106,7 +105,8 @@ class NavControl(UserControl):
                               expand=4,
                               padding=padding.only(left=10, top=10, right=20),
                               )
-        self.page.controls[0].controls.append(ctn_tasks)
+        # self.page.controls[0].controls.append(ctn_tasks)
+        self.page.controls[0].content.controls.append(ctn_tasks)
         self.col_nav.update()
         self.page.update()
 
@@ -299,8 +299,8 @@ class NavControl(UserControl):
             ],
             spacing=0,
             # expand=True,
-            height=780,
-            alignment='start',
+            # height=780,
+            # alignment='start',
             scroll='hidden',
         )
 

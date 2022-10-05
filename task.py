@@ -20,22 +20,22 @@ class Task(UserControl):
                 self.task_control.query_tasks_by_list(self.task_control.list_name)
                 self.task_control.update()
 
-                nav_control = self.page.controls[0].controls[0].content
+                nav_control = self.page.controls[0].content.controls[0].content
                 nav_control.update_todolist()
                 nav_control.col_nav.update()
                 nav_control.update()
 
     def on_detail_hover(self, e):
         if e.data == "false":
-            if len(self.page.controls[0].controls) == 3:
-                detail_control = self.page.controls[0].controls[2]
-                self.page.controls[0].controls.remove(detail_control)
+            if len(self.page.controls[0].content.controls) == 3:
+                detail_control = self.page.controls[0].content.controls[2]
+                self.page.controls[0].content.controls.remove(detail_control)
                 self.page.update()
 
     def on_task_item_click(self, e):
-        if len(self.page.controls[0].controls) == 3:
-            detail_control = self.page.controls[0].controls[2]
-            self.page.controls[0].controls.remove(detail_control)
+        if len(self.page.controls[0].content.controls) == 3:
+            detail_control = self.page.controls[0].content.controls[2]
+            self.page.controls[0].content.controls.remove(detail_control)
             self.page.update()
             return
         detail_info = TaskDetail(self)
@@ -43,7 +43,7 @@ class Task(UserControl):
                                width=300,
                                # on_hover=self.on_detail_hover,
                                )
-        self.page.controls[0].controls.append(ctn_detail)
+        self.page.controls[0].content.controls.append(ctn_detail)
         self.page.update()
 
     def build(self):
