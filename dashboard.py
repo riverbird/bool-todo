@@ -37,9 +37,7 @@ class DashboardControl(UserControl):
             list_title = '已过期'
         else:
             list_title = '未知'
-        ctn_tasklist = Container(content=TaskListControl(self.page.width,
-                                                         self.page.height,
-                                                         self.token,
+        ctn_tasklist = Container(content=TaskListControl(self.token,
                                                          list_name,
                                                          list_title,
                                                          False),

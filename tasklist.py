@@ -7,10 +7,8 @@ from api_request import APIRequest
 
 
 class TaskListControl(UserControl):
-    def __init__(self, page_width, page_height, token, list_name, list_title, show_finished):
+    def __init__(self, token, list_name, list_title, show_finished):
         super().__init__()
-        self.page_width = page_width
-        self.page_height = page_height
         self.token = token
         self.list_name = list_name
         self.list_title = list_title

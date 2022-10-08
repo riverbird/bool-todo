@@ -4,8 +4,11 @@ from login import LoginControl
 from nav import NavControl
 from dashboard import DashboardControl
 from api_request import APIRequest
+
+
 def show_login_interface(page):
     page.add(LoginControl())
+
 
 def show_main_interface(page, token):
     page.clean()
@@ -62,8 +65,9 @@ def main(page: Page):
                                   use_material3=False
                                   )
     token = page.client_storage.get('token')
-    print(token)
+    # print(token)
     if token is not None:
+        token = token.strip('"')
         dct_ret = APIRequest.query_user_info(token)
         if dct_ret is not None:
             show_main_interface(page, token)

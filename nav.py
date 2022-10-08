@@ -34,9 +34,7 @@ class NavControl(UserControl):
         elif list_title_text == '已过期':
             list_name = 'expired'
         del self.page.controls[0].content.controls[1:]
-        ctn_tasklist = Container(content=TaskListControl(self.page.width,
-                                                         self.page.height,
-                                                         self.token,
+        ctn_tasklist = Container(content=TaskListControl(self.token,
                                                          list_name,
                                                          list_title_text,
                                                          False),
@@ -95,9 +93,7 @@ class NavControl(UserControl):
         # self.page.controls[0].controls.remove(cnt_tasklist)
         # del self.page.controls[0].controls[1:]
         del self.page.controls[0].content.controls[1:]
-        ctn_tasks = Container(content=TaskListControl(self.page.width,
-                                                      self.page.height,
-                                                      self.token,
+        ctn_tasks = Container(content=TaskListControl(self.token,
                                                       cate_id,
                                                       cate_title,
                                                       False),

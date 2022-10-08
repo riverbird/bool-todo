@@ -1,7 +1,7 @@
 from flet import Text, Container, Column, Icon, Row, TextField, \
     icons, alignment,  padding, \
     UserControl, Checkbox,  Card, \
-    Dropdown, IconButton, dropdown, SnackBar
+    Dropdown, IconButton, dropdown, SnackBar, colors
 from api_request import APIRequest
 from datetime import datetime, timedelta
 
@@ -251,7 +251,7 @@ class TaskDetail(UserControl):
         card_top = Card(
             Container(content=row_top,
                       height=100,
-                      # bgcolor='white',
+                      # bgcolor='#f2f4f8',
                       alignment=alignment.center_left,
                       padding=padding.only(left=10, right=10),
                       )

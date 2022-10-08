@@ -1,6 +1,6 @@
 from flet import Text, Container, Column, Row, \
     colors, border_radius, padding, \
-    UserControl, Checkbox, Card, alignment, Alignment, Icon, icons
+    UserControl, Checkbox, Card, alignment, Alignment, Icon, icons, border
 from api_request import APIRequest
 from task_detail import TaskDetail
 
@@ -41,6 +41,9 @@ class Task(UserControl):
         detail_info = TaskDetail(self)
         ctn_detail = Container(content=detail_info,
                                width=300,
+                               # bgcolor=colors.WHITE,
+                               bgcolor='#f2f4f8',
+                               border=border.all(1, colors.BLACK12),
                                # on_hover=self.on_detail_hover,
                                )
         self.page.controls[0].content.controls.append(ctn_detail)
