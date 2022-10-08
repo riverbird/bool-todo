@@ -12,9 +12,9 @@ class TaskDetail(UserControl):
         self.task = task
 
     def on_close_click(self, e):
-        if len(self.page.controls[0].controls) == 3:
-            detail_control = self.page.controls[0].controls[2]
-            self.page.controls[0].controls.remove(detail_control)
+        if len(self.page.controls[0].content.controls) == 3:
+            detail_control = self.page.controls[0].content.controls[2]
+            self.page.controls[0].content.controls.remove(detail_control)
             self.page.update()
 
     def query_tasks_cate(self):
@@ -27,7 +27,7 @@ class TaskDetail(UserControl):
 
     def refresh(self):
         # 更新导航栏
-        nav_control = self.page.controls[0].controls[0].content
+        nav_control = self.page.controls[0].content.controls[0].content
         nav_control.update_todolist()
         nav_control.col_nav.update()
         nav_control.update()

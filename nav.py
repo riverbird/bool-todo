@@ -1,5 +1,5 @@
-from flet import Text, Container, Column, Icon, Row, TextButton, Image, \
-    icons, border_radius, padding, \
+from flet import Text, Container, Column, Icon, Row, TextButton, \
+    icons, border_radius, padding, Image,  \
     UserControl, ListTile, PopupMenuButton, PopupMenuItem, \
     AlertDialog, Divider, SnackBar, TextField, colors
 import login
@@ -9,10 +9,8 @@ from dashboard import DashboardControl
 
 
 class NavControl(UserControl):
-    def __init__(self, page_width, page_height, token):
+    def __init__(self, token):
         super().__init__()
-        self.page_width = page_width
-        self.page_height = page_height
         self.token = token
 
     def on_dashboard_click(self, e):
@@ -44,6 +42,7 @@ class NavControl(UserControl):
                                                          False),
                                  expand=4,
                                  padding=padding.only(left=10, top=10, bottom=20, right=10),
+                                 # margin=margin.only(bottom=20),
                                  )
         # self.page.controls[0].controls.append(ctn_tasklist)
         self.page.controls[0].content.controls.append(ctn_tasklist)
@@ -298,7 +297,7 @@ class NavControl(UserControl):
                 ),
             ],
             spacing=0,
-            # expand=True,
+            expand=True,
             # height=780,
             # alignment='start',
             scroll='hidden',

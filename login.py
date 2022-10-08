@@ -108,9 +108,7 @@ class LoginControl(UserControl):
         self.page.padding = 0
         # self.page.scroll = 'auto'
         # self.page.auto_scroll = True
-        rows_main = Row([Container(content=NavControl(self.page.width,
-                                                      self.page.height,
-                                                      token),
+        rows_main = Row([Container(content=NavControl(token),
                                    # width=300,
                                    # height=self.page.window_height + 10,
                                    # height=800,

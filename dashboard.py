@@ -47,9 +47,7 @@ class DashboardControl(UserControl):
                                  # height=600,
                                  padding=padding.only(left=10, top=10, right=20),
                                  )
-        ctn_nav = Container(content=nav.NavControl(self.page.width,
-                                                   self.page.height,
-                                                   self.token),
+        ctn_nav = Container(content=nav.NavControl(self.token),
                             # width=300,
                             expand=1,
                             padding=padding.only(right=10, top=10),

@@ -1,7 +1,7 @@
 from datetime import datetime
 from flet import Text, Container, Column, Icon, Row, TextField, \
     icons, alignment, colors, padding, \
-    UserControl, Switch, SnackBar, ListView
+    UserControl, Switch, SnackBar, ListView, margin
 from task import Task
 from api_request import APIRequest
 
@@ -72,7 +72,7 @@ class TaskListControl(UserControl):
         self.input_task.value = ''
         self.update()
 
-        nav_control = self.page.controls[0].controls[0].content
+        nav_control = self.page.controls[0].content.controls[0].content
         nav_control.update_todolist()
         nav_control.col_nav.update()
         nav_control.update()
@@ -146,8 +146,8 @@ class TaskListControl(UserControl):
                           ),
                 self.container_empty,
                 Container(content=self.lv_task,
-                          # expand=True,
-                          height=650,
+                          expand=True,
+                          # height=650,
                           padding=padding.only(bottom=15,)
                           ),
                 Container(content=Row([self.input_task, ],
@@ -155,9 +155,9 @@ class TaskListControl(UserControl):
                                       # vertical_alignment='end',
                                       ),
                           alignment=alignment.top_left,
-                          height=50,
-                          # margin=margin.only(bottom=10,)
-                          # padding=padding.only(top=10, bottom=10),
+                          height=70,
+                          # margin=margin.only(bottom=20,),
+                          padding=padding.only(bottom=20),
                           # expand=1,
                           ),
             ],
