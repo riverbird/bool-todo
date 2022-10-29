@@ -172,7 +172,7 @@ class NavControl(UserControl):
         self.dlg_about = AlertDialog(modal=True,
                                      title=Text('关于'),
                                      content=Column(controls=[Divider(height=1, color='gray'),
-                                                              Text('拾趣清单v2.0(alpha)'),
+                                                              Text('拾趣清单v2.0.1'),
                                                               Text('西安鸿途四海网络科技有限公司 出品'),
                                                               Text('官网: http://www.10qu.com.cn'),
                                                               ],

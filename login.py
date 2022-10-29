@@ -137,11 +137,11 @@ class LoginControl(UserControl):
         self.view_status = 0  # 用于甄别具体是何登录注册视图
         self.tf_phone_num = TextField(label='手机号',
                                       border='underline',
-                                      value='13588459825',
+                                      # value='13588459825',
                                       )
         self.tf_password = TextField(label='密码',
                                      border='underline',
-                                     value='123456',
+                                     # value='123456',
                                      password=True,
                                      can_reveal_password=True)
         self.card_login = Card(
@@ -150,11 +150,6 @@ class LoginControl(UserControl):
                 content=Column(
                     [
                         self.tf_phone_num,
-                        # Row(
-                        #     [self.tf_password,
-                        #      TextButton('忘记密码'),
-                        #      ]
-                        # ),
                         self.tf_password,
                         FilledButton(text='登录', width=300, on_click=self.on_login_click),
                         TextButton('验证码登录', on_click=self.on_id_code_login_click)

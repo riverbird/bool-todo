@@ -15,27 +15,19 @@ def show_main_interface(page, token):
     page.horizontal_alignment = 'start'
     page.vertical_alignment = 'start'
     page.padding = 0
-    # self.page.scroll = 'auto'
-    # self.page.auto_scroll = True
     rows_main = Row([Container(content=NavControl(token),
-                               # width=300,
-                               # height=self.page.window_height + 10,
-                               # height=800,
                                expand=1,
                                padding=padding.only(right=10, top=10, bottom=10),
                                # margin=margin.only(right=10, bottom=10),
-                               # bgcolor=colors.WHITE if self.page.theme_mode == 'light' else colors.BLACK87,
                                bgcolor=colors.WHITE,
                                ),
                      Container(content=DashboardControl(token),
                                expand=4,
-                               # height=600,
                                padding=padding.only(left=10, top=10, bottom=20, right=20),
-                               # bgcolor='#f2f4f8' if self.page.theme_mode == 'light' else colors.BLACK87,
                                ),
                      ],
                     alignment='spaceAround',
-                    vertical_alignment='start',
+                    vertical_alignment='stretch',
                     )
     ctn_main = Container(content=rows_main,
                          expand=True,
@@ -50,11 +42,10 @@ def main(page: Page):
     page.horizontal_alignment = 'center'
     page.theme_mode = 'light'
 
-    page.fonts = {
-        'Sarasa': '/fonts/sarasa-regular.ttc'
-    }
+    # page.fonts = {
+    #     'Sarasa': '/fonts/sarasa-regular.ttc'
+    # }
     page.theme = theme.Theme(color_scheme_seed="blue",
-                             # font_family='Sarasa',
                              font_family='微软雅黑',
                              visual_density='compact',
                              use_material3=False
