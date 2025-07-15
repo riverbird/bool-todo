@@ -1,5 +1,7 @@
 import flet
-from flet import Page, theme, Row, Container, padding, colors
+from flet import Page, Theme, Row, Container, padding, Colors
+from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment
+
 from login import LoginControl
 from nav import NavControl
 from dashboard import DashboardControl
@@ -19,15 +21,15 @@ def show_main_interface(page, token):
                                expand=1,
                                padding=padding.only(right=10, top=10, bottom=10),
                                # margin=margin.only(right=10, bottom=10),
-                               bgcolor=colors.WHITE,
+                               bgcolor=Colors.WHITE,
                                ),
                      Container(content=DashboardControl(token),
                                expand=4,
                                padding=padding.only(left=10, top=10, bottom=20, right=20),
                                ),
                      ],
-                    alignment='spaceAround',
-                    vertical_alignment='stretch',
+                    alignment=MainAxisAlignment.SPACE_AROUND,
+                    vertical_alignment=CrossAxisAlignment.STRETCH,
                     )
     ctn_main = Container(content=rows_main,
                          expand=True,
@@ -45,14 +47,14 @@ def main(page: Page):
     # page.fonts = {
     #     'Sarasa': '/fonts/sarasa-regular.ttc'
     # }
-    page.theme = theme.Theme(color_scheme_seed="blue",
+    page.theme = Theme(color_scheme_seed="blue",
                              font_family='微软雅黑',
-                             visual_density='compact',
+                             visual_density=VisualDensity.COMPACT,
                              use_material3=False
                              )
-    page.dark_theme = theme.Theme(color_scheme_seed="green",
+    page.dark_theme = Theme(color_scheme_seed="green",
                                   font_family='微软雅黑',
-                                  visual_density='compact',
+                                  visual_density=VisualDensity.COMPACT,
                                   use_material3=False
                                   )
     token = page.client_storage.get('token')
@@ -66,10 +68,11 @@ def main(page: Page):
             show_login_interface(page)
     else:
         show_login_interface(page)
-    page.window_center()
+    # page.window_center()
 
 
-flet.app(target=main,
-         assets_dir='assets',
-         # view=flet.WEB_BROWSER,
-         )
+flet.app(
+    target=main,
+    assets_dir='assets',
+    # view=flet.WEB_BROWSER,
+)

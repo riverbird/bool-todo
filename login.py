@@ -1,13 +1,21 @@
 import json
 from flet import Text, Card, Container, Column, Row, TextButton, TextField, Image, \
-    FilledButton, Tabs, Tab, alignment, colors, border, margin, border_radius, \
-    UserControl, padding, SnackBar
+    FilledButton, Tabs, Tab, alignment, Colors, border, margin, border_radius, \
+    padding, SnackBar
+from flet.core.form_field_control import InputBorder
+from flet.core.types import MainAxisAlignment, CrossAxisAlignment, ImageFit, FontWeight
+
 from nav import NavControl
 from dashboard import DashboardControl
 from api_request import APIRequest
 
 
-class LoginControl(UserControl):
+class LoginControl(Column):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        container_login = self.build()
+        self.controls = [container_login]
+
     def on_tab_change(self, e):
         if self.tabs_login.selected_index == 0:
             self.view_status = 0
@@ -103,8 +111,8 @@ class LoginControl(UserControl):
 
     def show_main_interface(self, token):
         self.page.clean()
-        self.page.horizontal_alignment = 'start'
-        self.page.vertical_alignment = 'start'
+        self.page.horizontal_alignment = CrossAxisAlignment.START
+        self.page.vertical_alignment = MainAxisAlignment.START
         self.page.padding = 0
         # self.page.scroll = 'auto'
         # self.page.auto_scroll = True
@@ -116,7 +124,7 @@ class LoginControl(UserControl):
                                    padding=padding.only(right=10, top=10, bottom=10),
                                    # margin=margin.only(right=10, bottom=10),
                                    # bgcolor=colors.WHITE if self.page.theme_mode == 'light' else colors.BLACK87,
-                                   bgcolor=colors.WHITE,
+                                   bgcolor=Colors.WHITE,
                                    ),
                          Container(content=DashboardControl(token),
                                    expand=4,
@@ -125,8 +133,8 @@ class LoginControl(UserControl):
                                    # bgcolor='#f2f4f8' if self.page.theme_mode == 'light' else colors.BLACK87,
                                    ),
                          ],
-                        alignment='spaceAround',
-                        vertical_alignment='start',
+                        alignment=MainAxisAlignment.SPACE_AROUND,
+                        vertical_alignment=CrossAxisAlignment.START,
                         )
         ctn_main = Container(content=rows_main,
                              expand=True,
@@ -136,12 +144,12 @@ class LoginControl(UserControl):
     def build(self):
         self.view_status = 0  # 用于甄别具体是何登录注册视图
         self.tf_phone_num = TextField(label='手机号',
-                                      border='underline',
-                                      # value='13588459825',
+                                      border=InputBorder.UNDERLINE,
+                                      value='13588459825',
                                       )
         self.tf_password = TextField(label='密码',
-                                     border='underline',
-                                     # value='123456',
+                                     border=InputBorder.UNDERLINE,
+                                     value='iloveyou365',
                                      password=True,
                                      can_reveal_password=True)
         self.card_login = Card(
@@ -157,12 +165,12 @@ class LoginControl(UserControl):
                 ),
                 width=400,
                 padding=10,
-                bgcolor=colors.WHITE,
+                bgcolor=Colors.WHITE,
             )
         )
 
         self.tf_verify_code = TextField(label='验证码',
-                                        border='underline',)
+                                        border=InputBorder.UNDERLINE,)
         self.card_login_id_code = Card(
             elevation=0,
             content=Container(
@@ -179,16 +187,16 @@ class LoginControl(UserControl):
                 ),
                 width=400,
                 padding=10,
-                bgcolor=colors.WHITE,
+                bgcolor=Colors.WHITE,
             )
         )
 
         self.tf_pass_1 = TextField(label='请输入密码',
-                                   border='underline',
+                                   border=InputBorder.UNDERLINE,
                                    password=True,
                                    can_reveal_password=True)
         self.tf_pass_2 = TextField(label='请确认密码',
-                                   border='underline',
+                                   border=InputBorder.UNDERLINE,
                                    password=True,
                                    can_reveal_password=True)
         self.card_reg = Card(
@@ -204,7 +212,7 @@ class LoginControl(UserControl):
                 ),
                 width=400,
                 padding=10,
-                bgcolor=colors.WHITE,
+                bgcolor=Colors.WHITE,
             )
         )
 
@@ -241,10 +249,10 @@ class LoginControl(UserControl):
                     Row([
                         Image(src=f'/icons/shiqu-todo-logo.png',
                               width=64, height=64,
-                              fit='contain',
+                              fit=ImageFit.CONTAIN,
                               border_radius=border_radius.all(30)),
-                        Text('拾趣清单', size=24, color=colors.BLUE,
-                             weight='bold',
+                        Text('拾趣清单', size=24, color=Colors.BLUE,
+                             weight=FontWeight.BOLD,
                              ),
                     ]),
                     self.tabs_login,
@@ -254,8 +262,8 @@ class LoginControl(UserControl):
             margin=margin.all(20),
             width=500,
             height=440,
-            border=border.all(1, colors.BLACK12),
-            bgcolor=colors.WHITE,
+            border=border.all(1, Colors.BLACK12),
+            bgcolor=Colors.WHITE,
             alignment=alignment.center,
         )
 

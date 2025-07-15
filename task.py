@@ -1,11 +1,13 @@
 from flet import Text, Container, Column, Row, \
-    colors, border_radius, padding, \
-    UserControl, Checkbox, Card, alignment, Alignment, Icon, icons, border
+    Colors, border_radius, padding, \
+    Checkbox, Card, alignment, Alignment, Icon, Icons, border
+from flet.core.types import MainAxisAlignment
+
 from api_request import APIRequest
 from task_detail import TaskDetail
 
 
-class Task(UserControl):
+class Task(Row):
     def __init__(self, task_control, token, task_info):
         super().__init__()
         self.task_control = task_control
@@ -43,7 +45,7 @@ class Task(UserControl):
                                width=300,
                                # bgcolor=colors.WHITE,
                                bgcolor='#f2f4f8',
-                               border=border.all(1, colors.BLACK12),
+                               border=border.all(1, Colors.BLACK12),
                                # on_hover=self.on_detail_hover,
                                )
         self.page.controls[0].content.controls.append(ctn_detail)
@@ -52,7 +54,7 @@ class Task(UserControl):
     def build(self):
         self.tt_task_time = Text(self.task_info.get('task_time'), size=12)
         self.cb_task = Checkbox(value=self.task_info.get('task_status'), on_change=self.on_checkbox_change)
-        line_colors = [colors.RED_200, colors.ORANGE_200, colors.BLUE_200, colors.GREEN_200]
+        line_colors = [Colors.RED_200, Colors.ORANGE_200, Colors.BLUE_200, Colors.GREEN_200]
         row_task = Row(controls=[
             Container(bgcolor=line_colors[self.task_info.get('type')],
                       width=3,
@@ -64,14 +66,14 @@ class Task(UserControl):
                                   size=16,
                                   italic=self.task_info.get('task_status')),
                              Row([self.tt_task_time,
-                                  Icon(name=icons.REPEAT,
+                                  Icon(name=Icons.REPEAT,
                                        size=12,
-                                       color=colors.BLACK54,
+                                       color=Colors.BLACK54,
                                        visible=self.task_info.get('task_repeat') > 0),
                                   ]),
                              ]),
         ],
-            alignment='start',
+            alignment=MainAxisAlignment.START,
         )
         # container_task = Container(content=row_task,
         #                            # bgcolor=colors.WHITE,

@@ -1,15 +1,18 @@
 from flet import Text, Container, Column, Icon, Row, \
-    icons, colors, padding, \
-    UserControl, Card
+    Icons, Colors, padding, Card
+from flet.core.types import FontWeight, MainAxisAlignment, CrossAxisAlignment
+
 from api_request import APIRequest
 from tasklist import TaskListControl
 import nav
 
 
-class DashboardControl(UserControl):
+class DashboardControl(Row):
     def __init__(self, token):
         super().__init__()
         self.token = token
+        cols = self.build()
+        self.controls = [cols]
 
     def query_summary_info(self):
         dct_info = {}
@@ -49,13 +52,13 @@ class DashboardControl(UserControl):
                             # width=300,
                             expand=1,
                             padding=padding.only(right=10, top=10),
-                            bgcolor=colors.WHITE,
+                            bgcolor=Colors.WHITE,
                             )
         rows_main = Row([ctn_nav,
                          ctn_tasklist,
                          ],
-                        alignment='spaceAround',
-                        vertical_alignment='start',
+                        alignment=MainAxisAlignment.SPACE_AROUND,
+                        vertical_alignment=CrossAxisAlignment.START,
                         )
         ctn_main = Container(content=rows_main,
                              expand=True,
@@ -79,11 +82,12 @@ class DashboardControl(UserControl):
         dct_info = self.query_summary_info()
 
         card_all = Card(content=Container(
-            content=Column([Text('全部待办', weight='bold', size=16, color=colors.WHITE54),
-                            Row([Text(f'{dct_info.get("num_all")}', color=colors.WHITE, size=24),
-                                 Icon(icons.ALL_INBOX, color='white')], alignment='spaceBetween')
+            content=Column([Text('全部待办', weight=FontWeight.BOLD, size=16, color=Colors.WHITE54),
+                            Row([Text(f'{dct_info.get("num_all")}', color=Colors.WHITE, size=24),
+                                 Icon(Icons.ALL_INBOX, color='white')],
+                                alignment=MainAxisAlignment.SPACE_BETWEEN)
                             ]),
-            bgcolor=colors.BLUE_400,
+            bgcolor=Colors.BLUE_400,
             padding=padding.all(10),
             border_radius=5,
             expand=True,
@@ -94,11 +98,11 @@ class DashboardControl(UserControl):
             elevation=2,
         )
         card_today = Card(content=Container(
-            content=Column([Text('今天', weight='bold', size=16, color=colors.WHITE54),
-                            Row([Text(f'{dct_info.get("num_today")}', color=colors.WHITE, size=24),
-                                 Icon(icons.TODAY, color='white')], alignment='spaceBetween')
+            content=Column([Text('今天', weight=FontWeight.BOLD, size=16, color=Colors.WHITE54),
+                            Row([Text(f'{dct_info.get("num_today")}', color=Colors.WHITE, size=24),
+                                 Icon(Icons.TODAY, color='white')], alignment=MainAxisAlignment.SPACE_BETWEEN)
                             ]),
-            bgcolor=colors.ORANGE_400,
+            bgcolor=Colors.ORANGE_400,
             padding=padding.all(10),
             border_radius=5,
             expand=True,
@@ -109,11 +113,11 @@ class DashboardControl(UserControl):
             elevation=2,
         )
         card_future = Card(content=Container(
-            content=Column([Text('未来七天', weight='bold', size=16, color=colors.WHITE54),
-                            Row([Text(f'{dct_info.get("num_7days")}', color=colors.WHITE, size=24),
-                                 Icon(icons.WEEKEND_ROUNDED, color='white')], alignment='spaceBetween')
+            content=Column([Text('未来七天', weight=FontWeight.BOLD, size=16, color=Colors.WHITE54),
+                            Row([Text(f'{dct_info.get("num_7days")}', color=Colors.WHITE, size=24),
+                                 Icon(Icons.WEEKEND_ROUNDED, color='white')], alignment=MainAxisAlignment.SPACE_BETWEEN)
                             ]),
-            bgcolor=colors.RED_400,
+            bgcolor=Colors.RED_400,
             padding=padding.all(10),
             border_radius=5,
             expand=True,
@@ -124,11 +128,11 @@ class DashboardControl(UserControl):
             elevation=2,
         )
         card_expired = Card(content=Container(
-            content=Column([Text('已过期', weight='bold', size=16, color=colors.WHITE54),
-                            Row([Text(f'{dct_info.get("num_expired")}', color=colors.WHITE, size=24),
-                                 Icon(icons.ACCOUNT_BOX, color='white')], alignment='spaceBetween')
+            content=Column([Text('已过期', weight=FontWeight.BOLD, size=16, color=Colors.WHITE54),
+                            Row([Text(f'{dct_info.get("num_expired")}', color=Colors.WHITE, size=24),
+                                 Icon(Icons.ACCOUNT_BOX, color='white')], alignment=MainAxisAlignment.SPACE_BETWEEN)
                             ]),
-            bgcolor=colors.GREEN_400,
+            bgcolor=Colors.GREEN_400,
             padding=padding.all(10),
             border_radius=5,
             expand=True,
@@ -140,12 +144,12 @@ class DashboardControl(UserControl):
         )
         row_info = Row([card_all, card_today, card_future, card_expired],
                        expand=True,
-                       alignment='center')
-        col_dash = Column([Text(f'欢迎您，{dct_info.get("nickname")}', weight='bold', size=24, ),
+                       alignment=MainAxisAlignment.CENTER)
+        col_dash = Column([Text(f'欢迎您，{dct_info.get("nickname")}', weight=FontWeight.BOLD, size=24, ),
                            Text('以下是当前任务统计数据',
-                                weight='bold',
+                                weight=FontWeight.BOLD,
                                 size=18,
-                                color=colors.BLACK38,
+                                color=Colors.BLACK38,
                                 ),
                            Container(content=row_info, expand=True)]
                           )

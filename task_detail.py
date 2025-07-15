@@ -1,12 +1,12 @@
 from flet import Text, Container, Column, Icon, Row, TextField, \
-    icons, alignment,  padding, \
-    UserControl, Checkbox,  Card, \
-    Dropdown, IconButton, dropdown, SnackBar, colors
+    Icons, alignment,  padding, \
+    Checkbox,  Card, \
+    Dropdown, IconButton, dropdown, SnackBar, Colors
 from api_request import APIRequest
 from datetime import datetime, timedelta
 
 
-class TaskDetail(UserControl):
+class TaskDetail(Column):
     def __init__(self, task):
         super().__init__()
         self.task = task
@@ -168,7 +168,7 @@ class TaskDetail(UserControl):
         self.dpd_cate = Dropdown(width=300,
                                  height=50,
                                  hint_text='清单',
-                                 icon=icons.LIST,
+                                 icon=Icons.LIST,
                                  on_change=self.on_task_cate_change,
                                  )
         self.dct_cates = self.query_tasks_cate()
@@ -181,7 +181,7 @@ class TaskDetail(UserControl):
         self.dpd_date = Dropdown(width=300,
                                  height=50,
                                  hint_text='日期',
-                                 icon=icons.DATE_RANGE,
+                                 icon=Icons.DATE_RANGE,
                                  options=[dropdown.Option('今天'),
                                           dropdown.Option('明天'),
                                           dropdown.Option('下周一'),
@@ -195,7 +195,7 @@ class TaskDetail(UserControl):
         self.dpd_repeat = Dropdown(width=300,
                                    height=50,
                                    hint_text='重复',
-                                   icon=icons.REPEAT,
+                                   icon=Icons.REPEAT,
                                    on_change=self.on_task_repeat_change,
                                    )
         for itm in lst_repeat:
@@ -206,7 +206,7 @@ class TaskDetail(UserControl):
         self.dpd_level = Dropdown(width=300,
                                   height=50,
                                   hint_text='象限',
-                                  icon=icons.PRIORITY_HIGH,
+                                  icon=Icons.PRIORITY_HIGH,
                                   on_change=self.on_task_level_change,
                                   )
         for itm in lst_level:
@@ -261,13 +261,13 @@ class TaskDetail(UserControl):
         #                                 "%Y-%m-%d %H:%M:%S")
         create_time = self.task.task_info.get('create_time').split('.')[0]
         row_bottom = Row(
-            [Icon(name=icons.FORWARD,
+            [Icon(name=Icons.FORWARD,
                   # color=colors.BLACK38
                   ),
              Text(f"{create_time}  创建",
                   # color=colors.BLACK38
                   ),
-             IconButton(icon=icons.DELETE,
+             IconButton(icon=Icons.DELETE,
                         # icon_color=colors.BLACK38,
                         on_click=self.on_task_delete),
              ],
@@ -275,7 +275,7 @@ class TaskDetail(UserControl):
 
         col_detail = Column(
             [
-                Container(content=IconButton(icon=icons.CLOSE,
+                Container(content=IconButton(icon=Icons.CLOSE,
                                              icon_size=24,
                                              # icon_color=colors.BLACK38,
                                              on_click=self.on_close_click),

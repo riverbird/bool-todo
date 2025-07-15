@@ -1,23 +1,28 @@
 from datetime import datetime
 from flet import Text, Container, Column, Icon, Row, TextField, \
-    icons, alignment, colors, padding, \
-    UserControl, Switch, SnackBar, ListView, margin
+    Icons, alignment, Colors, padding, \
+    Switch, SnackBar, ListView, margin
+from flet.core.form_field_control import InputBorder
+from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight
+
 from task import Task
 from api_request import APIRequest
 
 
-class TaskListControl(UserControl):
+class TaskListControl(Row):
     def __init__(self, token, list_name, list_title, show_finished):
         super().__init__()
         self.token = token
         self.list_name = list_name
         self.list_title = list_title
         self.show_finished = show_finished
+        cols = self.build()
+        self.controls = [cols]
 
     def query_tasks_by_list(self, list_name):
         lst_ret = []
         str_today = datetime.now().strftime('%Y-%m-%d')
-        headers = {'Authorization': f'jwt {self.token}'}
+        headers = {'Authorization': f'Bearer {self.token}'}
         if list_name == 'today':
             lst_ret = APIRequest.query_tasks_by_date(self.token, str_today)
         elif list_name == 'future':
@@ -84,36 +89,36 @@ class TaskListControl(UserControl):
                      self.list_name: self.list_title}
 
         self.input_task = TextField(hint_text='添加任务',
-                                    prefix_icon=icons.ADD,
+                                    prefix_icon=Icons.ADD,
                                     expand=True,
                                     filled=True,
-                                    border='none',
+                                    border=InputBorder.NONE,
                                     border_radius=10,
                                     height=50,
                                     bgcolor='#CEE8E8',
                                     on_submit=self.on_input_task_submit)
-        self.col_task = Column(alignment='start',
+        self.col_task = Column(alignment=MainAxisAlignment.START,
                                # expand=True,
                                spacing=15,
                                height=620,
-                               scroll='hidden')
+                               scroll=ScrollMode.HIDDEN)
         self.lv_task = ListView(expand=True,
                                 spacing=10,
                                 padding=10,
                                 # auto_scroll=True,
                                 )
-        col_empty = Column([Icon(name=icons.LIST_SHARP,
-                                 color=colors.BLACK12,
+        col_empty = Column([Icon(name=Icons.LIST_SHARP,
+                                 color=Colors.BLACK12,
                                  size=128,
                                  # expand=True,
                                  ),
                             Text('没有可完成的任务，加油！',
                                  size=24,
-                                 text_align='center',
+                                 text_align=TextAlign.CENTER,
                                  # expand=True,
                                  )],
-                           alignment='center',
-                           horizontal_alignment='center',
+                           alignment=MainAxisAlignment.CENTER,
+                           horizontal_alignment=CrossAxisAlignment.CENTER,
                            expand=True,
                            # height=500,
                            )
@@ -125,15 +130,15 @@ class TaskListControl(UserControl):
 
         self.col_tasklist = Column(
             [
-                Container(content=Row([Container(content=Icon(name=icons.LIST, color=colors.BLACK38)),
-                                       Container(content=Text(dct_title.get(self.list_name), size=24, weight='bold')),
+                Container(content=Row([Container(content=Icon(name=Icons.LIST, color=Colors.BLACK38)),
+                                       Container(content=Text(dct_title.get(self.list_name), size=24, weight=FontWeight.BOLD)),
                                        Container(content=Switch(label='显示已完成',
                                                                 value=False,
                                                                 on_change=self.on_switch_show_finished),
                                                  expand=True, alignment=alignment.center_right, ),
                                        ],
-                                      alignment='start',
-                                      vertical_alignment='center',
+                                      alignment=MainAxisAlignment.START,
+                                      vertical_alignment=CrossAxisAlignment.CENTER,
                                       # vertical_alignment='start',
                                       spacing=15,
                                       # height=50,
@@ -149,7 +154,7 @@ class TaskListControl(UserControl):
                           padding=padding.only(bottom=15,)
                           ),
                 Container(content=Row([self.input_task, ],
-                                      alignment='end',
+                                      alignment=MainAxisAlignment.END,
                                       # vertical_alignment='end',
                                       ),
                           alignment=alignment.top_left,
@@ -159,7 +164,7 @@ class TaskListControl(UserControl):
                           # expand=1,
                           ),
             ],
-            alignment='spaceBetween',
+            alignment=MainAxisAlignment.SPACE_BETWEEN,
             expand=True,
             # scroll='hidden',
             # height=800,
