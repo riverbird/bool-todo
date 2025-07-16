@@ -13,6 +13,7 @@ from api_request import APIRequest
 class LoginControl(Column):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.view_status = 0  # 用于甄别具体是何登录注册视图
         container_login = self.build()
         self.controls = [container_login]
 
@@ -142,7 +143,6 @@ class LoginControl(Column):
         self.page.add(ctn_main)
 
     def build(self):
-        self.view_status = 0  # 用于甄别具体是何登录注册视图
         self.tf_phone_num = TextField(label='手机号',
                                       border=InputBorder.UNDERLINE,
                                       value='13588459825',
@@ -251,7 +251,7 @@ class LoginControl(Column):
                               width=64, height=64,
                               fit=ImageFit.CONTAIN,
                               border_radius=border_radius.all(30)),
-                        Text('拾趣清单', size=24, color=Colors.BLUE,
+                        Text('布尔清单', size=24, color=Colors.BLUE,
                              weight=FontWeight.BOLD,
                              ),
                     ]),

@@ -1,6 +1,6 @@
 import flet
 from flet import Page, Theme, Row, Container, padding, Colors
-from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment
+from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, AppView
 
 from login import LoginControl
 from nav import NavControl
@@ -16,7 +16,7 @@ def show_main_interface(page, token):
     page.clean()
     page.horizontal_alignment = 'start'
     page.vertical_alignment = 'start'
-    page.padding = 0
+    page.padding = padding.all(10)
     rows_main = Row([Container(content=NavControl(token),
                                expand=1,
                                padding=padding.only(right=10, top=10, bottom=10),
@@ -38,11 +38,11 @@ def show_main_interface(page, token):
 
 
 def main(page: Page):
-    page.title = '拾趣清单'
+    page.title = '布尔清单'
     page.bgcolor = '#f2f4f8'
-    page.vertical_alignment = 'center'
-    page.horizontal_alignment = 'center'
-    page.theme_mode = 'light'
+    page.vertical_alignment = MainAxisAlignment.CENTER
+    page.horizontal_alignment = CrossAxisAlignment.CENTER
+    page.theme_mode = ThemeMode.SYSTEM
 
     # page.fonts = {
     #     'Sarasa': '/fonts/sarasa-regular.ttc'
@@ -74,5 +74,4 @@ def main(page: Page):
 flet.app(
     target=main,
     assets_dir='assets',
-    # view=flet.WEB_BROWSER,
-)
+    view=flet.AppView.WEB_BROWSER)
