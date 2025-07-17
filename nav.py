@@ -1,5 +1,6 @@
+# coding:utf-8
 from flet import Text, Container, Column, Icon, Row, TextButton, \
-    Icons, border_radius, padding, Image,  \
+    Icons, border_radius, Image,  \
     ListTile, PopupMenuButton, PopupMenuItem, \
     AlertDialog, Divider, SnackBar, TextField, Colors
 from flet.core.icon_button import IconButton
@@ -7,29 +8,66 @@ from flet.core.types import MainAxisAlignment, CrossAxisAlignment, FontWeight, S
 
 import login
 from api_request import APIRequest
-from tasklist import TaskListControl
-from dashboard import DashboardControl
-
 
 class NavControl(Column):
-    def __init__(self, token):
+    def __init__(self, page, token):
         super().__init__()
+        self.page = page
         self.token = token
-        # [self.col_nav, self.dlg_about, self.dlg_add_cate]
-        lst_controls = self.build()
-        self.controls = [lst_controls[0], lst_controls[1], lst_controls[2]]
+
+        self.dct_cate = {}  # ListTile:CateId
+        self.dct_cate_title = {}  # CateId: CateName
+
+        self.dlg_about = AlertDialog(modal=True,
+                                     title=Text('关于'),
+                                     content=Column(controls=[Divider(height=1, color='gray'),
+                                                              Text('布尔清单v2.0.0'),
+                                                              Text('浙江舒博特网络科技有限公司 出品'),
+                                                              Text('官网: http://www.10qu.com.cn'),
+                                                              ],
+                                                    alignment=MainAxisAlignment.START,
+                                                    width=300,
+                                                    height=100,
+                                                    ),
+                                     # content=Markdown(md_info,
+                                     #                  expand=True),
+                                     actions=[TextButton("确定", on_click=self.on_about_ok_click), ],
+                                     actions_alignment=MainAxisAlignment.END,
+                                     title_padding=20,
+                                     on_dismiss=lambda e: print("Modal dialog dismissed!"),
+                                     )
+
+        self.tf_cate = TextField(hint_text='请输入清单名称')
+        self.dlg_add_cate = AlertDialog(modal=True,
+                                        title=Text('添加清单'),
+                                        content=Column(controls=[self.tf_cate,
+                                                                 ],
+                                                       alignment=MainAxisAlignment.START,
+                                                       width=300,
+                                                       height=100,
+                                                       ),
+                                        actions=[TextButton("确定", on_click=self.on_dlg_add_cate_ok_click),
+                                                 TextButton("取消", on_click=self.on_dlg_add_cate_cancel_click)],
+                                        actions_alignment=MainAxisAlignment.END,
+                                        title_padding=20,
+                                        on_dismiss=lambda e: print("Modal dialog dismissed!"),
+                                        )
+
+        nav_controls = self.build()
+        self.controls = [nav_controls, self.dlg_about, self.dlg_add_cate]
 
     def on_dashboard_click(self, e):
-        if self.page:
-            del self.page.controls[0].content.controls[1:]
-        dashboard = Container(content=DashboardControl(self.token),
-                              expand=4,
-                              height=600,
-                              padding=padding.only(left=10, top=10, bottom=20, right=20),
-                              )
-        # self.page.controls[0].controls.append(dashboard)
-        self.page.controls[0].content.controls.append(dashboard)
-        self.page.update()
+        # if self.page:
+        #     del self.page.controls[0].content.controls[1:]
+        # dashboard = Container(content=DashboardControl(self.token),
+        #                       expand=4,
+        #                       height=600,
+        #                       padding=padding.only(left=10, top=10, bottom=20, right=20),
+        #                       )
+        # # self.page.controls[0].controls.append(dashboard)
+        # self.page.controls[0].content.controls.append(dashboard)
+        # self.page.update()
+        self.page.go('/dashboard')
 
     def on_list_click(self, e):
         list_title_text = e.control.title.value.split(' ')[0]
@@ -40,19 +78,22 @@ class NavControl(Column):
             list_name = 'future'
         elif list_title_text == '已过期':
             list_name = 'expired'
-        del self.page.controls[0].content.controls[1:]
-        ctn_tasklist = Container(content=TaskListControl(self.token,
-                                                         list_name,
-                                                         list_title_text,
-                                                         False),
-                                 expand=4,
-                                 padding=padding.only(left=10, top=10, bottom=20, right=10),
-                                 # margin=margin.only(bottom=20),
-                                 )
-        # self.page.controls[0].controls.append(ctn_tasklist)
-        self.page.controls[0].content.controls.append(ctn_tasklist)
-        self.col_nav.update()
-        self.page.update()
+        # del self.page.controls[0].content.controls[1:]
+        # ctn_tasklist = Container(content=TaskListControl(self.token,
+        #                                                  list_name,
+        #                                                  list_title_text,
+        #                                                  False),
+        #                          expand=4,
+        #                          padding=padding.only(left=10, top=10, bottom=20, right=10),
+        #                          # margin=margin.only(bottom=20),
+        #                          )
+        # self.page.controls[0].content.controls.append(ctn_tasklist)
+        # self.col_nav.update()
+        # self.page.update()
+        self.page.client_storage.set('list_name', list_name)
+        self.page.client_storage.set('list_title', list_title_text)
+        self.page.client_storage.set('list_show_finished', False)
+        self.page.go(f'/tasklist?id={list_name}')
 
     def on_about_ok_click(self, e):
         self.dlg_about.open = False
@@ -94,23 +135,28 @@ class NavControl(Column):
         self.page.update()
 
     def on_cate_click(self, e):
-        cate_id = self.dct_cate.get(e.control)
-        cate_title = self.dct_cate_title.get(cate_id)
+        cate_id = self.dct_cate.get(e.control.data)
+        cate_title = self.dct_cate_title.get(e.control.data)
         # cnt_tasklist = self.page.controls[0].controls[1]
         # self.page.controls[0].controls.remove(cnt_tasklist)
         # del self.page.controls[0].controls[1:]
-        del self.page.controls[0].content.controls[1:]
-        ctn_tasks = Container(content=TaskListControl(self.token,
-                                                      cate_id,
-                                                      cate_title,
-                                                      False),
-                              expand=4,
-                              padding=padding.only(left=10, top=10, right=20),
-                              )
-        # self.page.controls[0].controls.append(ctn_tasks)
-        self.page.controls[0].content.controls.append(ctn_tasks)
-        self.col_nav.update()
-        self.page.update()
+
+        # del self.page.controls[0].content.controls[1:]
+        # ctn_tasks = Container(content=TaskListControl(self.token,
+        #                                               cate_id,
+        #                                               cate_title,
+        #                                               False),
+        #                       expand=4,
+        #                       padding=padding.only(left=10, top=10, right=20),
+        #                       )
+        # # self.page.controls[0].controls.append(ctn_tasks)
+        # self.page.controls[0].content.controls.append(ctn_tasks)
+        # self.col_nav.update()
+        # self.page.update()
+        self.page.client_storage.set('list_name', cate_id)
+        self.page.client_storage.set('list_title', cate_title)
+        self.page.client_storage.set('list_show_finished', False)
+        self.page.go(f'/tasklist?id={cate_id}')
 
     def on_list_tile_hover(self, e):
         e.control.bgcolor = Colors.BLACK12 if e.data == "true" else Colors.WHITE
@@ -131,21 +177,22 @@ class NavControl(Column):
         self.lt_all.title = Text(f'全部 {todo_data[0].get("count")}')
 
         todo_data = dct_ret[1].get('todo_data')
-        self.dct_cate = {}  # ListTile:CateId
-        self.dct_cate_title = {}  # CateId: CateName
+        self.dct_cate.clear()
+        self.dct_cate_title.clear()
         self.col_cate.controls.clear()
         for itm in todo_data:
             lt_cate = ListTile(leading=Icon(Icons.LIST),
                                title=Text(f'{itm.get("name")} {itm.get("count")}'),
                                selected=False,
                                dense=True,
+                               data=itm.get('from_id'),
                                on_click=self.on_cate_click)
             ctn_cate = Container(content=lt_cate,
                                  on_hover=self.on_list_tile_hover)
             # self.col_nav.controls.append(lt_cate)
             self.col_cate.controls.append(ctn_cate)
-            self.dct_cate[lt_cate] = itm.get('from_id')
-            self.dct_cate_title[itm.get('from_id')] = itm.get("name")
+            self.dct_cate[lt_cate.data] = itm.get('from_id')
+            self.dct_cate_title[lt_cate.data] = itm.get("name")
 
         # self.col_nav.height = self.page.window_height
 
@@ -171,48 +218,6 @@ class NavControl(Column):
         self.page.update()
 
     def build(self):
-        md_info = """
-## 拾趣清单v2.0(alpha)
-西安鸿途四海网络科技有限公司 出品
-官网: [http://www.10qu.com.cn](http://www.10qu.com.cn)
-        """
-        self.dlg_about = AlertDialog(modal=True,
-                                     title=Text('关于'),
-                                     content=Column(controls=[Divider(height=1, color='gray'),
-                                                              Text('拾趣清单v2.0.1'),
-                                                              Text('西安鸿途四海网络科技有限公司 出品'),
-                                                              Text('官网: http://www.10qu.com.cn'),
-                                                              ],
-                                                    alignment=MainAxisAlignment.START,
-                                                    width=300,
-                                                    height=100,
-                                                    ),
-                                     # content=Markdown(md_info,
-                                     #                  expand=True),
-                                     actions=[TextButton("确定", on_click=self.on_about_ok_click), ],
-                                     actions_alignment=MainAxisAlignment.END,
-                                     title_padding=20,
-                                     on_dismiss=lambda e: print("Modal dialog dismissed!"),
-
-                                     )
-
-        self.tf_cate = TextField(hint_text='请输入清单名称')
-        self.dlg_add_cate = AlertDialog(modal=True,
-                                        title=Text('添加清单'),
-                                        content=Column(controls=[self.tf_cate,
-                                                                 ],
-                                                       alignment=MainAxisAlignment.START,
-                                                       width=300,
-                                                       height=100,
-                                                       ),
-                                        actions=[TextButton("确定", on_click=self.on_dlg_add_cate_ok_click),
-                                                 TextButton("取消", on_click=self.on_dlg_add_cate_cancel_click)],
-                                        actions_alignment=MainAxisAlignment.END,
-                                        title_padding=20,
-                                        on_dismiss=lambda e: print("Modal dialog dismissed!"),
-
-                                        )
-
         self.lt_today = ListTile(leading=Icon(Icons.TODAY),
                                  title=Text("今天"),
                                  selected=False,
@@ -233,14 +238,19 @@ class NavControl(Column):
                                selected=False,
                                dense=True,
                                on_click=self.on_list_click)
-        self.img_avatar = Image(src=f'/icons/head.png', width=32, height=32, fit=ImageFit.CONTAIN,
+
+        dct_ret = APIRequest.query_user_info(self.token)
+        avatar_url = dct_ret.get('avatar_url', f'/icons/head.png')
+        self.img_avatar = Image(src=avatar_url,
+                                width=32, height=32,
+                                fit=ImageFit.CONTAIN,
                                 border_radius=border_radius.all(30))
         # self.img_avatar = CircleAvatar(foreground_image_url=f'/icons/head.png',
         #                                bgcolor=colors.BLACK38,
         #                                radius=5,
         #                                content=Text('头像'))
 
-        self.text_user = Text('用户名', size=14)
+        self.text_user = Text(dct_ret.get('nick_name', '用户名'), size=14)
         self.pmi_color = PopupMenuItem(icon=Icons.DARK_MODE,
                                        text='深色模式',
                                        on_click=self.on_dark_click)
@@ -272,7 +282,7 @@ class NavControl(Column):
         self.col_cate = Column(spacing=1)
         self.col_nav = Column(
             [
-                btn_show_drawer,
+                # btn_show_drawer,
                 self.row_head,
                 Container(content=ListTile(
                     title=Text("仪表盘", weight=FontWeight.BOLD),
@@ -314,7 +324,7 @@ class NavControl(Column):
             scroll=ScrollMode.HIDDEN,
         )
 
-        self.update_user_info()
+        # self.update_user_info()
         self.update_todolist()
 
-        return [self.col_nav, self.dlg_about, self.dlg_add_cate]
+        return self.col_nav

@@ -13,6 +13,8 @@ class Task(Row):
         self.task_control = task_control
         self.token = token
         self.task_info = task_info
+        task_control = self.build()
+        self.controls = [task_control]
 
     def on_checkbox_change(self, e):
         if self.cb_task.value is True:

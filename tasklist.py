@@ -1,36 +1,66 @@
 from datetime import datetime
 from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment, Colors, padding, \
-    Switch, SnackBar, ListView, margin
+    Switch, SnackBar, ListView
+from flet.core.app_bar import AppBar
 from flet.core.form_field_control import InputBorder
+from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
+from flet.core.pagelet import Pagelet
 from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight
 
+import nav
 from task import Task
 from api_request import APIRequest
 
 
 class TaskListControl(Row):
-    def __init__(self, token, list_name, list_title, show_finished):
+    def __init__(self, page):
         super().__init__()
-        self.token = token
-        self.list_name = list_name
-        self.list_title = list_title
-        self.show_finished = show_finished
-        cols = self.build()
-        self.controls = [cols]
+        self.page = page
+        self.list_name = self.page.client_storage.get('list_name')
+        self.list_title = self.page.client_storage.get('list_title')
+        self.show_finished = self.page.client_storage.get('list_show_finished')
+
+        token = self.page.client_storage.get('token')
+        self.drawer = NavigationDrawer(
+            position=NavigationDrawerPosition.START,
+            controls=[Container(content=nav.NavControl(page, token),
+                                expand=1,
+                                padding=padding.only(right=10, top=10, bottom=10),
+                                # margin=margin.only(right=10, bottom=10),
+                                bgcolor=Colors.WHITE,
+                                )]
+        )
+
+        task_list_controls = self.build()
+        pagelet = Pagelet(
+            appbar=AppBar(
+                title=Text(self.list_title),
+                bgcolor=Colors.BLUE,
+                center_title=True,
+            ),
+            content=Container(task_list_controls, padding=padding.all(0)),
+            bgcolor=Colors.WHITE24,
+            drawer=self.drawer,
+            width=self.page.width,
+            height=self.page.height
+        )
+
+        self.controls = [pagelet]
 
     def query_tasks_by_list(self, list_name):
         lst_ret = []
+        token = self.page.client_storage.get('token')
         str_today = datetime.now().strftime('%Y-%m-%d')
-        headers = {'Authorization': f'Bearer {self.token}'}
+        headers = {'Authorization': f'Bearer {token}'}
         if list_name == 'today':
-            lst_ret = APIRequest.query_tasks_by_date(self.token, str_today)
+            lst_ret = APIRequest.query_tasks_by_date(token, str_today)
         elif list_name == 'future':
-            lst_ret = APIRequest.query_future_tasks(self.token)
+            lst_ret = APIRequest.query_future_tasks(token)
         elif list_name == 'expired':
-            lst_ret = APIRequest.query_expired_tasks(self.token)
+            lst_ret = APIRequest.query_expired_tasks(token)
         elif isinstance(list_name, int):
-            lst_ret = APIRequest.query_tasks_by_cate_id(self.token, list_name)
+            lst_ret = APIRequest.query_tasks_by_cate_id(token, list_name)
         if len(lst_ret) == 0:
             return
         if self.container_empty in self.col_tasklist.controls:
@@ -42,10 +72,11 @@ class TaskListControl(Row):
                 if itm.get('task_status') is True:
                     continue
             task_item = Task(self,
-                             self.token,
+                             token,
                              itm)
             # self.col_task.controls.append(task_item)
             self.lv_task.controls.append(task_item)
+        # self.page.update()
 
     def on_switch_show_finished(self, e):
         self.show_finished = e.control.value
@@ -60,7 +91,8 @@ class TaskListControl(Row):
             self.page.snack_bar.open = True
             self.page.update()
             return
-        req_result = APIRequest.add_task(self.token,
+        token = self.page.client_storage.get('token')
+        req_result = APIRequest.add_task(token,
                                          task_name,
                                          0,
                                          str_today,
@@ -171,7 +203,5 @@ class TaskListControl(Row):
             # alignment='start',
             # horizontal_alignment='start',
         )
-
         self.query_tasks_by_list(self.list_name)
-
         return self.col_tasklist

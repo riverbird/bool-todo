@@ -102,7 +102,10 @@ def main(page: Page):
                 page.views.append(View('/dashboard',
                                        [dashboard_interface(page)]))
             case '/tasklist':
-                page.views.append(View('/tasklist',
+                params = e.query_params
+                # page.views.append(View('/tasklist',
+                #                        [tasklist_interface(page)]))
+                page.views.append(View(e.path,
                                        [tasklist_interface(page)]))
         page.update()
 
