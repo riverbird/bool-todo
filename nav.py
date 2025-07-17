@@ -2,6 +2,7 @@ from flet import Text, Container, Column, Icon, Row, TextButton, \
     Icons, border_radius, padding, Image,  \
     ListTile, PopupMenuButton, PopupMenuItem, \
     AlertDialog, Divider, SnackBar, TextField, Colors
+from flet.core.icon_button import IconButton
 from flet.core.types import MainAxisAlignment, CrossAxisAlignment, FontWeight, ScrollMode, ImageFit
 
 import login
@@ -19,7 +20,8 @@ class NavControl(Column):
         self.controls = [lst_controls[0], lst_controls[1], lst_controls[2]]
 
     def on_dashboard_click(self, e):
-        del self.page.controls[0].content.controls[1:]
+        if self.page:
+            del self.page.controls[0].content.controls[1:]
         dashboard = Container(content=DashboardControl(self.token),
                               expand=4,
                               height=600,
@@ -260,9 +262,17 @@ class NavControl(Column):
                             vertical_alignment=CrossAxisAlignment.CENTER,
                             spacing=10)
 
+        def on_draw_close(e):
+            self.page.drawer.open = False
+            self.page.update()
+
+        btn_show_drawer = IconButton(icon=Icons.MENU,
+                                     on_click=on_draw_close)
+
         self.col_cate = Column(spacing=1)
         self.col_nav = Column(
             [
+                btn_show_drawer,
                 self.row_head,
                 Container(content=ListTile(
                     title=Text("仪表盘", weight=FontWeight.BOLD),

@@ -1,5 +1,8 @@
 from flet import Text, Container, Column, Icon, Row, \
     Icons, Colors, padding, Card
+from flet.core.control import Control
+from flet.core.icon_button import IconButton
+from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
 from flet.core.types import FontWeight, MainAxisAlignment, CrossAxisAlignment
 
 from api_request import APIRequest
@@ -8,18 +11,29 @@ import nav
 
 
 class DashboardControl(Row):
-    def __init__(self, token):
+    def __init__(self, page):
         super().__init__()
-        self.token = token
-        cols = self.build()
-        self.controls = [cols]
+        self.page = page
+
+        token = self.page.client_storage.get('token')
+        self.drawer = NavigationDrawer(
+            position=NavigationDrawerPosition.START,
+            controls=[Container(content=nav.NavControl(token),
+                                expand=1,
+                                padding=padding.only(right=10, top=10, bottom=10),
+                                # margin=margin.only(right=10, bottom=10),
+                                bgcolor=Colors.WHITE,
+                                )]
+        )
+        self.controls = [self.build()]
 
     def query_summary_info(self):
         dct_info = {}
-        dct_ret = APIRequest.query_user_info(self.token)
+        token = self.page.client_storage.get('token')
+        dct_ret = APIRequest.query_user_info(token)
         dct_info['nickname'] = dct_ret.get('nick_name', '用户名')
 
-        dct_ret = APIRequest.query_todolist(self.token)
+        dct_ret = APIRequest.query_todolist(token)
         todo_data = dct_ret[0].get('todo_data')
         dct_info['num_all'] = todo_data[0].get("count")
         dct_info['num_today'] = todo_data[1].get("count")
@@ -40,7 +54,8 @@ class DashboardControl(Row):
             list_title = '已过期'
         else:
             list_title = '未知'
-        ctn_tasklist = Container(content=TaskListControl(self.token,
+        token = self.page.client_storage.get('token')
+        ctn_tasklist = Container(content=TaskListControl(token,
                                                          list_name,
                                                          list_title,
                                                          False),
@@ -48,7 +63,7 @@ class DashboardControl(Row):
                                  # height=600,
                                  padding=padding.only(left=10, top=10, right=20),
                                  )
-        ctn_nav = Container(content=nav.NavControl(self.token),
+        ctn_nav = Container(content=nav.NavControl(token),
                             # width=300,
                             expand=1,
                             padding=padding.only(right=10, top=10),
@@ -78,8 +93,32 @@ class DashboardControl(Row):
     def on_expired_click(self, e):
         self.nav_to_list('expired')
 
+    def open_drawer(self, e):
+        if self.page:
+            if self.drawer not in self.page.controls:
+                # self.page.add(self.drawer)
+                # self.page.views.append(self.drawer)
+                self.page.controls.append(self.drawer)
+                self.page.overlay.append(self.drawer)
+                # pass
+            # self.drawer.open = True
+            # self.page.open(self.drawer)
+            # self.drawer.open = True
+            # self.page.drawer = self.drawer
+            # self.page.drawer.open = True
+            # self.page.open(self.page.drawer)
+            self.drawer.open = True
+            self.page.update()
+            # self.drawer.update()
+
+    # def did_mount(self):
+    #     self.page.drawer = self.drawer
+
     def build(self):
         dct_info = self.query_summary_info()
+
+        btn_show_drawer = IconButton(icon=Icons.MENU,
+                                     on_click=self.open_drawer)
 
         card_all = Card(content=Container(
             content=Column([Text('全部待办', weight=FontWeight.BOLD, size=16, color=Colors.WHITE54),
@@ -142,16 +181,22 @@ class DashboardControl(Row):
             height=120,
             elevation=2,
         )
-        row_info = Row([card_all, card_today, card_future, card_expired],
+        row_stat_1 = Row([card_all, card_today],
                        expand=True,
                        alignment=MainAxisAlignment.CENTER)
-        col_dash = Column([Text(f'欢迎您，{dct_info.get("nickname")}', weight=FontWeight.BOLD, size=24, ),
-                           Text('以下是当前任务统计数据',
+        row_stat_2 = Row([card_future, card_expired],
+                       expand=True,
+                       alignment=MainAxisAlignment.CENTER)
+        col_dash = Column([
+            btn_show_drawer,
+            Text(f'欢迎您，{dct_info.get("nickname")}',
+                                weight=FontWeight.BOLD, size=24, ),
+            Text('以下是当前任务统计数据',
                                 weight=FontWeight.BOLD,
                                 size=18,
-                                color=Colors.BLACK38,
-                                ),
-                           Container(content=row_info, expand=True)]
-                          )
+                                color=Colors.BLACK38),
+                           # Container(content=row_info, expand=True)]
+            row_stat_1,
+            row_stat_2])
 
         return col_dash

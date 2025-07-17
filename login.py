@@ -3,6 +3,9 @@ from flet import Text, Card, Container, Column, Row, TextButton, TextField, Imag
     FilledButton, Tabs, Tab, alignment, Colors, border, margin, border_radius, \
     padding, SnackBar
 from flet.core.form_field_control import InputBorder
+from flet.core.icon_button import IconButton
+from flet.core.icons import Icons
+from flet.core.navigation_drawer import NavigationDrawer
 from flet.core.types import MainAxisAlignment, CrossAxisAlignment, ImageFit, FontWeight
 
 from nav import NavControl
@@ -11,8 +14,8 @@ from api_request import APIRequest
 
 
 class LoginControl(Column):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, page):
+        super().__init__()
         self.view_status = 0  # 用于甄别具体是何登录注册视图
         container_login = self.build()
         self.controls = [container_login]
@@ -65,7 +68,20 @@ class LoginControl(Column):
         # x = self.page.client_storage.get('nickname')
         # self.page.client_storage.update()
 
-        self.show_main_interface(dct_ret.get('token'))
+        # self.show_main_interface(dct_ret.get('token'))
+
+        # self.left_drawer = NavigationDrawer(
+        #     controls=[Container(content=NavControl(dct_ret.get('token')),
+        #                         expand=1,
+        #                         padding=padding.only(right=10, top=10, bottom=10),
+        #                         # margin=margin.only(right=10, bottom=10),
+        #                         bgcolor=Colors.WHITE,
+        #                         )]
+        # )
+        # self.page.add(left_drawer)
+        # self.page.drawer = self.left_drawer
+
+        self.page.go('/dashboard')
 
     def on_code_login_click(self, e):
         if self.view_status != 1:
@@ -117,6 +133,19 @@ class LoginControl(Column):
         self.page.padding = 0
         # self.page.scroll = 'auto'
         # self.page.auto_scroll = True
+
+        left_drawer = NavigationDrawer(
+            controls=[Container(content=NavControl(token),
+                                expand=1,
+                                padding=padding.only(right=10, top=10, bottom=10),
+                                # margin=margin.only(right=10, bottom=10),
+                                bgcolor=Colors.WHITE,
+                                )]
+        )
+
+        btn_show_drawer = IconButton(icon=Icons.MENU,
+                                     on_click=lambda e: self.page.open(left_drawer))
+
         rows_main = Row([Container(content=NavControl(token),
                                    # width=300,
                                    # height=self.page.window_height + 10,
@@ -138,9 +167,10 @@ class LoginControl(Column):
                         vertical_alignment=CrossAxisAlignment.START,
                         )
         ctn_main = Container(content=rows_main,
-                             expand=True,
-                             )
-        self.page.add(ctn_main)
+                             expand=True)
+
+        self.page.add(btn_show_drawer)
+        # self.page.add(ctn_main)
 
     def build(self):
         self.tf_phone_num = TextField(label='手机号',
