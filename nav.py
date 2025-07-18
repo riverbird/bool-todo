@@ -3,10 +3,8 @@ from flet import Text, Container, Column, Icon, Row, TextButton, \
     Icons, border_radius, Image,  \
     ListTile, PopupMenuButton, PopupMenuItem, \
     AlertDialog, Divider, SnackBar, TextField, Colors
-from flet.core.icon_button import IconButton
 from flet.core.types import MainAxisAlignment, CrossAxisAlignment, FontWeight, ScrollMode, ImageFit
 
-import login
 from api_request import APIRequest
 
 class NavControl(Column):
@@ -57,39 +55,18 @@ class NavControl(Column):
         self.controls = [nav_controls, self.dlg_about, self.dlg_add_cate]
 
     def on_dashboard_click(self, e):
-        # if self.page:
-        #     del self.page.controls[0].content.controls[1:]
-        # dashboard = Container(content=DashboardControl(self.token),
-        #                       expand=4,
-        #                       height=600,
-        #                       padding=padding.only(left=10, top=10, bottom=20, right=20),
-        #                       )
-        # # self.page.controls[0].controls.append(dashboard)
-        # self.page.controls[0].content.controls.append(dashboard)
-        # self.page.update()
         self.page.go('/dashboard')
 
     def on_list_click(self, e):
         list_title_text = e.control.title.value.split(' ')[0]
         list_name = 'today'
-        if list_title_text == '今天':
-            list_name = 'today'
-        elif list_title_text == '未来七天':
-            list_name = 'future'
-        elif list_title_text == '已过期':
-            list_name = 'expired'
-        # del self.page.controls[0].content.controls[1:]
-        # ctn_tasklist = Container(content=TaskListControl(self.token,
-        #                                                  list_name,
-        #                                                  list_title_text,
-        #                                                  False),
-        #                          expand=4,
-        #                          padding=padding.only(left=10, top=10, bottom=20, right=10),
-        #                          # margin=margin.only(bottom=20),
-        #                          )
-        # self.page.controls[0].content.controls.append(ctn_tasklist)
-        # self.col_nav.update()
-        # self.page.update()
+        match list_title_text:
+            case '今天':
+                list_name = 'today'
+            case '未来七天':
+                list_name = 'future'
+            case '已过期':
+                list_name = 'expired'
         self.page.client_storage.set('list_name', list_name)
         self.page.client_storage.set('list_title', list_title_text)
         self.page.client_storage.set('list_show_finished', False)
@@ -97,7 +74,6 @@ class NavControl(Column):
 
     def on_about_ok_click(self, e):
         self.dlg_about.open = False
-        # self.update()
         self.page.update()
 
     def on_about_click(self, e):
@@ -123,12 +99,12 @@ class NavControl(Column):
     def on_logout(self, e):
         req_result = APIRequest.logout(self.token)
         if req_result is True:
-            self.page.clean()
-            self.page.bgcolor = '#f2f4f8'
-            self.page.vertical_alignment = 'center'
-            self.page.horizontal_alignment = 'center'
-            self.page.add(login.LoginControl())
-            self.page.update()
+            # self.page.clean()
+            # self.page.bgcolor = '#f2f4f8'
+            # self.page.vertical_alignment = 'center'
+            # self.page.horizontal_alignment = 'center'
+            # self.page.update()
+            self.page.go('/login')
             return
         self.page.snack_bar = SnackBar(Text("用户退出登录请求失败!"))
         self.page.snack_bar.open = True
@@ -137,22 +113,6 @@ class NavControl(Column):
     def on_cate_click(self, e):
         cate_id = self.dct_cate.get(e.control.data)
         cate_title = self.dct_cate_title.get(e.control.data)
-        # cnt_tasklist = self.page.controls[0].controls[1]
-        # self.page.controls[0].controls.remove(cnt_tasklist)
-        # del self.page.controls[0].controls[1:]
-
-        # del self.page.controls[0].content.controls[1:]
-        # ctn_tasks = Container(content=TaskListControl(self.token,
-        #                                               cate_id,
-        #                                               cate_title,
-        #                                               False),
-        #                       expand=4,
-        #                       padding=padding.only(left=10, top=10, right=20),
-        #                       )
-        # # self.page.controls[0].controls.append(ctn_tasks)
-        # self.page.controls[0].content.controls.append(ctn_tasks)
-        # self.col_nav.update()
-        # self.page.update()
         self.page.client_storage.set('list_name', cate_id)
         self.page.client_storage.set('list_title', cate_title)
         self.page.client_storage.set('list_show_finished', False)
@@ -197,7 +157,7 @@ class NavControl(Column):
         # self.col_nav.height = self.page.window_height
 
     def on_dlg_add_cate_ok_click(self, e):
-        update_status = APIRequest.add_task_list(self.task.token,
+        update_status = APIRequest.add_task_list(self.token,
                                                  self.tf_cate.value)
         if update_status is False:
             self.page.snack_bar = SnackBar(Text("添加清单失败!"))
@@ -205,10 +165,12 @@ class NavControl(Column):
             self.page.update()
             return
 
-        nav_control = self.page.controls[0].controls[0].content
-        nav_control.update_todolist()
-        nav_control.col_nav.update()
-        nav_control.update()
+        # nav_control = self.page.controls[0].controls[0].content
+        # nav_control.update_todolist()
+        # nav_control.col_nav.update()
+        # nav_control.update()
+
+        self.update_todolist()
 
         self.dlg_add_cate.open = False
         self.page.update()
@@ -276,8 +238,8 @@ class NavControl(Column):
             self.page.drawer.open = False
             self.page.update()
 
-        btn_show_drawer = IconButton(icon=Icons.MENU,
-                                     on_click=on_draw_close)
+        # btn_show_drawer = IconButton(icon=Icons.MENU,
+        #                              on_click=on_draw_close)
 
         self.col_cate = Column(spacing=1)
         self.col_nav = Column(

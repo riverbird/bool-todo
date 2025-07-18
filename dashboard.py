@@ -1,11 +1,12 @@
 from flet import Column, Icon, Row, \
     Icons, Colors, padding, Card
+from flet.core.app_bar import AppBar
 from flet.core.container import Container
 from flet.core.icon_button import IconButton
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
+from flet.core.pagelet import Pagelet
 from flet.core.text import Text
 from flet.core.types import FontWeight, MainAxisAlignment, CrossAxisAlignment
-from flet_core import Pagelet, AppBar
 
 from api_request import APIRequest
 from tasklist import TaskListControl
@@ -37,7 +38,7 @@ class DashboardControl(Column):
                 center_title=True,
             ),
             content=Container(count_cards, padding=padding.all(0)),
-            bgcolor=Colors.AMBER_100,
+            bgcolor=Colors.WHITE,
             drawer=self.drawer,
             width=self.page.width,
             height=self.page.height

@@ -1,3 +1,4 @@
+# coding:utf-8
 import json
 from flet import Text, Card, Container, Column, Row, TextButton, TextField, Image, \
     FilledButton, Tabs, Tab, alignment, Colors, border, margin, border_radius, \

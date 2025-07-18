@@ -14,10 +14,10 @@ from api_request import APIRequest
 
 
 class TaskListControl(Row):
-    def __init__(self, page):
+    def __init__(self, page, list_id):
         super().__init__()
         self.page = page
-        self.list_name = self.page.client_storage.get('list_name')
+        self.list_name = list_id
         self.list_title = self.page.client_storage.get('list_title')
         self.show_finished = self.page.client_storage.get('list_show_finished')
 
