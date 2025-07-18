@@ -2,23 +2,31 @@ from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment,  padding, \
     Checkbox,  Card, \
     Dropdown, IconButton, dropdown, SnackBar, Colors
+from flet.core.page import Page
+
 from api_request import APIRequest
 from datetime import datetime, timedelta
 
 
-class TaskDetail(Column):
-    def __init__(self, task):
+class TaskDetail(Row):
+    def __init__(self, page:Page, task_info):
         super().__init__()
-        self.task = task
+        self.page = page
+        self.task_info = task_info
+        detail_control = self.build()
+        self.controls = [detail_control]
 
     def on_close_click(self, e):
-        if len(self.page.controls[0].content.controls) == 3:
-            detail_control = self.page.controls[0].content.controls[2]
-            self.page.controls[0].content.controls.remove(detail_control)
-            self.page.update()
+        # if len(self.page.controls[0].content.controls) == 3:
+        #     detail_control = self.page.controls[0].content.controls[2]
+        #     self.page.controls[0].content.controls.remove(detail_control)
+        #     self.page.update()
+        self.page.end_drawer.open = False
+        self.page.update()
 
     def query_tasks_cate(self):
-        ret_result = APIRequest.query_todolist(self.task.token)
+        token = self.page.client_storage.get('token')
+        ret_result = APIRequest.query_todolist(token)
         dct_result = {}
         todo_data = ret_result[1].get('todo_data')
         for itm in todo_data:
@@ -65,9 +73,10 @@ class TaskDetail(Column):
     def on_task_cate_change(self, e):
         selected_cate = self.dpd_cate.value
         new_cate = list(self.dct_cates.keys())[list(self.dct_cates.values()).index(selected_cate)]
-        update_status = APIRequest.update_task_cate(self.task.token,
-                                                    self.task.task_info.get('task_time'),
-                                                    self.task.task_info.get('id'),
+        token = self.page.client_storage.get('token')
+        update_status = APIRequest.update_task_cate(token,
+                                                    self.task_info.get('task_time'),
+                                                    self.task_info.get('id'),
                                                     new_cate)
         if update_status is False:
             self.page.snack_bar = SnackBar(Text("更新任务目录失败!"))
@@ -80,9 +89,10 @@ class TaskDetail(Column):
         selected_repeat = self.dpd_repeat.value
         lst_repeat = ['无', '每天', '每周工作日', '每周', '每月', '每年']
         idx = lst_repeat.index(selected_repeat)
-        update_status = APIRequest.update_task_repeat(self.task.token,
-                                                      self.task.task_info.get('id'),
-                                                      self.task.task_info.get('task_time'),
+        token = self.page.client_storage.get('token')
+        update_status = APIRequest.update_task_repeat(token,
+                                                      self.task_info.get('id'),
+                                                      self.task_info.get('task_time'),
                                                       idx)
         if update_status is False:
             self.page.snack_bar = SnackBar(Text("更新任务重复状态失败!"))
@@ -95,9 +105,10 @@ class TaskDetail(Column):
         selected_level = self.dpd_level.value
         lst_level = ['重要紧急', '重要不紧急', '不重要紧急', '不重要不紧急']
         idx = lst_level.index(selected_level)
-        update_status = APIRequest.update_task_level(self.task.token,
-                                                     self.task.task_info.get('id'),
-                                                     self.task.task_info.get('task_time'),
+        token = self.page.client_storage.get('token')
+        update_status = APIRequest.update_task_level(token,
+                                                     self.task_info.get('id'),
+                                                     self.task_info.get('task_time'),
                                                      idx)
         if update_status is False:
             self.page.snack_bar = SnackBar(Text("更新任务象限失败!"))
@@ -107,8 +118,9 @@ class TaskDetail(Column):
         self.refresh()
 
     def on_task_name_change(self, e):
-        update_status = APIRequest.update_task_name(self.task.token,
-                                                    self.task.task_info.get('id'),
+        token = self.page.client_storage.get('token')
+        update_status = APIRequest.update_task_name(token,
+                                                    self.task_info.get('id'),
                                                     self.tf_task_name.value
                                                     )
         if update_status is False:
@@ -120,8 +132,9 @@ class TaskDetail(Column):
 
     def on_task_status_change(self, e):
         if self.cb_name.value is True:
-            ret_result = APIRequest.update_task_status(self.task.token,
-                                                       self.task.task_info.get('id'))
+            token = self.page.client_storage.get('token')
+            ret_result = APIRequest.update_task_status(token,
+                                                       self.task_info.get('id'))
             if ret_result is True:
                 self.update()
                 self.refresh()
@@ -131,9 +144,10 @@ class TaskDetail(Column):
                     self.page.update()
 
     def on_task_desc_change(self, e):
-        update_status = APIRequest.update_task_desc(self.task.token,
-                                                    self.task.task_info.get('id'),
-                                                    self.task.task_info.get('task_time'),
+        token = self.page.client_storage.get('token')
+        update_status = APIRequest.update_task_desc(token,
+                                                    self.task_info.get('id'),
+                                                    self.task_info.get('task_time'),
                                                     self.tf_comment.value)
         if update_status is False:
             self.page.snack_bar = SnackBar(Text("更新任务描述信息失败!"))
@@ -143,8 +157,9 @@ class TaskDetail(Column):
         self.refresh()
 
     def on_task_delete(self, e):
-        update_status = APIRequest.delete_task(self.task.token,
-                                               self.task.task_info.get('id'))
+        token = self.page.client_storage.get('token')
+        update_status = APIRequest.delete_task(token,
+                                               self.task_info.get('id'))
         if update_status is False:
             self.page.snack_bar = SnackBar(Text("删除失败!"))
             self.page.snack_bar.open = True
@@ -159,14 +174,13 @@ class TaskDetail(Column):
     def build(self):
         self.cb_name = Checkbox(
             # label=self.task.task_info.get('task_name'),
-            value=self.task.task_info.get('task_status'),
+            value=self.task_info.get('task_status'),
             on_change=self.on_task_status_change)
-        self.tf_task_name = TextField(value=self.task.task_info.get('task_name'),
+        self.tf_task_name = TextField(value=self.task_info.get('task_name'),
                                       expand=True,
                                       border_width=0,
                                       on_blur=self.on_task_name_change)
         self.dpd_cate = Dropdown(width=300,
-                                 height=50,
                                  hint_text='清单',
                                  icon=Icons.LIST,
                                  on_change=self.on_task_cate_change,
@@ -175,43 +189,40 @@ class TaskDetail(Column):
         lst_cates = self.dct_cates.values()
         for itm in lst_cates:
             self.dpd_cate.options.append(dropdown.Option(itm))
-        cate_id = self.task.task_info.get('todo_from')
+        cate_id = self.task_info.get('todo_from')
         self.dpd_cate.value = self.dct_cates.get(cate_id)
 
         self.dpd_date = Dropdown(width=300,
-                                 height=50,
                                  hint_text='日期',
                                  icon=Icons.DATE_RANGE,
                                  options=[dropdown.Option('今天'),
                                           dropdown.Option('明天'),
                                           dropdown.Option('下周一'),
-                                          dropdown.Option(self.task.task_info.get('task_time')),
+                                          dropdown.Option(self.task_info.get('task_time')),
                                           ],
                                  on_change=self.on_task_date_change,
                                  )
-        self.dpd_date.value = self.task.task_info.get('task_time')
+        self.dpd_date.value = self.task_info.get('task_time')
 
         lst_repeat = ['无', '每天', '每周工作日', '每周', '每月', '每年']
         self.dpd_repeat = Dropdown(width=300,
-                                   height=50,
                                    hint_text='重复',
                                    icon=Icons.REPEAT,
                                    on_change=self.on_task_repeat_change,
                                    )
         for itm in lst_repeat:
             self.dpd_repeat.options.append(dropdown.Option(itm))
-        self.dpd_repeat.value = lst_repeat[self.task.task_info.get('task_repeat')]
+        self.dpd_repeat.value = lst_repeat[self.task_info.get('task_repeat', 0)]
 
         lst_level = ['重要紧急', '重要不紧急', '不重要紧急', '不重要不紧急']
         self.dpd_level = Dropdown(width=300,
-                                  height=50,
                                   hint_text='象限',
                                   icon=Icons.PRIORITY_HIGH,
                                   on_change=self.on_task_level_change,
                                   )
         for itm in lst_level:
             self.dpd_level.options.append(dropdown.Option(itm))
-        self.dpd_level.value = lst_level[self.task.task_info.get('type')]
+        self.dpd_level.value = lst_level[self.task_info.get('type', 0)]
 
         card_basic = Card(
             content=Container(
@@ -231,7 +242,7 @@ class TaskDetail(Column):
         self.tf_comment = TextField(hint_text='添加备注',
                                     multiline=True,
                                     expand=True,
-                                    value=self.task.task_info.get('task_desc'),
+                                    value=self.task_info.get('task_desc'),
                                     on_blur=self.on_task_desc_change,
                                     # height=180,
                                     )
@@ -259,7 +270,7 @@ class TaskDetail(Column):
 
         # create_time = datetime.strptime(self.task.task_info.get('create_time'),
         #                                 "%Y-%m-%d %H:%M:%S")
-        create_time = self.task.task_info.get('create_time').split('.')[0]
+        create_time = self.task_info.get('create_time').split('.')[0]
         row_bottom = Row(
             [Icon(name=Icons.FORWARD,
                   # color=colors.BLACK38

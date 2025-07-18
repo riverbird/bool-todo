@@ -2,6 +2,7 @@ from datetime import datetime
 from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment, Colors, padding, \
     Switch, SnackBar, ListView
+from flet.core import border
 from flet.core.app_bar import AppBar
 from flet.core.form_field_control import InputBorder
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
@@ -11,6 +12,7 @@ from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisA
 import nav
 from task import Task
 from api_request import APIRequest
+from task_detail import TaskDetail
 
 
 class TaskListControl(Row):
@@ -21,6 +23,7 @@ class TaskListControl(Row):
         self.list_title = self.page.client_storage.get('list_title')
         self.show_finished = self.page.client_storage.get('list_show_finished')
 
+        # 左侧drawer
         token = self.page.client_storage.get('token')
         self.drawer = NavigationDrawer(
             position=NavigationDrawerPosition.START,
@@ -30,6 +33,19 @@ class TaskListControl(Row):
                                 # margin=margin.only(right=10, bottom=10),
                                 bgcolor=Colors.WHITE,
                                 )]
+        )
+
+        # 右侧drawer
+        detail_info = TaskDetail(self.page, {})
+        self.end_drawer = NavigationDrawer(
+            position=NavigationDrawerPosition.END,
+            controls=[Container(content=detail_info,
+                               width=300,
+                               # bgcolor=colors.WHITE,
+                               bgcolor='#f2f4f8',
+                               border=border.all(1, Colors.BLACK12),
+                               # on_hover=self.on_detail_hover,
+                               )]
         )
 
         task_list_controls = self.build()
@@ -42,6 +58,7 @@ class TaskListControl(Row):
             content=Container(task_list_controls, padding=padding.all(0)),
             bgcolor=Colors.WHITE24,
             drawer=self.drawer,
+            end_drawer=self.end_drawer,
             width=self.page.width,
             height=self.page.height
         )
@@ -71,7 +88,8 @@ class TaskListControl(Row):
             if self.show_finished is False:
                 if itm.get('task_status') is True:
                     continue
-            task_item = Task(self,
+            task_item = Task(self.page,
+                             self,
                              token,
                              itm)
             # self.col_task.controls.append(task_item)

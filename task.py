@@ -1,6 +1,7 @@
 from flet import Text, Container, Column, Row, \
     Colors, border_radius, padding, \
     Checkbox, Card, alignment, Alignment, Icon, Icons, border
+from flet.core.page import Page
 from flet.core.types import MainAxisAlignment
 
 from api_request import APIRequest
@@ -8,8 +9,9 @@ from task_detail import TaskDetail
 
 
 class Task(Row):
-    def __init__(self, task_control, token, task_info):
+    def __init__(self, page:Page, task_control, token, task_info):
         super().__init__()
+        self.page = page
         self.task_control = task_control
         self.token = token
         self.task_info = task_info
@@ -37,20 +39,22 @@ class Task(Row):
                 self.page.update()
 
     def on_task_item_click(self, e):
-        if len(self.page.controls[0].content.controls) == 3:
-            detail_control = self.page.controls[0].content.controls[2]
-            self.page.controls[0].content.controls.remove(detail_control)
-            self.page.update()
-            return
-        detail_info = TaskDetail(self)
-        ctn_detail = Container(content=detail_info,
-                               width=300,
-                               # bgcolor=colors.WHITE,
-                               bgcolor='#f2f4f8',
-                               border=border.all(1, Colors.BLACK12),
-                               # on_hover=self.on_detail_hover,
-                               )
-        self.page.controls[0].content.controls.append(ctn_detail)
+        # if len(self.page.controls[0].content.controls) == 3:
+        #     detail_control = self.page.controls[0].content.controls[2]
+        #     self.page.controls[0].content.controls.remove(detail_control)
+        #     self.page.update()
+        #     return
+        # detail_info = TaskDetail(self)
+        # ctn_detail = Container(content=detail_info,
+        #                        width=300,
+        #                        # bgcolor=colors.WHITE,
+        #                        bgcolor='#f2f4f8',
+        #                        border=border.all(1, Colors.BLACK12),
+        #                        # on_hover=self.on_detail_hover,
+        #                        )
+        # self.page.controls[0].content.controls.append(ctn_detail)
+        # self.page.update()
+        self.page.end_drawer.open = True
         self.page.update()
 
     def build(self):
