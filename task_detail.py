@@ -16,11 +16,11 @@ class TaskDetail(Row):
         detail_control = self.build()
         self.controls = [detail_control]
 
+    def set_title(self, title):
+        self.tf_task_name.value = title
+        self.page.update()
+
     def on_close_click(self, e):
-        # if len(self.page.controls[0].content.controls) == 3:
-        #     detail_control = self.page.controls[0].content.controls[2]
-        #     self.page.controls[0].content.controls.remove(detail_control)
-        #     self.page.update()
         self.page.end_drawer.open = False
         self.page.update()
 
@@ -172,54 +172,63 @@ class TaskDetail(Row):
             self.page.update()
 
     def build(self):
+        # CheckBox任务完成状态
         self.cb_name = Checkbox(
             # label=self.task.task_info.get('task_name'),
-            value=self.task_info.get('task_status'),
+            value=self.task_info.get('task_status', 0),
             on_change=self.on_task_status_change)
-        self.tf_task_name = TextField(value=self.task_info.get('task_name'),
-                                      expand=True,
-                                      border_width=0,
-                                      on_blur=self.on_task_name_change)
+        # 任务名称
+        # self.tf_task_name = TextField(value=self.task_info.get('task_name', '不知名'),
+        #                               expand=True,
+        #                               border_width=1,
+        #                               on_blur=self.on_task_name_change,
+        #                               height=100)
+        self.tf_task_name = TextField(value='你好吗')
+        # 任务分类
         self.dpd_cate = Dropdown(width=300,
                                  hint_text='清单',
                                  icon=Icons.LIST,
-                                 on_change=self.on_task_cate_change,
-                                 )
+                                 on_change=self.on_task_cate_change)
         self.dct_cates = self.query_tasks_cate()
         lst_cates = self.dct_cates.values()
         for itm in lst_cates:
             self.dpd_cate.options.append(dropdown.Option(itm))
-        cate_id = self.task_info.get('todo_from')
+        self.dct_cates[-1] = '--'
+        self.dpd_cate.options.append(dropdown.Option('--'))
+        cate_id = self.task_info.get('todo_from', -1)
         self.dpd_cate.value = self.dct_cates.get(cate_id)
-
+        # 任务日期
         self.dpd_date = Dropdown(width=300,
                                  hint_text='日期',
                                  icon=Icons.DATE_RANGE,
                                  options=[dropdown.Option('今天'),
                                           dropdown.Option('明天'),
                                           dropdown.Option('下周一'),
-                                          dropdown.Option(self.task_info.get('task_time')),
+                                          dropdown.Option(self.task_info.get('task_time', '--')),
                                           ],
-                                 on_change=self.on_task_date_change,
-                                 )
-        self.dpd_date.value = self.task_info.get('task_time')
-
+                                 on_change=self.on_task_date_change)
+        if not self.task_info:
+            self.dpd_date.value = '今天'
+        else:
+            self.dpd_date.value = self.task_info.get('task_time')
+        # 任务重复
         lst_repeat = ['无', '每天', '每周工作日', '每周', '每月', '每年']
         self.dpd_repeat = Dropdown(width=300,
                                    hint_text='重复',
                                    icon=Icons.REPEAT,
-                                   on_change=self.on_task_repeat_change,
-                                   )
+                                   on_change=self.on_task_repeat_change)
         for itm in lst_repeat:
             self.dpd_repeat.options.append(dropdown.Option(itm))
-        self.dpd_repeat.value = lst_repeat[self.task_info.get('task_repeat', 0)]
-
+        if not self.task_info:
+            self.dpd_repeat.value = '无'
+        else:
+            self.dpd_repeat.value = lst_repeat[self.task_info.get('task_repeat', 0)]
+        # 任务紧急度
         lst_level = ['重要紧急', '重要不紧急', '不重要紧急', '不重要不紧急']
         self.dpd_level = Dropdown(width=300,
                                   hint_text='象限',
                                   icon=Icons.PRIORITY_HIGH,
-                                  on_change=self.on_task_level_change,
-                                  )
+                                  on_change=self.on_task_level_change)
         for itm in lst_level:
             self.dpd_level.options.append(dropdown.Option(itm))
         self.dpd_level.value = lst_level[self.task_info.get('type', 0)]
@@ -242,10 +251,8 @@ class TaskDetail(Row):
         self.tf_comment = TextField(hint_text='添加备注',
                                     multiline=True,
                                     expand=True,
-                                    value=self.task_info.get('task_desc'),
-                                    on_blur=self.on_task_desc_change,
-                                    # height=180,
-                                    )
+                                    value=self.task_info.get('task_desc', ''),
+                                    on_blur=self.on_task_desc_change)
         card_comment = Card(
             content=Container(
                 content=self.tf_comment,
@@ -264,13 +271,15 @@ class TaskDetail(Row):
                       height=100,
                       # bgcolor='#f2f4f8',
                       alignment=alignment.center_left,
-                      padding=padding.only(left=10, right=10),
-                      )
+                      padding=padding.only(left=10, right=10))
         )
 
         # create_time = datetime.strptime(self.task.task_info.get('create_time'),
         #                                 "%Y-%m-%d %H:%M:%S")
-        create_time = self.task_info.get('create_time').split('.')[0]
+        if not self.task_info:
+            create_time = '--'
+        else:
+            create_time = self.task_info.get('create_time').split('.')[0]
         row_bottom = Row(
             [Icon(name=Icons.FORWARD,
                   # color=colors.BLACK38

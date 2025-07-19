@@ -1,6 +1,7 @@
 from flet import Text, Container, Column, Row, \
     Colors, border_radius, padding, \
     Checkbox, Card, alignment, Alignment, Icon, Icons, border
+from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
 from flet.core.page import Page
 from flet.core.types import MainAxisAlignment
 
@@ -54,6 +55,24 @@ class Task(Row):
         #                        )
         # self.page.controls[0].content.controls.append(ctn_detail)
         # self.page.update()
+
+        # detail_info = TaskDetail(self.page, self.task_info)
+        # self.end_drawer = NavigationDrawer(
+        #     position=NavigationDrawerPosition.END,
+        #     controls=[Container(content=detail_info,
+        #                         width=300,
+        #                         # bgcolor=colors.WHITE,
+        #                         bgcolor='#f2f4f8',
+        #                         border=border.all(1, Colors.BLACK12),
+        #                         # on_hover=self.on_detail_hover,
+        #                         )]
+        # )
+        # self.page.end_drawer = self.end_drawer
+
+        task_detail = self.page.end_drawer.controls[0].content
+        # task_detail.set_title(self.task_info.get('task_name'))
+        task_detail.set_title('我不好')
+
         self.page.end_drawer.open = True
         self.page.update()
 

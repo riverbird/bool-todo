@@ -64,6 +64,8 @@ class TaskListControl(Row):
         )
 
         self.controls = [pagelet]
+        self.page.drawer = self.drawer
+        self.page.end_drawer = self.end_drawer
 
     def query_tasks_by_list(self, list_name):
         lst_ret = []
