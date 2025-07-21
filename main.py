@@ -25,48 +25,6 @@ def dashboard_interface(page: Page):
 def tasklist_interface(page: Page, list_id):
     return TaskListControl(page, list_id)
 
-def show_login_interface(page):
-    page.add(LoginControl())
-
-def show_main_interface(page, token):
-    page.clean()
-    page.horizontal_alignment = CrossAxisAlignment.START
-    page.vertical_alignment = MainAxisAlignment.START
-    page.padding = padding.all(10)
-
-    left_drawer = NavigationDrawer(
-        controls=[Container(content=NavControl(token),
-                            expand=1,
-                            padding=padding.only(right=10, top=10, bottom=10),
-                            # margin=margin.only(right=10, bottom=10),
-                            bgcolor=Colors.WHITE,
-                            )]
-    )
-
-    btn_show_drawer = IconButton(icon=Icons.MENU,
-                                 on_click=lambda e: page.open(left_drawer))
-
-    rows_main = Row([
-                    Container(content=NavControl(token),
-                               expand=1,
-                               padding=padding.only(right=10, top=10, bottom=10),
-                               # margin=margin.only(right=10, bottom=10),
-                               bgcolor=Colors.WHITE,
-                               ),
-                    Container(content=DashboardControl(token),
-                               expand=4,
-                               padding=padding.only(left=10, top=10, bottom=20, right=20),
-                               ),
-                    ],
-                    alignment=MainAxisAlignment.SPACE_AROUND,
-                    vertical_alignment=CrossAxisAlignment.STRETCH,
-                    )
-    ctn_main = Container(content=rows_main,
-                         expand=True,
-                         )
-    page.add(btn_show_drawer)
-    page.add(ctn_main)
-
 
 def main(page: Page):
     # 页面属性

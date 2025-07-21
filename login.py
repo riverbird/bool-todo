@@ -1,44 +1,65 @@
 # coding:utf-8
 import json
+from enum import Enum
+
 from flet import Text, Card, Container, Column, Row, TextButton, TextField, Image, \
     FilledButton, Tabs, Tab, alignment, Colors, border, margin, border_radius, \
     padding, SnackBar
-from flet.core.border_radius import horizontal
 from flet.core.form_field_control import InputBorder
 from flet.core.icon_button import IconButton
 from flet.core.icons import Icons
 from flet.core.navigation_drawer import NavigationDrawer
 from flet.core.types import MainAxisAlignment, CrossAxisAlignment, ImageFit, FontWeight
+from flet_core import Alignment
+from flet_core.canvas import shadow
 
 from nav import NavControl
 from dashboard import DashboardControl
 from api_request import APIRequest
 
+class LoginViewStatus(Enum):
+    ViewLoginUsername = 0,
+    ViewLoginSmsView = 1,
+    ViewRegistration = 2
+
 
 class LoginControl(Column):
     def __init__(self, page):
         super().__init__()
-        self.view_status = 0  # 用于甄别具体是何登录注册视图
+        self.page = page
+        self.view_status:LoginViewStatus = LoginViewStatus.ViewLoginUsername  # 用于甄别具体是何登录注册视图
         container_login = self.build()
         self.controls = [container_login]
 
     def on_tab_change(self, e):
-        if self.tabs_login.selected_index == 0:
-            self.view_status = 0
-        elif self.tabs_login.selected_index == 1:
-            self.view_status = 2
+        match self.tabs_login.selected_index:
+            case 0:
+                self.view_status = LoginViewStatus.ViewLoginUsername
+            case 1:
+                self.view_status = LoginViewStatus.ViewRegistration
 
     def on_id_code_login_click(self, e):
-        self.view_status = 1
-        self.tabs_login.tabs[0].content = Container(content=self.card_login_id_code,
-                                                    alignment=alignment.center)
-        self.tabs_login.update()
+        self.view_status = LoginViewStatus.ViewLoginSmsView
+        # self.tabs_login.tabs[0].content.content = self.card_login_id_code
+        self.tabs_login.tabs[0] = Tab(
+                    text="登录",
+                    content=Container(
+                        content=self.card_login_id_code,
+                        # alignment=alignment.center,
+                        padding=10,
+                        margin=10,
+                    ),
+                )
+        # self.tabs_login.update()
+        # e.page.update()
 
     def on_password_login_click(self, e):
-        self.view_status = 0
-        self.tabs_login.tabs[0].content = Container(content=self.card_login,
-                                                    alignment=alignment.center)
-        self.tabs_login.update()
+        self.view_status = LoginViewStatus.ViewLoginUsername
+        self.tabs_login.tabs[0].content = Container(
+            content=self.card_login,
+            padding=10,
+            margin=10)
+        # self.tabs_login.update()
 
     def on_send_sms(self, e):
         req_result = APIRequest.send_sms(self.tf_phone_num.value)
@@ -51,7 +72,7 @@ class LoginControl(Column):
     # 用户名密码登录
     def on_login_click(self, e):
         # self.page.bgcolor = '#f2f4f8' if self.page.theme_mode == 'light' else colors.BLACK87
-        if self.view_status != 0:
+        if self.view_status != LoginViewStatus.ViewLoginUsername:
             return
         req = APIRequest.login_by_password(self.tf_phone_num.value, self.tf_password.value)
         json_req = json.loads(req.text)
@@ -86,7 +107,7 @@ class LoginControl(Column):
         self.page.go('/dashboard')
 
     def on_code_login_click(self, e):
-        if self.view_status != 1:
+        if self.view_status != LoginViewStatus.ViewLoginSmsView:
             return
         req = APIRequest.login_by_code(self.tf_phone_num.value, self.tf_verify_code.value)
         json_req = req
@@ -176,14 +197,29 @@ class LoginControl(Column):
 
     def build(self):
         self.tf_phone_num = TextField(label='手机号',
-                                      border=InputBorder.UNDERLINE,
+                                      # icon=Icons.PHONE,
+                                      border=InputBorder.OUTLINE,
                                       value='13588459825',
                                       )
         self.tf_password = TextField(label='密码',
-                                     border=InputBorder.UNDERLINE,
+                                     # icon=Icons.PASSWORD,
+                                     border=InputBorder.OUTLINE,
                                      value='iloveyou365',
                                      password=True,
                                      can_reveal_password=True)
+        self.tf_verify_code = TextField(label='验证码',
+                                        # icon=Icons.CODE,
+                                        border=InputBorder.OUTLINE)
+        self.tf_pass_1 = TextField(label='请输入密码',
+                                   # icon=Icons.PASSWORD,
+                                   border=InputBorder.OUTLINE,
+                                   password=True,
+                                   can_reveal_password=True)
+        self.tf_pass_2 = TextField(label='请确认密码',
+                                   # icon=Icons.PASSWORD,
+                                   border=InputBorder.OUTLINE,
+                                   password=True,
+                                   can_reveal_password=True)
         self.card_login = Card(
             elevation=0,
             content=Container(
@@ -191,7 +227,10 @@ class LoginControl(Column):
                     [
                         self.tf_phone_num,
                         self.tf_password,
-                        FilledButton(text='登录', width=300, on_click=self.on_login_click),
+                        FilledButton(text='登录',
+                                     icon=Icons.LOGIN,
+                                     width=400,
+                                     on_click=self.on_login_click),
                         TextButton('验证码登录', on_click=self.on_id_code_login_click)
                     ]
                 ),
@@ -201,8 +240,6 @@ class LoginControl(Column):
             )
         )
 
-        self.tf_verify_code = TextField(label='验证码',
-                                        border=InputBorder.UNDERLINE,)
         self.card_login_id_code = Card(
             elevation=0,
             content=Container(
@@ -213,7 +250,7 @@ class LoginControl(Column):
                             [self.tf_verify_code,
                              TextButton('获取验证码', on_click=self.on_send_sms)]
                         ),
-                        FilledButton(text='登录', width=300, on_click=self.on_code_login_click),
+                        FilledButton(text='登录', width=400, on_click=self.on_code_login_click),
                         TextButton('密码登录', on_click=self.on_password_login_click)
                     ]
                 ),
@@ -223,14 +260,6 @@ class LoginControl(Column):
             )
         )
 
-        self.tf_pass_1 = TextField(label='请输入密码',
-                                   border=InputBorder.UNDERLINE,
-                                   password=True,
-                                   can_reveal_password=True)
-        self.tf_pass_2 = TextField(label='请确认密码',
-                                   border=InputBorder.UNDERLINE,
-                                   password=True,
-                                   can_reveal_password=True)
         self.card_reg = Card(
             elevation=0,
             content=Container(
@@ -239,7 +268,10 @@ class LoginControl(Column):
                         self.tf_phone_num,
                         self.tf_pass_1,
                         self.tf_pass_2,
-                        FilledButton(text='注册', width=400, on_click=self.on_reg_click),
+                        FilledButton(text='注册',
+                                     width=400,
+                                     icon=Icons.APP_REGISTRATION,
+                                     on_click=self.on_reg_click),
                     ]
                 ),
                 width=400,
@@ -256,7 +288,7 @@ class LoginControl(Column):
                     text="登录",
                     content=Container(
                         content=self.card_login,
-                        alignment=alignment.center,
+                        # alignment=alignment.center,
                         padding=10,
                         margin=10,
                     ),
@@ -265,13 +297,13 @@ class LoginControl(Column):
                     text="注册",
                     content=Container(
                         content=self.card_reg,
-                        alignment=alignment.center,
+                        # alignment=alignment.center,
                         padding=10,
                         margin=10,
                     ),
                 ),
             ],
-            expand=1,
+            expand=True,
             on_change=self.on_tab_change,
         )
 
@@ -293,11 +325,10 @@ class LoginControl(Column):
             ),
             padding=20,
             margin=margin.all(20),
-            width=500,
-            height=440,
+            width=self.page.width,
+            height=450,
             border=border.all(1, Colors.BLACK12),
-            bgcolor=Colors.WHITE,
-            alignment=alignment.center
+            bgcolor=Colors.WHITE
         )
 
         return container_login

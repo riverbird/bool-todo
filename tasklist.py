@@ -37,7 +37,7 @@ class TaskListControl(Row):
         )
 
         # 右侧drawer
-        detail_info = TaskDetail(self.page, {})
+        detail_info = TaskDetail(self.page, self, {})
         self.end_drawer = NavigationDrawer(
             position=NavigationDrawerPosition.END,
             controls=[Container(content=detail_info,
@@ -157,16 +157,27 @@ class TaskListControl(Row):
         # self.controls = [pagelet]
 
         # 这种方法相对轻量一点
-        task_list_controls = self.build()
-        self.pagelet.content = Container(task_list_controls, padding=padding.all(0))
-
-        self.page.update()
+        self.update_list()
 
         # nav_control = self.page.controls[0].content.controls[0].content
         # nav_control.update_todolist()
         # nav_control.col_nav.update()
         # nav_control.update()
         # self.input_task.focus()
+
+    def update_list(self):
+        task_list_controls = self.build()
+        self.pagelet.content = Container(task_list_controls, padding=padding.all(0))
+
+        token = self.page.client_storage.get('token')
+        self.drawer.controls = [Container(content=nav.NavControl(self.page, token),
+                                expand=1,
+                                padding=padding.only(right=10, top=10, bottom=10),
+                                # margin=margin.only(right=10, bottom=10),
+                                bgcolor=Colors.WHITE,
+                                )]
+
+        self.page.update()
 
     def build(self):
         dct_title = {"today": "今天",

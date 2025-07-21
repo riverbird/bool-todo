@@ -1,6 +1,6 @@
 from flet import Text, Container, Column, Row, \
     Colors, border_radius, padding, \
-    Checkbox, Card, alignment, Alignment, Icon, Icons, border
+    Checkbox, Card, Icon, Icons, border
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
 from flet.core.page import Page
 from flet.core.types import MainAxisAlignment
@@ -20,31 +20,19 @@ class Task(Row):
         self.controls = [task_control]
 
     def on_checkbox_change(self, e):
-        if self.cb_task.value is True:
+        if e.control.value is True:
             ret_result = APIRequest.update_task_status(self.token, self.task_info.get('id'))
             if ret_result is True:
-                self.update()
-                self.task_control.query_tasks_by_list(self.task_control.list_name)
-                self.task_control.update()
+                self.task_control.update_list()
 
-                nav_control = self.page.controls[0].content.controls[0].content
-                nav_control.update_todolist()
-                nav_control.col_nav.update()
-                nav_control.update()
-
-    def on_detail_hover(self, e):
-        if e.data == "false":
-            if len(self.page.controls[0].content.controls) == 3:
-                detail_control = self.page.controls[0].content.controls[2]
-                self.page.controls[0].content.controls.remove(detail_control)
-                self.page.update()
+    # def on_detail_hover(self, e):
+    #     if e.data == "false":
+    #         if len(self.page.controls[0].content.controls) == 3:
+    #             detail_control = self.page.controls[0].content.controls[2]
+    #             self.page.controls[0].content.controls.remove(detail_control)
+    #             self.page.update()
 
     def on_task_item_click(self, e):
-        # if len(self.page.controls[0].content.controls) == 3:
-        #     detail_control = self.page.controls[0].content.controls[2]
-        #     self.page.controls[0].content.controls.remove(detail_control)
-        #     self.page.update()
-        #     return
         # detail_info = TaskDetail(self)
         # ctn_detail = Container(content=detail_info,
         #                        width=300,
@@ -73,8 +61,9 @@ class Task(Row):
         # task_detail.set_title(self.task_info.get('task_name'))
         # task_detail.set_title('我不好')
         # task_detail.update()
+
         # 右侧drawer
-        detail_info = TaskDetail(self.page, self.task_info)
+        detail_info = TaskDetail(self.page, self.task_control, self.task_info)
         self.page.end_drawer.controls = [Container(content=detail_info,
                                 width=300,
                                 # bgcolor=colors.WHITE,
@@ -124,5 +113,5 @@ class Task(Row):
                                                 on_click=self.on_task_item_click,
                                                 ),
                               elevation=0.5,
-                              )
+                              expand=True)
         return container_task
