@@ -3,6 +3,7 @@ import json
 from flet import Text, Card, Container, Column, Row, TextButton, TextField, Image, \
     FilledButton, Tabs, Tab, alignment, Colors, border, margin, border_radius, \
     padding, SnackBar
+from flet.core.border_radius import horizontal
 from flet.core.form_field_control import InputBorder
 from flet.core.icon_button import IconButton
 from flet.core.icons import Icons
@@ -287,7 +288,8 @@ class LoginControl(Column):
                              ),
                     ]),
                     self.tabs_login,
-                ]
+                ],
+                horizontal_alignment=CrossAxisAlignment.CENTER
             ),
             padding=20,
             margin=margin.all(20),
@@ -295,7 +297,7 @@ class LoginControl(Column):
             height=440,
             border=border.all(1, Colors.BLACK12),
             bgcolor=Colors.WHITE,
-            alignment=alignment.center,
+            alignment=alignment.center
         )
 
         return container_login

@@ -70,6 +70,7 @@ def show_main_interface(page, token):
 
 def main(page: Page):
     # 页面属性
+    page.adaptive = True
     page.title = '布尔清单'
     page.bgcolor = '#f2f4f8'
     page.vertical_alignment = MainAxisAlignment.CENTER

@@ -1,5 +1,6 @@
 from flet import Column, Icon, Row, \
     Icons, Colors, padding, Card
+from flet.core.alignment import Alignment
 from flet.core.app_bar import AppBar
 from flet.core.container import Container
 from flet.core.icon_button import IconButton
@@ -23,7 +24,7 @@ class DashboardControl(Column):
             position=NavigationDrawerPosition.START,
             controls=[Container(content=nav.NavControl(page, token),
                                 expand=1,
-                                padding=padding.only(right=10, top=10, bottom=10),
+                                padding=padding.only(left=0, top=0, right=0, bottom=0),
                                 # margin=margin.only(right=10, bottom=10),
                                 bgcolor=Colors.WHITE,
                                 )]
@@ -36,6 +37,7 @@ class DashboardControl(Column):
                 title=Text("仪表盘"),
                 bgcolor=Colors.BLUE,
                 center_title=True,
+                toolbar_height=40,
             ),
             content=Container(count_cards, padding=padding.all(0)),
             bgcolor=Colors.WHITE,
@@ -135,12 +137,15 @@ class DashboardControl(Column):
 
     def build(self):
         dct_info = self.query_summary_info()
-        btn_show_drawer = IconButton(icon=Icons.MENU,
-                                     on_click=self.open_drawer)
 
         card_all = Card(content=Container(
-            content=Column([Text('全部待办', weight=FontWeight.BOLD, size=16, color=Colors.WHITE54),
-                            Row([Text(f'{dct_info.get("num_all")}', color=Colors.WHITE, size=24),
+            content=Column([Text('全部待办',
+                                 weight=FontWeight.BOLD,
+                                 size=16,
+                                 color=Colors.WHITE54),
+                            Row([Text(f'{dct_info.get("num_all")}',
+                                      color=Colors.WHITE,
+                                      size=24),
                                  Icon(Icons.ALL_INBOX, color='white')],
                                 alignment=MainAxisAlignment.SPACE_BETWEEN)
                             ]),
@@ -150,8 +155,9 @@ class DashboardControl(Column):
             expand=True,
             on_click=self.on_all_click,
         ),
-            width=200,
+            # width=200,
             height=120,
+            expand=True,
             elevation=2,
         )
         card_today = Card(content=Container(
@@ -165,8 +171,9 @@ class DashboardControl(Column):
             expand=True,
             on_click=self.on_today_click,
         ),
-            width=200,
+            # width=200,
             height=120,
+            expand=True,
             elevation=2,
         )
         card_future = Card(content=Container(
@@ -180,8 +187,9 @@ class DashboardControl(Column):
             expand=True,
             on_click=self.on_future_click,
         ),
-            width=200,
+            # width=200,
             height=120,
+            expand=True,
             elevation=2,
         )
         card_expired = Card(content=Container(
@@ -195,8 +203,9 @@ class DashboardControl(Column):
             expand=True,
             on_click=self.on_expired_click,
         ),
-            width=200,
+            # width=200,
             height=120,
+            expand=True,
             elevation=2,
         )
         row_stat_1 = Row([card_all, card_today],
@@ -206,7 +215,6 @@ class DashboardControl(Column):
                        expand=True,
                        alignment=MainAxisAlignment.START)
         col_dash = Column([
-            # btn_show_drawer,
             Text(f'欢迎您，{dct_info.get("nickname")}',
                                 weight=FontWeight.BOLD, size=24, ),
             Text('以下是当前任务统计数据',
@@ -216,6 +224,7 @@ class DashboardControl(Column):
                            # Container(content=row_info, expand=True)]
             row_stat_1,
             row_stat_2],
-            alignment=MainAxisAlignment.START)
+            alignment=MainAxisAlignment.CENTER,
+            spacing=1)
 
         return col_dash

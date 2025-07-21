@@ -1,8 +1,7 @@
 from flet import Text, Container, Column, Icon, Row, TextField, \
-    Icons, alignment,  padding, \
-    Checkbox,  Card, \
-    Dropdown, IconButton, dropdown, SnackBar, Colors
-from flet.core.page import Page
+    Icons, alignment,  padding, Checkbox,  Card, Page, \
+    Dropdown, IconButton, dropdown, SnackBar
+# from flet.core.page import Page
 
 from api_request import APIRequest
 from datetime import datetime, timedelta
@@ -18,7 +17,6 @@ class TaskDetail(Row):
 
     def set_title(self, title):
         self.tf_task_name.value = title
-        self.page.update()
 
     def on_close_click(self, e):
         self.page.end_drawer.open = False
@@ -178,12 +176,10 @@ class TaskDetail(Row):
             value=self.task_info.get('task_status', 0),
             on_change=self.on_task_status_change)
         # 任务名称
-        # self.tf_task_name = TextField(value=self.task_info.get('task_name', '不知名'),
-        #                               expand=True,
-        #                               border_width=1,
-        #                               on_blur=self.on_task_name_change,
-        #                               height=100)
-        self.tf_task_name = TextField(value='你好吗')
+        self.tf_task_name = TextField(value=self.task_info.get('task_name', '不知名'),
+                                      multiline=True,
+                                      border_width=0,
+                                      on_blur=self.on_task_name_change)
         # 任务分类
         self.dpd_cate = Dropdown(width=300,
                                  hint_text='清单',

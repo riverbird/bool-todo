@@ -8,6 +8,7 @@ from flet.core.form_field_control import InputBorder
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
 from flet.core.pagelet import Pagelet
 from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight
+from flet.core.view import View
 
 import nav
 from task import Task
@@ -49,11 +50,12 @@ class TaskListControl(Row):
         )
 
         task_list_controls = self.build()
-        pagelet = Pagelet(
+        self.pagelet = Pagelet(
             appbar=AppBar(
                 title=Text(self.list_title),
                 bgcolor=Colors.BLUE,
                 center_title=True,
+                toolbar_height=40,
             ),
             content=Container(task_list_controls, padding=padding.all(0)),
             bgcolor=Colors.WHITE24,
@@ -63,7 +65,7 @@ class TaskListControl(Row):
             height=self.page.height
         )
 
-        self.controls = [pagelet]
+        self.controls = [self.pagelet]
         self.page.drawer = self.drawer
         self.page.end_drawer = self.end_drawer
 
@@ -104,12 +106,14 @@ class TaskListControl(Row):
         self.update()
 
     def on_input_task_submit(self, e):
+        self.input_task.value = e.data
         task_name = self.input_task.value
         str_today = datetime.today().strftime('%Y-%m-%d')
         if len(task_name) == 0:
-            self.page.snack_bar = SnackBar(Text("任务信息不允许为空!"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            snack_bar = SnackBar(Text("任务信息不允许为空!"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
             return
         token = self.page.client_storage.get('token')
         req_result = APIRequest.add_task(token,
@@ -119,19 +123,50 @@ class TaskListControl(Row):
                                          self.list_name,
                                          3)
         if req_result is False:
-            self.page.snack_bar = SnackBar(Text("添加任务失败!"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            snack_bar = SnackBar(Text("添加任务失败!"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
             return
-        self.query_tasks_by_list(self.list_name)
-        self.input_task.value = ''
-        self.update()
+        # self.query_tasks_by_list(self.list_name)
+        # e.control.value = ''
+        snack_bar = SnackBar(Text("任务添加成功!"))
+        e.control.page.overlay.append(snack_bar)
+        snack_bar.open = True
+        e.control.update()
+        e.control.page.update()
+        e.control.focus()
 
-        nav_control = self.page.controls[0].content.controls[0].content
-        nav_control.update_todolist()
-        nav_control.col_nav.update()
-        nav_control.update()
-        self.input_task.focus()
+        # 这种方法比较重，后面看看有没有局部更新的办法
+        # task_list_controls = self.build()
+        # pagelet = Pagelet(
+        #     appbar=AppBar(
+        #         title=Text(self.list_title),
+        #         bgcolor=Colors.BLUE,
+        #         center_title=True,
+        #         toolbar_height=40,
+        #     ),
+        #     content=Container(task_list_controls, padding=padding.all(0)),
+        #     bgcolor=Colors.WHITE24,
+        #     drawer=self.drawer,
+        #     end_drawer=self.end_drawer,
+        #     width=self.page.width,
+        #     height=self.page.height
+        # )
+        # self.controls.clear()
+        # self.controls = [pagelet]
+
+        # 这种方法相对轻量一点
+        task_list_controls = self.build()
+        self.pagelet.content = Container(task_list_controls, padding=padding.all(0))
+
+        self.page.update()
+
+        # nav_control = self.page.controls[0].content.controls[0].content
+        # nav_control.update_todolist()
+        # nav_control.col_nav.update()
+        # nav_control.update()
+        # self.input_task.focus()
 
     def build(self):
         dct_title = {"today": "今天",
@@ -201,7 +236,7 @@ class TaskListControl(Row):
                 Container(content=self.lv_task,
                           expand=True,
                           # height=650,
-                          padding=padding.only(bottom=15,)
+                          padding=padding.only(bottom=10,)
                           ),
                 Container(content=Row([self.input_task, ],
                                       alignment=MainAxisAlignment.END,
