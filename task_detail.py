@@ -1,9 +1,10 @@
 from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment,  padding, Checkbox,  Card, Page, \
     Dropdown, IconButton, dropdown, SnackBar
+from flet.core.cupertino_bottom_sheet import CupertinoBottomSheet
 from flet.core.cupertino_colors import CupertinoColors
+from flet.core.cupertino_date_picker import CupertinoDatePickerMode, CupertinoDatePicker
 from flet.core.outlined_button import OutlinedButton
-from flet_core import CupertinoBottomSheet, CupertinoDatePicker, CupertinoDatePickerMode
 from api_request import APIRequest
 
 

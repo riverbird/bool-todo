@@ -1,7 +1,6 @@
 from flet import Text, Container, Column, Row, \
     Colors, border_radius, padding, \
     Checkbox, Card, Icon, Icons, border
-from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
 from flet.core.page import Page
 from flet.core.types import MainAxisAlignment
 

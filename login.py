@@ -3,15 +3,13 @@ import json
 from enum import Enum
 
 from flet import Text, Card, Container, Column, Row, TextButton, TextField, Image, \
-    FilledButton, Tabs, Tab, alignment, Colors, border, margin, border_radius, \
+    FilledButton, Tabs, Tab, Colors, border, margin, border_radius, \
     padding, SnackBar
 from flet.core.form_field_control import InputBorder
 from flet.core.icon_button import IconButton
 from flet.core.icons import Icons
 from flet.core.navigation_drawer import NavigationDrawer
 from flet.core.types import MainAxisAlignment, CrossAxisAlignment, ImageFit, FontWeight
-from flet_core import Alignment
-from flet_core.canvas import shadow
 
 from nav import NavControl
 from dashboard import DashboardControl

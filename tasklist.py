@@ -8,7 +8,6 @@ from flet.core.form_field_control import InputBorder
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
 from flet.core.pagelet import Pagelet
 from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight
-from flet.core.view import View
 
 import nav
 from task import Task

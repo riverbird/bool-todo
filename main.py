@@ -2,15 +2,11 @@
 from urllib.parse import urlparse, parse_qs
 
 import flet
-from flet import Page, Theme, Row, Container, padding, Colors
-from flet.core.icon_button import IconButton
-from flet.core.icons import Icons
-from flet.core.navigation_drawer import NavigationDrawer
-from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, AppView
+from flet import Page, Theme
+from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode
 from flet.core.view import View
 
 from login import LoginControl
-from nav import NavControl
 from dashboard import DashboardControl
 from api_request import APIRequest
 from tasklist import TaskListControl
