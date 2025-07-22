@@ -78,21 +78,22 @@ class Task(Row):
         self.cb_task = Checkbox(value=self.task_info.get('task_status'), on_change=self.on_checkbox_change)
         line_colors = [Colors.RED_200, Colors.ORANGE_200, Colors.BLUE_200, Colors.GREEN_200]
         row_task = Row(controls=[
-            Container(bgcolor=line_colors[self.task_info.get('type')],
-                      width=3,
-                      height=20,
-                      padding=padding.only(left=20, top=3, right=10, bottom=3),
-                      ),
+            Container(
+                bgcolor=line_colors[self.task_info.get('type')],
+                width=3,
+                height=20,
+                padding=padding.only(left=20, top=3, right=10, bottom=3)),
             self.cb_task,
             Column(controls=[Text(self.task_info.get('task_name'),
-                                  size=16,
+                                  size=14,
                                   italic=self.task_info.get('task_status')),
-                             Row([self.tt_task_time,
-                                  Icon(name=Icons.REPEAT,
+                             Row(controls=[
+                                 self.tt_task_time,
+                                 Icon(name=Icons.REPEAT,
                                        size=12,
                                        color=Colors.BLACK54,
                                        visible=self.task_info.get('task_repeat') > 0),
-                                  ]),
+                                 ]),
                              ]),
         ],
             alignment=MainAxisAlignment.START,
@@ -104,11 +105,12 @@ class Task(Row):
         #                            padding=padding.all(5),
         #                            on_click=self.on_task_item_click,
         #                            )
+
         container_task = Card(content=Container(content=row_task,
                                                 # bgcolor=colors.WHITE,
-                                                border_radius=border_radius.all(5),
+                                                border_radius=border_radius.all(2),
                                                 # margin=margin.all(10),
-                                                padding=padding.all(5),
+                                                padding=padding.only(5, 2, 0, 2),
                                                 on_click=self.on_task_item_click,
                                                 ),
                               elevation=0.5,
