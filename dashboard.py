@@ -6,6 +6,7 @@ from flet.core.container import Container
 from flet.core.icon_button import IconButton
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
 from flet.core.pagelet import Pagelet
+from flet.core.progress_ring import ProgressRing
 from flet.core.text import Text
 from flet.core.types import FontWeight, MainAxisAlignment, CrossAxisAlignment
 
@@ -19,15 +20,22 @@ class DashboardControl(Column):
         super().__init__()
         self.page = page
 
+        self.padding = 0
+        self.margin = 0
+        self.adaptive = True
+        self.alignment = MainAxisAlignment.START
+
         token = self.page.client_storage.get('token')
         self.drawer = NavigationDrawer(
             position=NavigationDrawerPosition.START,
-            controls=[Container(content=nav.NavControl(page, token),
-                                expand=1,
-                                padding=padding.only(left=0, top=0, right=0, bottom=0),
-                                # margin=margin.only(right=10, bottom=10),
-                                bgcolor=Colors.WHITE,
-                                )]
+            controls=[Container(
+                content=nav.NavControl(page, token),
+                expand=1,
+                padding=0,
+                # margin=margin.only(right=10, bottom=10),
+                margin=0,
+                bgcolor=Colors.WHITE,
+                )]
         )
 
         count_cards = self.build()
@@ -35,15 +43,26 @@ class DashboardControl(Column):
         pagelet = Pagelet(
             appbar=AppBar(
                 title=Text("仪表盘"),
+                adaptive=True,
+                color=Colors.WHITE,
                 bgcolor=Colors.BLUE,
                 center_title=True,
-                toolbar_height=40,
+                # padding=0,
+                # margin=0,
+                # title_spacing=0,
+                # automatically_imply_leading=True,
+                # toolbar_height=40,
             ),
-            content=Container(count_cards, padding=padding.all(0)),
+            content=Container(count_cards,
+                              padding=padding.all(0),
+                              margin=0),
             bgcolor=Colors.WHITE,
             drawer=self.drawer,
             width=self.page.width,
-            height=self.page.height
+            height=self.page.height,
+            # padding=0,
+            # marging=0,
+            expand=True
         )
 
         self.controls = [pagelet]
@@ -62,8 +81,13 @@ class DashboardControl(Column):
         dct_info['num_expired'] = todo_data[2].get("count")
         return dct_info
 
-    def nav_to_list(self, selected_nav):
-        self.page.clean()
+    def nav_to_list(self, selected_nav, e):
+        progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
+        progress_ring.top = self.page.height / 2 - progress_ring.height / 2
+        progress_ring.left = self.page.width / 2 - progress_ring.width / 2
+        e.control.page.overlay.append(progress_ring)
+        e.control.page.update()
+
         list_name = selected_nav
         if selected_nav == 'today':
             list_title = '今天'
@@ -75,44 +99,49 @@ class DashboardControl(Column):
             list_title = '已过期'
         else:
             list_title = '未知'
-        token = self.page.client_storage.get('token')
-        ctn_tasklist = Container(content=TaskListControl(token,
-                                                         list_name,
-                                                         list_title,
-                                                         False),
-                                 expand=4,
-                                 # height=600,
-                                 padding=padding.only(left=10, top=10, right=20),
-                                 )
-        ctn_nav = Container(content=nav.NavControl(token),
-                            # width=300,
-                            expand=1,
-                            padding=padding.only(right=10, top=10),
-                            bgcolor=Colors.WHITE,
-                            )
-        rows_main = Row([ctn_nav,
-                         ctn_tasklist,
-                         ],
-                        alignment=MainAxisAlignment.SPACE_AROUND,
-                        vertical_alignment=CrossAxisAlignment.START,
-                        )
-        ctn_main = Container(content=rows_main,
-                             expand=True,
-                             )
-        self.page.add(ctn_main)
-        self.page.update()
+        # token = self.page.client_storage.get('token')
+        # ctn_tasklist = Container(content=TaskListControl(token,
+        #                                                  list_name,
+        #                                                  list_title,
+        #                                                  False),
+        #                          expand=4,
+        #                          # height=600,
+        #                          padding=padding.only(left=10, top=10, right=20),
+        #                          )
+        # ctn_nav = Container(content=nav.NavControl(token),
+        #                     # width=300,
+        #                     expand=1,
+        #                     padding=padding.only(right=10, top=10),
+        #                     bgcolor=Colors.WHITE,
+        #                     )
+        # rows_main = Row([ctn_nav,
+        #                  ctn_tasklist,
+        #                  ],
+        #                 alignment=MainAxisAlignment.SPACE_AROUND,
+        #                 vertical_alignment=CrossAxisAlignment.START,
+        #                 )
+        # ctn_main = Container(content=rows_main,
+        #                      expand=True,
+        #                      )
+        # self.page.add(ctn_main)
+        # self.page.update()
+        self.page.client_storage.set('list_name', list_name)
+        self.page.client_storage.set('list_title', list_title)
+        self.page.client_storage.set('list_show_finished', False)
+        self.page.go(f'/tasklist?id={list_name}')
+        progress_ring.visible = False
 
     def on_today_click(self, e):
-        self.nav_to_list('today')
+        self.nav_to_list('today', e)
 
     def on_all_click(self, e):
-        self.nav_to_list('all')
+        self.nav_to_list('all', e)
 
     def on_future_click(self, e):
-        self.nav_to_list('future')
+        self.nav_to_list('future', e)
 
     def on_expired_click(self, e):
-        self.nav_to_list('expired')
+        self.nav_to_list('expired', e)
 
     def open_drawer(self, e):
         if self.page:
@@ -209,22 +238,27 @@ class DashboardControl(Column):
             elevation=2,
         )
         row_stat_1 = Row([card_all, card_today],
-                       expand=True,
+                       # expand=True,
                        alignment=MainAxisAlignment.START)
         row_stat_2 = Row([card_future, card_expired],
-                       expand=True,
+                       # expand=True,
                        alignment=MainAxisAlignment.START)
         col_dash = Column([
             Text(f'欢迎您，{dct_info.get("nickname")}',
-                                weight=FontWeight.BOLD, size=24, ),
+                                weight=FontWeight.BOLD, size=20, ),
             Text('以下是当前任务统计数据',
                                 weight=FontWeight.BOLD,
-                                size=18,
+                                size=16,
                                 color=Colors.BLACK38),
                            # Container(content=row_info, expand=True)]
             row_stat_1,
-            row_stat_2],
-            alignment=MainAxisAlignment.CENTER,
-            spacing=1)
+            row_stat_2
+        ],
+            alignment=MainAxisAlignment.START,
+            horizontal_alignment=CrossAxisAlignment.CENTER,
+            adaptive=True,
+            width=self.page.width
+            # spacing=1,
+        )
 
         return col_dash

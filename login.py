@@ -3,12 +3,13 @@ import json
 from enum import Enum
 
 from flet import Text, Card, Container, Column, Row, TextButton, TextField, Image, \
-    FilledButton, Tabs, Tab, Colors, border, margin, border_radius, \
+    FilledButton, Tabs, Tab, Colors, border_radius, \
     padding, SnackBar
 from flet.core.form_field_control import InputBorder
 from flet.core.icon_button import IconButton
 from flet.core.icons import Icons
 from flet.core.navigation_drawer import NavigationDrawer
+from flet.core.progress_ring import ProgressRing
 from flet.core.types import MainAxisAlignment, CrossAxisAlignment, ImageFit, FontWeight
 
 from nav import NavControl
@@ -24,7 +25,12 @@ class LoginViewStatus(Enum):
 class LoginControl(Column):
     def __init__(self, page):
         super().__init__()
+        self.str_password :str|None = None
+        self.str_username : str|None = None
         self.page = page
+        self.adaptive = True
+        self.alignment = MainAxisAlignment.START
+
         self.view_status:LoginViewStatus = LoginViewStatus.ViewLoginUsername  # 用于甄别具体是何登录注册视图
         container_login = self.build()
         self.controls = [container_login]
@@ -67,18 +73,40 @@ class LoginControl(Column):
         self.page.snack_bar.open = True
         self.page.update()
 
+    def on_tf_phone_num_change(self, e):
+        self.str_username = e.control.value
+
+    def on_tf_password_change(self, e):
+        self.str_password = e.control.value
+
     # 用户名密码登录
     def on_login_click(self, e):
         # self.page.bgcolor = '#f2f4f8' if self.page.theme_mode == 'light' else colors.BLACK87
         if self.view_status != LoginViewStatus.ViewLoginUsername:
             return
-        req = APIRequest.login_by_password(self.tf_phone_num.value, self.tf_password.value)
+        if not self.str_username or not self.str_password:
+            snack_bar = SnackBar(Text("用户名或密码不得为空！"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
+            return
+        progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
+        progress_ring.top = self.page.height / 2 - progress_ring.height / 2
+        progress_ring.left = self.page.width / 2 - progress_ring.width / 2
+        e.control.page.overlay.append(progress_ring)
+        e.control.page.update()
+        # user_name = self.tf_phone_num.value
+        # pass_word = self.tf_password.value
+        # tf_phone_num = self.controls[0].content.content.controls[0]
+        req = APIRequest.login_by_password(self.str_username, self.str_password)
         json_req = json.loads(req.text)
 
         if req.status_code != 200 or json_req.get('code') != '0':
-            self.page.snack_bar = SnackBar(Text(f"{json_req.get('msg')}"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            snack_bar = SnackBar(Text(f"{json_req.get('msg')}"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            progress_ring.visible = False
+            e.control.page.update()
             return
 
         dct_ret = json_req.get('result')
@@ -103,6 +131,7 @@ class LoginControl(Column):
         # self.page.drawer = self.left_drawer
 
         self.page.go('/dashboard')
+        progress_ring.visible = False
 
     def on_code_login_click(self, e):
         if self.view_status != LoginViewStatus.ViewLoginSmsView:
@@ -110,9 +139,10 @@ class LoginControl(Column):
         req = APIRequest.login_by_code(self.tf_phone_num.value, self.tf_verify_code.value)
         json_req = req
         if json_req.get('code') != '0':
-            self.page.snack_bar = SnackBar(Text(f"{json_req.get('msg')}"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            snack_bar = SnackBar(Text(f"{json_req.get('msg')}"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
             return
 
         dct_ret = json_req.get('result')
@@ -128,23 +158,28 @@ class LoginControl(Column):
     # 用户通过用户名密码进行注册
     def on_reg_click(self, e):
         if len(self.tf_phone_num.value) == 0 or len(self.tf_pass_1.value) == 0 or len(self.tf_pass_2.value) == 0:
-            self.page.snack_bar = SnackBar(Text("用户名或密码不得为空！"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            snack_bar = SnackBar(Text("用户名或密码不得为空！"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
             return
         if self.tf_pass_1.value != self.tf_pass_2.value:
-            self.page.snack_bar = SnackBar(Text("两次输入的密码不一致！"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            snack_bar = SnackBar(Text("两次输入的密码不一致！"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
             return
         ret_result = APIRequest.registry(self.tf_phone_num.value, self.tf_pass_1.value)
         if ret_result.get('code') != '0':
-            self.page.snack_bar = SnackBar(Text(f"{ret_result.get('msg')}"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            snack_bar = SnackBar(Text(f"{ret_result.get('msg')}"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
             return
-        self.page.snack_bar = SnackBar(Text(f"{ret_result.get('msg')}, 请跳转至登录页进行登录！"))
-        self.page.snack_bar.open = True
+        snack_bar = SnackBar(Text(f"{ret_result.get('msg')}, 请跳转至登录页进行登录！"))
+        e.control.page.overlay.append(snack_bar)
+        snack_bar.open = True
+        e.control.page.update()
         self.page.update()
 
     def show_main_interface(self, token):
@@ -198,13 +233,15 @@ class LoginControl(Column):
                                       # icon=Icons.PHONE,
                                       border=InputBorder.OUTLINE,
                                       value='13588459825',
+                                      on_change=self.on_tf_phone_num_change,
                                       )
         self.tf_password = TextField(label='密码',
                                      # icon=Icons.PASSWORD,
                                      border=InputBorder.OUTLINE,
                                      value='iloveyou365',
                                      password=True,
-                                     can_reveal_password=True)
+                                     can_reveal_password=True,
+                                     on_change=self.on_tf_password_change)
         self.tf_verify_code = TextField(label='验证码',
                                         # icon=Icons.CODE,
                                         border=InputBorder.OUTLINE)
@@ -278,7 +315,7 @@ class LoginControl(Column):
             )
         )
 
-        self.tabs_login = Tabs(
+        tabs_login = Tabs(
             selected_index=0,
             animation_duration=300,
             tabs=[
@@ -305,28 +342,52 @@ class LoginControl(Column):
             on_change=self.on_tab_change,
         )
 
-        container_login = Container(
-            content=Column(
-                [
-                    Row([
-                        Image(src=f'/icons/shiqu-todo-logo.png',
-                              width=64, height=64,
-                              fit=ImageFit.CONTAIN,
-                              border_radius=border_radius.all(30)),
-                        Text('布尔清单', size=24, color=Colors.BLUE,
-                             weight=FontWeight.BOLD,
-                             ),
-                    ]),
-                    self.tabs_login,
-                ],
-                horizontal_alignment=CrossAxisAlignment.CENTER
-            ),
-            padding=20,
-            margin=margin.all(20),
+        # container_login = Container(
+        #     content=Column(
+        #         [
+        #             Row([
+        #                 Image(src=f'/icons/shiqu-todo-logo.png',
+        #                       width=64, height=64,
+        #                       fit=ImageFit.CONTAIN,
+        #                       border_radius=border_radius.all(30)),
+        #                 Text('布尔清单', size=24, color=Colors.BLUE,
+        #                      weight=FontWeight.BOLD,
+        #                      ),
+        #             ]),
+        #             self.tabs_login,
+        #         ],
+        #         horizontal_alignment=CrossAxisAlignment.CENTER
+        #     ),
+        #     padding=20,
+        #     margin=margin.all(20),
+        #     width=self.page.width,
+        #     height=450,
+        #     border=border.all(1, Colors.BLACK12),
+        #     bgcolor=Colors.WHITE
+        # )
+        col_login = Column(
+            controls = [
+                Container(
+                    height=50,  # 控制空白高度
+                    bgcolor=Colors.TRANSPARENT,  # 透明背景
+                ),
+                Row([
+                    Image(src=f'/icons/shiqu-todo-logo.png',
+                          width=64, height=64,
+                          fit=ImageFit.CONTAIN,
+                          border_radius=border_radius.all(30)),
+                    Text('布尔清单', size=24, color=Colors.BLUE,
+                         weight=FontWeight.BOLD,
+                         ),
+                ]),
+                tabs_login,
+            ],
+
+            horizontal_alignment=CrossAxisAlignment.CENTER,
+            adaptive=True,
             width=self.page.width,
-            height=450,
-            border=border.all(1, Colors.BLACK12),
-            bgcolor=Colors.WHITE
+            height=self.page.height
         )
 
-        return container_login
+        # return container_login
+        return col_login

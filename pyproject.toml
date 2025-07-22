@@ -1,7 +1,7 @@
 [project]
 name = "shiqu-todo"
 version = "2.0.0"
-description = "Add your description here"
+description = "一个轻量级全功能的待办清单软件。"
 requires-python = ">=3.12"
 dependencies = [
     "flet==0.28.3",

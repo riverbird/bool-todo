@@ -3,7 +3,10 @@ from urllib.parse import urlparse, parse_qs
 
 import flet
 from flet import Page, Theme
-from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode
+from flet.core.app_bar import AppBar
+from flet.core.colors import Colors
+from flet.core.text import Text
+from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, Locale, PagePlatform
 from flet.core.view import View
 
 from login import LoginControl
@@ -26,18 +29,28 @@ def main(page: Page):
     # 页面属性
     page.adaptive = True
     page.title = '布尔清单'
+    page.window.icon = '/icons/app_icon.png'
     page.bgcolor = '#f2f4f8'
+    page.padding=0
+    page.margin=0
+    page.platform=PagePlatform.ANDROID
     page.vertical_alignment = MainAxisAlignment.CENTER
     page.horizontal_alignment = CrossAxisAlignment.CENTER
+
+    # page.appbar = AppBar(title=Text("主页"), bgcolor=Colors.BLUE_GREY_100)
+    # page.appbar.visible = True
+
     page.theme_mode = ThemeMode.SYSTEM
-    page.theme = Theme(color_scheme_seed="blue",
-                             font_family='微软雅黑',
-                             visual_density=VisualDensity.COMPACT,
-                             use_material3=False)
-    page.dark_theme = Theme(color_scheme_seed="green",
-                                  font_family='微软雅黑',
-                                  visual_density=VisualDensity.COMPACT,
-                                  use_material3=False)
+    page.theme = Theme(
+        color_scheme_seed="blue",
+        font_family='微软雅黑',
+        visual_density=VisualDensity.ADAPTIVE_PLATFORM_DENSITY,
+        use_material3=True)
+    page.dark_theme = Theme(
+        color_scheme_seed="green",
+        font_family='微软雅黑',
+        visual_density=VisualDensity.ADAPTIVE_PLATFORM_DENSITY,
+        use_material3=True)
 
     # 路由处理
     def route_change(e):

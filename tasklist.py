@@ -15,10 +15,13 @@ from api_request import APIRequest
 from task_detail import TaskDetail
 
 
-class TaskListControl(Row):
+class TaskListControl(Column):
     def __init__(self, page, list_id):
         super().__init__()
         self.page = page
+        self.adaptive = True
+        self.alignment = MainAxisAlignment.START
+
         self.list_name = list_id
         self.list_title = self.page.client_storage.get('list_title')
         self.show_finished = self.page.client_storage.get('list_show_finished')
@@ -52,6 +55,7 @@ class TaskListControl(Row):
         self.pagelet = Pagelet(
             appbar=AppBar(
                 title=Text(self.list_title),
+                color=Colors.WHITE,
                 bgcolor=Colors.BLUE,
                 center_title=True,
                 toolbar_height=40,
@@ -230,10 +234,12 @@ class TaskListControl(Row):
                 Container(content=Row(
                     [Container(content=Icon(name=Icons.LIST, color=Colors.BLACK38)),
                              Container(content=Text(dct_title.get(self.list_name), size=24, weight=FontWeight.BOLD)),
-                             Container(content=Switch(label='显示已完成',
-                                value=False,
-                                on_change=self.on_switch_show_finished),
-                                expand=True, alignment=alignment.center_right)],
+                             Container(
+                                 content=Switch(label='显示已完成',
+                                 value=False,
+                                 on_change=self.on_switch_show_finished),
+                                 expand=True,
+                                 alignment=alignment.center_right)],
                             alignment=MainAxisAlignment.START,
                             vertical_alignment=CrossAxisAlignment.CENTER,
                             # vertical_alignment='start',
