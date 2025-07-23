@@ -1,7 +1,7 @@
+from datetime import date
+
 from flet import Column, Icon, Row, \
     Icons, Colors, padding, Card
-from flet.core.alignment import Alignment
-from flet.core.app_bar import AppBar
 from flet.core.container import Container
 from flet.core.icon_button import IconButton
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
@@ -11,7 +11,6 @@ from flet.core.text import Text
 from flet.core.types import FontWeight, MainAxisAlignment, CrossAxisAlignment
 
 from api_request import APIRequest
-from tasklist import TaskListControl
 import nav
 
 
@@ -25,11 +24,10 @@ class DashboardControl(Column):
         self.adaptive = True
         self.alignment = MainAxisAlignment.START
 
-        token = self.page.client_storage.get('token')
         self.drawer = NavigationDrawer(
             position=NavigationDrawerPosition.START,
             controls=[Container(
-                content=nav.NavControl(page, token),
+                content=nav.NavControl(page),
                 expand=1,
                 padding=0,
                 # margin=margin.only(right=10, bottom=10),
@@ -41,18 +39,23 @@ class DashboardControl(Column):
         count_cards = self.build()
 
         pagelet = Pagelet(
-            appbar=AppBar(
-                title=Text("仪表盘"),
-                adaptive=True,
-                color=Colors.WHITE,
-                bgcolor=Colors.BLUE,
-                center_title=True,
-                # padding=0,
-                # margin=0,
-                # title_spacing=0,
-                # automatically_imply_leading=True,
-                # toolbar_height=40,
-            ),
+            # appbar=AppBar(
+            #     title=Text("仪表盘"),
+            #     adaptive=True,
+            #     color=Colors.WHITE,
+            #     bgcolor=Colors.BLUE,
+            #     center_title=True,
+            #     elevation=0,
+            #
+            #     # leading=Icon(Icons.PALETTE),
+            #     # leading_width=40,
+            #     # padding=0,
+            #     # margin=0,
+            #     # title_spacing=0,
+            #     # automatically_imply_leading=True,
+            #     # is_secondary=True,
+            #     # toolbar_height=40,
+            # ),
             content=Container(count_cards,
                               padding=padding.all(0),
                               margin=0),
@@ -62,9 +65,11 @@ class DashboardControl(Column):
             height=self.page.height,
             # padding=0,
             # marging=0,
-            expand=True
+            expand=True,
+            adaptive=True,
         )
-
+        # pagelet.appbar.padding = 0
+        # pagelet.padding = padding.all(0)
         self.controls = [pagelet]
 
     def query_summary_info(self):
@@ -142,6 +147,10 @@ class DashboardControl(Column):
 
     def on_expired_click(self, e):
         self.nav_to_list('expired', e)
+
+    def on_menu_click(self, e):
+        self.drawer.open = True
+        e.control.page.update()
 
     def open_drawer(self, e):
         if self.page:
@@ -243,9 +252,14 @@ class DashboardControl(Column):
         row_stat_2 = Row([card_future, card_expired],
                        # expand=True,
                        alignment=MainAxisAlignment.START)
+
+        today = date.today()
+        str_today = f'{today.year}年{today.month}月{today.day}日,{['星期一','星期二','星期三','星期四','星期五','星期六','星期日'][today.weekday()]}'
         col_dash = Column([
+            IconButton(Icons.MENU, on_click=self.on_menu_click),
             Text(f'欢迎您，{dct_info.get("nickname")}',
                                 weight=FontWeight.BOLD, size=20, ),
+            Text(str_today, size=16),
             Text('以下是当前任务统计数据',
                                 weight=FontWeight.BOLD,
                                 size=16,
@@ -255,9 +269,9 @@ class DashboardControl(Column):
             row_stat_2
         ],
             alignment=MainAxisAlignment.START,
-            horizontal_alignment=CrossAxisAlignment.CENTER,
+            horizontal_alignment=CrossAxisAlignment.START,
             adaptive=True,
-            width=self.page.width
+            width=self.page.width,
             # spacing=1,
         )
 

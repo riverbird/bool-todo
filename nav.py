@@ -9,48 +9,50 @@ from flet.core.types import MainAxisAlignment, CrossAxisAlignment, FontWeight, S
 from api_request import APIRequest
 
 class NavControl(Column):
-    def __init__(self, page, token):
+    def __init__(self, page):
         super().__init__()
         self.page = page
-        self.token = token
+        self.token = self.page.client_storage.get('token')
 
         self.dct_cate = {}  # ListTile:CateId
         self.dct_cate_title = {}  # CateId: CateName
 
-        self.dlg_about = AlertDialog(modal=True,
-                                     title=Text('关于'),
-                                     content=Column(controls=[Divider(height=1, color='gray'),
-                                                              Text('布尔清单v2.0.0'),
-                                                              Text('浙江舒博特网络科技有限公司 出品'),
-                                                              Text('官网: http://www.10qu.com.cn'),
-                                                              ],
-                                                    alignment=MainAxisAlignment.START,
-                                                    width=300,
-                                                    height=100,
-                                                    ),
-                                     # content=Markdown(md_info,
-                                     #                  expand=True),
-                                     actions=[TextButton("确定", on_click=self.on_about_ok_click), ],
-                                     actions_alignment=MainAxisAlignment.END,
-                                     title_padding=20,
-                                     on_dismiss=lambda e: print("Modal dialog dismissed!"),
-                                     )
+        self.dlg_about = AlertDialog(
+             modal=True,
+             title=Text('关于'),
+             content=Column(controls=[Divider(height=1, color='gray'),
+                                      Text('布尔清单v2.1.0'),
+                                      Text('浙江舒博特网络科技有限公司 出品'),
+                                      Text('官网: http://https://www.zjsbt.cn/service/derivatives'),
+                                      ],
+                            alignment=MainAxisAlignment.START,
+                            width=300,
+                            height=100,
+                            ),
+             # content=Markdown(md_info,
+             #                  expand=True),
+             actions=[TextButton("确定", on_click=self.on_about_ok_click), ],
+             actions_alignment=MainAxisAlignment.END,
+             title_padding=20,
+             # on_dismiss=lambda e: print("对话框已关闭!"),
+        )
 
         self.tf_cate = TextField(hint_text='请输入清单名称')
-        self.dlg_add_cate = AlertDialog(modal=True,
-                                        title=Text('添加清单'),
-                                        content=Column(controls=[self.tf_cate,
-                                                                 ],
-                                                       alignment=MainAxisAlignment.START,
-                                                       width=300,
-                                                       height=100,
-                                                       ),
-                                        actions=[TextButton("确定", on_click=self.on_dlg_add_cate_ok_click),
-                                                 TextButton("取消", on_click=self.on_dlg_add_cate_cancel_click)],
-                                        actions_alignment=MainAxisAlignment.END,
-                                        title_padding=20,
-                                        on_dismiss=lambda e: print("Modal dialog dismissed!"),
-                                        )
+        self.dlg_add_cate = AlertDialog(
+            modal=True,
+            title=Text('添加清单'),
+            content=Column(controls=[self.tf_cate,
+                                     ],
+                           alignment=MainAxisAlignment.START,
+                           width=300,
+                           height=100,
+                           ),
+            actions=[TextButton("确定", on_click=self.on_dlg_add_cate_ok_click),
+                     TextButton("取消", on_click=self.on_dlg_add_cate_cancel_click)],
+            actions_alignment=MainAxisAlignment.END,
+            title_padding=20,
+            # on_dismiss=lambda e: print("Modal dialog dismissed!"),
+            )
 
         nav_controls = self.build()
         self.controls = [nav_controls, self.dlg_about, self.dlg_add_cate]
@@ -179,12 +181,14 @@ class NavControl(Column):
         # self.col_nav.height = self.page.window_height
 
     def on_dlg_add_cate_ok_click(self, e):
-        update_status = APIRequest.add_task_list(self.token,
-                                                 self.tf_cate.value)
+        update_status = APIRequest.add_task_list(
+            self.token,
+            self.tf_cate.value)
         if update_status is False:
-            self.page.snack_bar = SnackBar(Text("添加清单失败!"))
-            self.page.snack_bar.open = True
-            self.page.update()
+            snack_bar = SnackBar(Text("添加清单失败!"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
             return
 
         # nav_control = self.page.controls[0].controls[0].content
@@ -256,9 +260,9 @@ class NavControl(Column):
                             vertical_alignment=CrossAxisAlignment.CENTER,
                             spacing=10)
 
-        def on_draw_close(e):
-            self.page.drawer.open = False
-            self.page.update()
+        # def on_draw_close(e):
+        #     self.page.drawer.open = False
+        #     self.page.update()
 
         # btn_show_drawer = IconButton(icon=Icons.MENU,
         #                              on_click=on_draw_close)

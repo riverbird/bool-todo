@@ -3,17 +3,15 @@ from urllib.parse import urlparse, parse_qs
 
 import flet
 from flet import Page, Theme
-from flet.core.app_bar import AppBar
+from flet.core import padding, margin
 from flet.core.colors import Colors
-from flet.core.text import Text
-from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, Locale, PagePlatform
+from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, PagePlatform
 from flet.core.view import View
 
 from login import LoginControl
 from dashboard import DashboardControl
 from api_request import APIRequest
 from tasklist import TaskListControl
-
 
 def login_interface(page: Page):
     return LoginControl(page)
@@ -24,21 +22,19 @@ def dashboard_interface(page: Page):
 def tasklist_interface(page: Page, list_id):
     return TaskListControl(page, list_id)
 
-
 def main(page: Page):
     # 页面属性
     page.adaptive = True
     page.title = '布尔清单'
     page.window.icon = '/icons/app_icon.png'
-    page.bgcolor = '#f2f4f8'
-    page.padding=0
-    page.margin=0
+    page.bgcolor = Colors.SURFACE
+    page.padding=padding.all(0)
+    page.margin=margin.all(0)
     page.platform=PagePlatform.ANDROID
     page.vertical_alignment = MainAxisAlignment.CENTER
     page.horizontal_alignment = CrossAxisAlignment.CENTER
 
     # page.appbar = AppBar(title=Text("主页"), bgcolor=Colors.BLUE_GREY_100)
-    # page.appbar.visible = True
 
     page.theme_mode = ThemeMode.SYSTEM
     page.theme = Theme(

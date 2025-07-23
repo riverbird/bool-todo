@@ -3,8 +3,8 @@ from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment, Colors, padding, \
     Switch, SnackBar, ListView
 from flet.core import border
-from flet.core.app_bar import AppBar
 from flet.core.form_field_control import InputBorder
+from flet.core.icon_button import IconButton
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
 from flet.core.pagelet import Pagelet
 from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight
@@ -27,10 +27,9 @@ class TaskListControl(Column):
         self.show_finished = self.page.client_storage.get('list_show_finished')
 
         # 左侧drawer
-        token = self.page.client_storage.get('token')
         self.drawer = NavigationDrawer(
             position=NavigationDrawerPosition.START,
-            controls=[Container(content=nav.NavControl(page, token),
+            controls=[Container(content=nav.NavControl(page),
                                 expand=1,
                                 padding=padding.only(right=10, top=10, bottom=10),
                                 # margin=margin.only(right=10, bottom=10),
@@ -53,13 +52,13 @@ class TaskListControl(Column):
 
         task_list_controls = self.build()
         self.pagelet = Pagelet(
-            appbar=AppBar(
-                title=Text(self.list_title),
-                color=Colors.WHITE,
-                bgcolor=Colors.BLUE,
-                center_title=True,
-                toolbar_height=40,
-            ),
+            # appbar=AppBar(
+            #     title=Text(self.list_title),
+            #     color=Colors.WHITE,
+            #     bgcolor=Colors.BLUE,
+            #     center_title=True,
+            #     toolbar_height=40,
+            # ),
             content=Container(task_list_controls, padding=padding.all(0)),
             bgcolor=Colors.WHITE24,
             drawer=self.drawer,
@@ -76,7 +75,7 @@ class TaskListControl(Column):
         lst_ret = []
         token = self.page.client_storage.get('token')
         str_today = datetime.now().strftime('%Y-%m-%d')
-        headers = {'Authorization': f'Bearer {token}'}
+        # headers = {'Authorization': f'Bearer {token}'}
         if list_name == 'today':
             lst_ret = APIRequest.query_tasks_by_date(token, str_today)
         elif list_name == 'future':
@@ -168,18 +167,20 @@ class TaskListControl(Column):
         # nav_control.update()
         # self.input_task.focus()
 
+    def on_menu_click(self, e):
+        self.drawer.open = True
+        e.control.page.update()
+
     def update_list(self):
         task_list_controls = self.build()
         self.pagelet.content = Container(task_list_controls, padding=padding.all(0))
 
-        token = self.page.client_storage.get('token')
-        self.drawer.controls = [Container(content=nav.NavControl(self.page, token),
+        self.drawer.controls = [Container(content=nav.NavControl(self.page),
                                 expand=1,
                                 padding=padding.only(right=10, top=10, bottom=10),
                                 # margin=margin.only(right=10, bottom=10),
                                 bgcolor=Colors.WHITE,
                                 )]
-
         self.page.update()
 
     def build(self):
@@ -197,6 +198,7 @@ class TaskListControl(Column):
                                     border_radius=10,
                                     height=50,
                                     bgcolor='#CEE8E8',
+                                    autofocus=True,
                                     on_submit=self.on_input_task_submit)
         self.col_task = Column(alignment=MainAxisAlignment.START,
                                # expand=True,
@@ -231,9 +233,9 @@ class TaskListControl(Column):
 
         self.col_tasklist = Column(
             [
+                IconButton(Icons.MENU, on_click=self.on_menu_click),
                 Container(content=Row(
-                    [Container(content=Icon(name=Icons.LIST, color=Colors.BLACK38)),
-                             Container(content=Text(dct_title.get(self.list_name), size=24, weight=FontWeight.BOLD)),
+                    [Container(content=Text(dct_title.get(self.list_name), size=24, weight=FontWeight.BOLD)),
                              Switch(label='显示已完成',
                                     value=False,
                                     on_change=self.on_switch_show_finished,

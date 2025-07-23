@@ -1,10 +1,13 @@
 from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment,  padding, Checkbox,  Card, Page, \
     Dropdown, IconButton, dropdown, SnackBar
+from flet.core import margin
 from flet.core.cupertino_bottom_sheet import CupertinoBottomSheet
 from flet.core.cupertino_colors import CupertinoColors
 from flet.core.cupertino_date_picker import CupertinoDatePickerMode, CupertinoDatePicker
 from flet.core.outlined_button import OutlinedButton
+from flet.core.types import MainAxisAlignment
+
 from api_request import APIRequest
 
 
@@ -73,7 +76,11 @@ class TaskDetail(Row):
             snack_bar.open = True
             e.control.page.update()
             return
-        self.btn_sel_date.text = new_date
+        # self.btn_sel_date.text = new_date
+        btn_sel_date = self.controls[0].controls[2].content.content.controls[1]
+        if btn_sel_date:
+            btn_sel_date.text = new_date
+            e.control.page.update()
         self.refresh()
 
     def on_task_cate_change(self, e):
@@ -186,15 +193,19 @@ class TaskDetail(Row):
             value=self.task_info.get('task_status', 0),
             on_change=self.on_task_status_change)
         # 任务名称
-        self.tf_task_name = TextField(value=self.task_info.get('task_name', '不知名'),
-                                      multiline=True,
-                                      border_width=0,
-                                      on_blur=self.on_task_name_change)
+        self.tf_task_name = TextField(
+            value=self.task_info.get('task_name', '未知'),
+            multiline=True,
+            border_width=1,
+            # expand=True,
+            on_blur=self.on_task_name_change)
         # 任务分类
-        self.dpd_cate = Dropdown(width=300,
-                                 hint_text='清单',
-                                 icon=Icons.LIST,
-                                 on_change=self.on_task_cate_change)
+        self.dpd_cate = Dropdown(
+            # width=300,
+            hint_text='清单',
+            # icon=Icons.LIST,
+            # expand=True,
+            on_change=self.on_task_cate_change)
         self.dct_cates = self.query_tasks_cate()
         lst_cates = self.dct_cates.values()
         for itm in lst_cates:
@@ -217,22 +228,25 @@ class TaskDetail(Row):
         #     self.dpd_date.value = '今天'
         # else:
         #     self.dpd_date.value = self.task_info.get('task_time')
-        self.btn_sel_date = OutlinedButton(self.task_info.get('task_time', '--'),
-                                           on_click=lambda e: e.control.page.open(
-                                               CupertinoBottomSheet(
-                                                   CupertinoDatePicker(
-                                                       on_change=self.on_task_date_change,
-                                                       date_picker_mode=CupertinoDatePickerMode.DATE),
-                                                   height=216,
-                                                   bgcolor=CupertinoColors.SYSTEM_BACKGROUND,
-                                                   padding=padding.only(top=6))
-                                           ))
-        # 任务重复
+        self.btn_sel_date = OutlinedButton(
+            text=self.task_info.get('task_time', '--'),
+            on_click=lambda e: e.control.page.open(
+               CupertinoBottomSheet(
+                   CupertinoDatePicker(
+                       on_change=self.on_task_date_change,
+                       date_picker_mode=CupertinoDatePickerMode.DATE),
+                   height=216,
+                   bgcolor=CupertinoColors.SYSTEM_BACKGROUND,
+                   padding=padding.only(top=6))
+           )
+        )
+# 任务重复
         lst_repeat = ['无', '每天', '每周工作日', '每周', '每月', '每年']
-        self.dpd_repeat = Dropdown(width=300,
-                                   hint_text='重复',
-                                   icon=Icons.REPEAT,
-                                   on_change=self.on_task_repeat_change)
+        self.dpd_repeat = Dropdown(
+            # width=300,
+            hint_text='重复',
+            # icon=Icons.REPEAT,
+            on_change=self.on_task_repeat_change)
         for itm in lst_repeat:
             self.dpd_repeat.options.append(dropdown.Option(itm))
         if not self.task_info:
@@ -241,10 +255,11 @@ class TaskDetail(Row):
             self.dpd_repeat.value = lst_repeat[self.task_info.get('task_repeat', 0)]
         # 任务紧急度
         lst_level = ['重要紧急', '重要不紧急', '不重要紧急', '不重要不紧急']
-        self.dpd_level = Dropdown(width=300,
-                                  hint_text='象限',
-                                  icon=Icons.PRIORITY_HIGH,
-                                  on_change=self.on_task_level_change)
+        self.dpd_level = Dropdown(
+            # width=300,
+            hint_text='象限',
+            # icon=Icons.PRIORITY_HIGH,
+            on_change=self.on_task_level_change)
         for itm in lst_level:
             self.dpd_level.options.append(dropdown.Option(itm))
         self.dpd_level.value = lst_level[self.task_info.get('type', 0)]
@@ -260,32 +275,31 @@ class TaskDetail(Row):
                      ],
                 ),
                 # bgcolor='white',
-                # expand=True,
-                padding=padding.only(left=10, right=10, top=20, bottom=20),
+                expand=True,
+                padding=padding.only(left=5, right=5, top=10, bottom=10),
             )
         )
 
         self.tf_comment = TextField(hint_text='添加备注',
                                     multiline=True,
-                                    expand=True,
+                                    # expand=True,
+                                    border_width=1,
+                                    border_radius=2,
                                     value=self.task_info.get('task_desc', ''),
                                     on_blur=self.on_task_desc_change)
-        card_comment = Card(
-            content=Container(
-                content=self.tf_comment,
-                # expand=True,
-                # bgcolor='white',
-                # height=200,
-                padding=padding.all(10),
-            )
+        container_comment = Container(
+            content=self.tf_comment,
+            # margin=margin.only(10, 2, 2, 5)
+            padding=padding.only(left=5, right=5, top=2, bottom=2),
         )
 
         row_top = Row(
-            [self.cb_name, self.tf_task_name],
+            controls=[self.cb_name, self.tf_task_name],
+            alignment=MainAxisAlignment.START
         )
         card_top = Card(
             Container(content=row_top,
-                      height=100,
+                      height=80,
                       # bgcolor='#f2f4f8',
                       alignment=alignment.center_left,
                       padding=padding.only(left=10, right=10))
@@ -308,6 +322,7 @@ class TaskDetail(Row):
                         # icon_color=colors.BLACK38,
                         on_click=self.on_task_delete),
              ],
+            alignment=MainAxisAlignment.SPACE_BETWEEN
         )
 
         col_detail = Column(
@@ -320,14 +335,14 @@ class TaskDetail(Row):
                           ),
                 card_top,
                 card_basic,
-                card_comment,
+                container_comment,
                 Container(content=row_bottom,
                           # bgcolor='white',
                           padding=padding.all(10),
                           alignment=alignment.bottom_left)
 
             ],
-            # alignment='spaceBetween',
+            alignment=MainAxisAlignment.SPACE_BETWEEN,
         )
 
         return col_detail

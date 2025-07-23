@@ -15,8 +15,8 @@ class Task(Row):
         self.task_control = task_control
         self.token = token
         self.task_info = task_info
-        task_control = self.build()
-        self.controls = [task_control]
+        task_component = self.build()
+        self.controls = [task_component]
 
     def on_checkbox_change(self, e):
         if e.control.value is True:
@@ -74,8 +74,11 @@ class Task(Row):
         self.page.update()
 
     def build(self):
-        self.tt_task_time = Text(self.task_info.get('task_time'), size=12)
-        self.cb_task = Checkbox(value=self.task_info.get('task_status'), on_change=self.on_checkbox_change)
+        self.tt_task_time = Text(self.task_info.get('task_time'),
+                                 color=Colors.BLACK38,
+                                 size=12)
+        self.cb_task = Checkbox(value=self.task_info.get('task_status'),
+                                on_change=self.on_checkbox_change)
         line_colors = [Colors.RED_200, Colors.ORANGE_200, Colors.BLUE_200, Colors.GREEN_200]
         row_task = Row(controls=[
             Container(
@@ -97,6 +100,7 @@ class Task(Row):
                              ]),
         ],
             alignment=MainAxisAlignment.START,
+            spacing=2,
         )
         # container_task = Container(content=row_task,
         #                            # bgcolor=colors.WHITE,
