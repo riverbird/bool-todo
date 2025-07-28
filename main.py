@@ -5,6 +5,7 @@ import flet
 from flet import Page, Theme
 from flet.core import padding, margin
 from flet.core.colors import Colors
+from flet.core.safe_area import SafeArea
 from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, PagePlatform, ScrollMode
 from flet.core.view import View
 
@@ -14,29 +15,30 @@ from api_request import APIRequest
 from tasklist import TaskListControl
 
 def login_interface(page: Page):
-    return LoginControl(page)
+    return SafeArea(LoginControl(page),
+                    expand=True)
 
 def dashboard_interface(page: Page):
-    return DashboardControl(page)
+    return SafeArea(DashboardControl(page),
+                    expand=True)
 
 def tasklist_interface(page: Page, list_id):
-    return TaskListControl(page, list_id)
+    return SafeArea(TaskListControl(page, list_id),
+                    expand=True)
 
 def main(page: Page):
     # 页面属性
     page.adaptive = True
     page.title = '布尔清单'
     page.window.icon = '/icons/app_icon.png'
-    page.bgcolor = Colors.SURFACE
+    page.bgcolor = Colors.WHITE
     page.scroll = ScrollMode.ADAPTIVE
-    page.padding=padding.all(0)
-    page.margin=margin.all(0)
+    # page.padding=padding.all(0)
+    # page.margin=margin.all(0)
     page.platform=PagePlatform.ANDROID
     page.vertical_alignment = MainAxisAlignment.CENTER
     page.horizontal_alignment = CrossAxisAlignment.CENTER
-
     # page.appbar = AppBar(title=Text("主页"), bgcolor=Colors.BLUE_GREY_100)
-
     page.theme_mode = ThemeMode.SYSTEM
     page.theme = Theme(
         color_scheme_seed="blue",
@@ -74,6 +76,7 @@ def main(page: Page):
             page.views.append(View(e.route,
                                    [tasklist_interface(page, list_id)]))
         page.update()
+
     page.on_route_change = route_change
 
     # 初始页面
@@ -82,13 +85,10 @@ def main(page: Page):
         token = token.strip('"')
         dct_ret = APIRequest.query_user_info(token)
         if dct_ret is not None:
-            # show_main_interface(page, token)
             page.go('/dashboard')
         else:
-            # show_login_interface(page)
             page.go('/login')
     else:
-        # show_login_interface(page)
         page.go('/')
 
     page.window.center()

@@ -29,7 +29,7 @@ class LoginControl(Column):
         self.alignment = MainAxisAlignment.START
 
         self.view_status:LoginViewStatus = LoginViewStatus.ViewLoginUsername  # 用于甄别具体是何登录注册视图
-        container_login = self.build()
+        container_login = self.build_interface()
         self.controls = [container_login]
 
     def on_tab_change(self, e):
@@ -247,7 +247,7 @@ class LoginControl(Column):
         e.control.page.update()
         self.page.update()
 
-    def build(self):
+    def build_interface(self):
         self.tf_phone_num = TextField(label='手机号',
                                       prefix_icon=Icons.PHONE,
                                       border=InputBorder.OUTLINE,
@@ -291,7 +291,7 @@ class LoginControl(Column):
                 ),
                 width=400,
                 padding=10,
-                bgcolor=Colors.TRANSPARENT
+                bgcolor=Colors.WHITE
             )
         )
 
@@ -331,7 +331,7 @@ class LoginControl(Column):
                 ),
                 width=400,
                 padding=10,
-                bgcolor=Colors.TRANSPARENT
+                bgcolor=Colors.WHITE
             )
         )
 
@@ -346,7 +346,7 @@ class LoginControl(Column):
                         # alignment=alignment.center,
                         padding=5,
                         margin=5,
-                        bgcolor=Colors.TRANSPARENT
+                        bgcolor=Colors.WHITE
                     ),
                 ),
                 Tab(
@@ -356,7 +356,7 @@ class LoginControl(Column):
                         # alignment=alignment.center,
                         padding=5,
                         margin=5,
-                        bgcolor=Colors.TRANSPARENT
+                        bgcolor=Colors.WHITE
                     ),
                 ),
             ],
@@ -368,7 +368,7 @@ class LoginControl(Column):
             controls = [
                 Container(
                     height=80,  # 控制空白高度
-                    bgcolor=Colors.TRANSPARENT,  # 透明背景
+                    bgcolor=Colors.WHITE,  # 透明背景
                 ),
                 Row([
                     Image(src=f'/icons/shiqu-todo-logo.png',

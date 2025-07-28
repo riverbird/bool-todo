@@ -2,6 +2,9 @@
 name = "shiqu-todo"
 version = "2.1.0"
 description = "一个轻量级全功能的待办清单软件。"
+authors = [
+  {name = "Hunter Zhang", email = "riverbird@aliyun.com"}
+]
 requires-python = ">=3.12"
 dependencies = [
     "flet==0.28.3",
@@ -11,3 +14,10 @@ dependencies = [
 [[tool.uv.index]]
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true
+
+[tool.flet]
+org = "com.superiot"
+product = "shiqu-todo"
+company = "浙江舒博特网络科技有限公司"
+copyright = "Copyright (C) 2025 by Superiot"
+product_name = "布尔清单"

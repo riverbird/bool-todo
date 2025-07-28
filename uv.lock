@@ -157,16 +157,18 @@ wheels = [
 
 [[package]]
 name = "shiqu-todo"
-version = "2.0.0"
+version = "2.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "flet" },
+    { name = "httpx" },
     { name = "requests" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "flet", specifier = "==0.28.3" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "requests", specifier = ">=2.32.4" },
 ]
 

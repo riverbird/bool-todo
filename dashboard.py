@@ -11,8 +11,7 @@ from flet.core.text import Text
 from flet.core.types import FontWeight, MainAxisAlignment, CrossAxisAlignment
 
 from api_request import APIRequest
-import nav
-
+from nav import NavControl
 
 class DashboardControl(Column):
     def __init__(self, page):
@@ -27,7 +26,7 @@ class DashboardControl(Column):
         self.drawer = NavigationDrawer(
             position=NavigationDrawerPosition.START,
             controls=[Container(
-                content=nav.NavControl(page),
+                content=NavControl(page),
                 expand=1,
                 padding=0,
                 # margin=margin.only(right=10, bottom=10),
@@ -36,7 +35,7 @@ class DashboardControl(Column):
                 )]
         )
 
-        count_cards = self.build()
+        count_cards = self.build_interface()
 
         pagelet = Pagelet(
             # appbar=AppBar(
@@ -57,8 +56,9 @@ class DashboardControl(Column):
             #     # toolbar_height=40,
             # ),
             content=Container(count_cards,
-                              padding=padding.all(0),
-                              margin=0),
+                              # padding=padding.all(0),
+                              # margin=0
+            ),
             bgcolor=Colors.WHITE,
             drawer=self.drawer,
             width=self.page.width,
@@ -113,7 +113,7 @@ class DashboardControl(Column):
         #                          # height=600,
         #                          padding=padding.only(left=10, top=10, right=20),
         #                          )
-        # ctn_nav = Container(content=nav.NavControl(token),
+        # ctn_nav = Container(content=NavControl(token),
         #                     # width=300,
         #                     expand=1,
         #                     padding=padding.only(right=10, top=10),
@@ -173,7 +173,7 @@ class DashboardControl(Column):
     # def did_mount(self):
     #     self.page.drawer = self.drawer
 
-    def build(self):
+    def build_interface(self):
         dct_info = self.query_summary_info()
 
         card_all = Card(content=Container(
@@ -255,18 +255,19 @@ class DashboardControl(Column):
 
         today = date.today()
         str_today = f'{today.year}年{today.month}月{today.day}日,{['星期一','星期二','星期三','星期四','星期五','星期六','星期日'][today.weekday()]}'
-        col_dash = Column([
-            IconButton(Icons.MENU, on_click=self.on_menu_click),
-            Text(f'欢迎您，{dct_info.get("nickname")}',
-                                weight=FontWeight.BOLD, size=20, ),
-            Text(str_today, size=16),
-            Text('以下是当前任务统计数据',
-                                weight=FontWeight.BOLD,
-                                size=16,
-                                color=Colors.BLACK38),
-                           # Container(content=row_info, expand=True)]
-            row_stat_1,
-            row_stat_2
+        col_dash = Column(
+            controls = [
+                IconButton(Icons.MENU, on_click=self.on_menu_click),
+                Text(f'欢迎您，{dct_info.get("nickname")}',
+                                    weight=FontWeight.BOLD, size=20, ),
+                Text(str_today, size=16),
+                Text('以下是当前任务统计数据',
+                                    weight=FontWeight.BOLD,
+                                    size=16,
+                                    color=Colors.BLACK38),
+                               # Container(content=row_info, expand=True)]
+                row_stat_1,
+                row_stat_2
         ],
             alignment=MainAxisAlignment.START,
             horizontal_alignment=CrossAxisAlignment.START,
@@ -274,5 +275,4 @@ class DashboardControl(Column):
             width=self.page.width,
             # spacing=1,
         )
-
         return col_dash

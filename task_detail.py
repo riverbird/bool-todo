@@ -1,7 +1,6 @@
 from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment,  padding, Checkbox,  Card, Page, \
     Dropdown, IconButton, dropdown, SnackBar
-from flet.core import margin
 from flet.core.cupertino_bottom_sheet import CupertinoBottomSheet
 from flet.core.cupertino_colors import CupertinoColors
 from flet.core.cupertino_date_picker import CupertinoDatePickerMode, CupertinoDatePicker
@@ -17,7 +16,7 @@ class TaskDetail(Row):
         self.page = page
         self.task_control = task_control
         self.task_info = task_info
-        detail_control = self.build()
+        detail_control = self.build_interface()
         self.controls = [detail_control]
 
     # def set_title(self, title):
@@ -186,7 +185,7 @@ class TaskDetail(Row):
         #     self.page.controls[0].controls.remove(detail_control)
         #     self.page.update()
 
-    def build(self):
+    def build_interface(self):
         # CheckBox任务完成状态
         self.cb_name = Checkbox(
             # label=self.task.task_info.get('task_name'),

@@ -15,7 +15,7 @@ class Task(Row):
         self.task_control = task_control
         self.token = token
         self.task_info = task_info
-        task_component = self.build()
+        task_component = self.build_interface()
         self.controls = [task_component]
 
     def on_checkbox_change(self, e):
@@ -73,7 +73,7 @@ class Task(Row):
         self.page.end_drawer.open = True
         self.page.update()
 
-    def build(self):
+    def build_interface(self):
         self.tt_task_time = Text(self.task_info.get('task_time'),
                                  color=Colors.BLACK38,
                                  size=12)

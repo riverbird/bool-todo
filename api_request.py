@@ -201,3 +201,19 @@ class APIRequest(object):
                             headers=headers,
                             data=user_input)
         return req.status_code == 201
+
+    @staticmethod
+    def delete_task_list(token, tasklist_id):
+        headers = {'Authorization': f'Bearer {token}'}
+        req = requests.delete(url=f'https://restapi.10qu.com.cn/todo_from/{tasklist_id}/',
+                              headers=headers)
+        return req.status_code == 204
+
+    @staticmethod
+    def update_task_list(token, cate_id, new_name):
+        headers = {'Authorization': f'Bearer {token}'}
+        user_input = {'name': new_name}
+        req = requests.put(url=f'https://restapi.10qu.com.cn/todo_from/{cate_id}/',
+                           headers=headers,
+                           data=user_input)
+        return req.status_code == 200

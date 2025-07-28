@@ -2,23 +2,22 @@ from datetime import datetime, timedelta
 from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment, Colors, padding, \
     Switch, SnackBar, ListView
-from flet.core import border, icon, date_picker
+from flet.core import border
+from flet.core.alert_dialog import AlertDialog
 from flet.core.bottom_sheet import BottomSheet
-from flet.core.cupertino_textfield import CupertinoTextField
 from flet.core.date_picker import DatePicker
+from flet.core.divider import Divider
 from flet.core.floating_action_button import FloatingActionButton
 from flet.core.form_field_control import InputBorder
 from flet.core.icon_button import IconButton
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
-from flet.core.outlined_button import OutlinedButton
 from flet.core.pagelet import Pagelet
 from flet.core.popup_menu_button import PopupMenuButton, PopupMenuItem
-from flet.core.safe_area import SafeArea
-from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight, \
-    FloatingActionButtonLocation
+from flet.core.text_button import TextButton
+from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight
 
-import nav
 from task import Task
+from nav import NavControl
 from api_request import APIRequest
 from task_detail import TaskDetail
 
@@ -38,10 +37,45 @@ class TaskListControl(Column):
         self.list_title = self.page.client_storage.get('list_title')
         self.show_finished = self.page.client_storage.get('list_show_finished')
 
+        # 修改对话框
+        self.tf_cate = TextField(hint_text='请输入清单名称')
+        self.dlg_rename_cate = AlertDialog(
+            modal=True,
+            title=Text('重命名清单'),
+            content=Column(controls=[self.tf_cate],
+                           alignment=MainAxisAlignment.START,
+                           width=300,
+                           height=100,
+            ),
+            actions=[TextButton("确定", on_click=self.on_dlg_rename_cate_ok_click),
+                     TextButton("取消", on_click=self.on_dlg_rename_cate_cancel_click)],
+            actions_alignment=MainAxisAlignment.END,
+            title_padding=20,
+            # on_dismiss=lambda e: print("Modal dialog dismissed!"),
+        )
+
+        # 删除对话框
+        self.dlg_delete_confirm = AlertDialog(
+            modal=True,
+            title=Text('您确定吗?'),
+            content=Column(controls=[Divider(height=1, color='gray'),
+                                     Text('您确定要删除此清单吗?'),
+                                     ],
+                           alignment=MainAxisAlignment.START,
+                           width=200,
+                           height=50,
+                           ),
+            actions=[TextButton("确定", on_click=self.on_dlg_delete_confirm_ok_click),
+                     TextButton('取消', on_click=self.on_dlg_delete_confirm_cancel_click)],
+            actions_alignment=MainAxisAlignment.END,
+            title_padding=10,
+            # on_dismiss=lambda e: print("对话框已关闭!"),
+        )
+
         # 左侧drawer
         self.drawer = NavigationDrawer(
             position=NavigationDrawerPosition.START,
-            controls=[Container(content=nav.NavControl(page),
+            controls=[Container(content=NavControl(page),
                                 expand=1,
                                 padding=padding.only(right=10, top=10, bottom=10),
                                 # margin=margin.only(right=10, bottom=10),
@@ -62,7 +96,7 @@ class TaskListControl(Column):
                                )]
         )
 
-        task_list_controls = self.build()
+        task_list_controls = self.build_interface()
         floating_btn = FloatingActionButton(
             icon=Icons.ADD,
             bgcolor=Colors.BLUE,
@@ -87,7 +121,9 @@ class TaskListControl(Column):
             height=self.page.height
         )
 
-        self.controls = [self.pagelet]
+        self.controls = [self.pagelet,
+                         self.dlg_delete_confirm,
+                         self.dlg_rename_cate]
         self.page.drawer = self.drawer
         self.page.end_drawer = self.end_drawer
 
@@ -191,6 +227,36 @@ class TaskListControl(Column):
         self.drawer.open = True
         e.control.page.update()
 
+    def on_rename_list(self, e):
+        self.tf_cate.value = self.list_title
+        self.dlg_rename_cate.open = True
+        self.page.update()
+
+    def on_delete_list(self, e):
+        self.dlg_delete_confirm.open = True
+        self.page.update()
+
+    def on_dlg_delete_confirm_ok_click(self, e):
+        token = self.page.client_storage.get('token')
+        if APIRequest.delete_task_list(token, self.list_name):
+            self.page.go('/dashboard')
+
+    def on_dlg_delete_confirm_cancel_click(self, e):
+        self.dlg_delete_confirm.open = False
+        self.page.update()
+
+    def on_dlg_rename_cate_ok_click(self, e):
+        token = self.page.client_storage.get('token')
+        tasklist_name = self.tf_cate.value
+        self.list_title = tasklist_name
+        if APIRequest.update_task_list(token, self.list_name, tasklist_name):
+            self.dlg_rename_cate.open = False
+            self.update_list()
+
+    def on_dlg_rename_cate_cancel_click(self, e):
+        self.dlg_rename_cate.open = False
+        self.page.update()
+
     def on_fab_pressed(self, e):
         def on_input_task_submit(ex):
             input_task.value = ex.data
@@ -256,6 +322,7 @@ class TaskListControl(Column):
             self.update_list()
 
         def on_select_task_date_by_picker(ex):
+            task_date_picker.open = True
             ex.page.overlay.append(task_date_picker)
             # ex.control.page.open(task_date_picker)
             ex.control.update()
@@ -312,10 +379,10 @@ class TaskListControl(Column):
 
         # 通过日期控件选择日期
         def on_change_date(ex):
-            dt_selected_date = ex.data
+            dt_selected_date = ex.control.value
             self.str_task_date = dt_selected_date.strftime('%Y-%m-%d')
-            btn_level.content.controls[1].value = self.str_task_date
-            btn_level.content.controls[1].color = Colors.RED
+            btn_due_date.content.controls[1].value = self.str_task_date
+            btn_due_date.content.controls[1].color = Colors.RED
             ex.control.update()
             ex.control.page.update()
 
@@ -404,10 +471,10 @@ class TaskListControl(Column):
         )
 
     def update_list(self):
-        task_list_controls = self.build()
+        task_list_controls = self.build_interface()
         self.pagelet.content = Container(task_list_controls, padding=padding.all(0))
 
-        self.drawer.controls = [Container(content=nav.NavControl(self.page),
+        self.drawer.controls = [Container(content=NavControl(self.page),
                                 expand=1,
                                 padding=padding.only(right=10, top=10, bottom=10),
                                 # margin=margin.only(right=10, bottom=10),
@@ -415,7 +482,7 @@ class TaskListControl(Column):
                                 )]
         self.page.update()
 
-    def build(self):
+    def build_interface(self):
         dct_title = {"today": "今天",
                      "future": "未来七天",
                      "expired": "已过期",
@@ -467,7 +534,19 @@ class TaskListControl(Column):
 
         self.col_tasklist = Column(
             [
-                IconButton(Icons.MENU, on_click=self.on_menu_click),
+                Row(controls=[
+                    IconButton(Icons.MENU, on_click=self.on_menu_click),
+                    PopupMenuButton(
+                                    items=[
+                                        PopupMenuItem(icon=Icons.EDIT,text='重命名列表',
+                                                      on_click=self.on_rename_list),
+                                        PopupMenuItem(icon=Icons.DELETE,text='删除列表',
+                                                      on_click=self.on_delete_list)
+                                    ]
+                        )
+                    ],
+                    alignment=MainAxisAlignment.SPACE_BETWEEN
+                ),
                 Container(content=Row(
                     controls = [
                         Container(content=Text(dct_title.get(self.list_name), size=24, weight=FontWeight.BOLD)),

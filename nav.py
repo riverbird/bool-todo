@@ -54,7 +54,7 @@ class NavControl(Column):
             # on_dismiss=lambda e: print("Modal dialog dismissed!"),
             )
 
-        nav_controls = self.build()
+        nav_controls = self.build_interface()
         self.controls = [nav_controls, self.dlg_about, self.dlg_add_cate]
 
     def on_dashboard_click(self, e):
@@ -205,7 +205,7 @@ class NavControl(Column):
         self.dlg_add_cate.open = False
         self.page.update()
 
-    def build(self):
+    def build_interface(self):
         self.lt_today = ListTile(leading=Icon(Icons.TODAY),
                                  title=Text("今天"),
                                  selected=False,
