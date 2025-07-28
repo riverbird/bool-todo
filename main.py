@@ -5,7 +5,7 @@ import flet
 from flet import Page, Theme
 from flet.core import padding, margin
 from flet.core.colors import Colors
-from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, PagePlatform
+from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, PagePlatform, ScrollMode
 from flet.core.view import View
 
 from login import LoginControl
@@ -28,6 +28,7 @@ def main(page: Page):
     page.title = '布尔清单'
     page.window.icon = '/icons/app_icon.png'
     page.bgcolor = Colors.SURFACE
+    page.scroll = ScrollMode.ADAPTIVE
     page.padding=padding.all(0)
     page.margin=margin.all(0)
     page.platform=PagePlatform.ANDROID

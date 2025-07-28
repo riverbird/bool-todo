@@ -1,13 +1,21 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flet import Text, Container, Column, Icon, Row, TextField, \
     Icons, alignment, Colors, padding, \
     Switch, SnackBar, ListView
-from flet.core import border
+from flet.core import border, icon, date_picker
+from flet.core.bottom_sheet import BottomSheet
+from flet.core.cupertino_textfield import CupertinoTextField
+from flet.core.date_picker import DatePicker
+from flet.core.floating_action_button import FloatingActionButton
 from flet.core.form_field_control import InputBorder
 from flet.core.icon_button import IconButton
 from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPosition
+from flet.core.outlined_button import OutlinedButton
 from flet.core.pagelet import Pagelet
-from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight
+from flet.core.popup_menu_button import PopupMenuButton, PopupMenuItem
+from flet.core.safe_area import SafeArea
+from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight, \
+    FloatingActionButtonLocation
 
 import nav
 from task import Task
@@ -21,6 +29,10 @@ class TaskListControl(Column):
         self.page = page
         self.adaptive = True
         self.alignment = MainAxisAlignment.START
+
+        self.str_task_date = datetime.today().strftime('%Y-%m-%d')
+        self.n_task_level = 0
+        self.n_task_repeat = 0
 
         self.list_name = list_id
         self.list_title = self.page.client_storage.get('list_title')
@@ -51,6 +63,13 @@ class TaskListControl(Column):
         )
 
         task_list_controls = self.build()
+        floating_btn = FloatingActionButton(
+            icon=Icons.ADD,
+            bgcolor=Colors.BLUE,
+            foreground_color=Colors.WHITE,
+            data=0,
+            on_click=self.on_fab_pressed,
+        )
         self.pagelet = Pagelet(
             # appbar=AppBar(
             #     title=Text(self.list_title),
@@ -60,9 +79,10 @@ class TaskListControl(Column):
             #     toolbar_height=40,
             # ),
             content=Container(task_list_controls, padding=padding.all(0)),
-            bgcolor=Colors.WHITE24,
             drawer=self.drawer,
             end_drawer=self.end_drawer,
+            floating_action_button=floating_btn,
+            # floating_action_button_location=FloatingActionButtonLocation.END_CONTAINED,
             width=self.page.width,
             height=self.page.height
         )
@@ -171,6 +191,218 @@ class TaskListControl(Column):
         self.drawer.open = True
         e.control.page.update()
 
+    def on_fab_pressed(self, e):
+        def on_input_task_submit(ex):
+            input_task.value = ex.data
+            task_name = input_task.value
+            if len(task_name) == 0:
+                snack_bar = SnackBar(Text("任务信息不允许为空!"))
+                e.control.page.overlay.append(snack_bar)
+                snack_bar.open = True
+                e.control.page.update()
+                return
+            token = self.page.client_storage.get('token')
+            req_result = APIRequest.add_task(token,
+                                             task_name,
+                                             self.n_task_repeat,
+                                             self.str_task_date,
+                                             self.list_name,
+                                             self.n_task_level)
+            if req_result is False:
+                snack_bar = SnackBar(Text("添加任务失败!"))
+                e.control.page.overlay.append(snack_bar)
+                snack_bar.open = True
+                e.control.page.update()
+                return
+            snack_bar = SnackBar(Text("任务添加成功!"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.update()
+            e.control.page.update()
+            e.control.focus()
+            self.update_list()
+
+        # def on_input_task_blue(ex):
+        #     str_task_name = input_task.value
+
+        def on_btn_add_clicked(ex):
+            str_task_name = input_task.value
+            # 提交任务
+            if len(str_task_name) == 0:
+                snack_bar = SnackBar(Text("任务信息不允许为空!"))
+                e.control.page.overlay.append(snack_bar)
+                snack_bar.open = True
+                e.control.page.update()
+                return
+            token = self.page.client_storage.get('token')
+            req_result = APIRequest.add_task(token,
+                                             str_task_name,
+                                             self.n_task_repeat,
+                                             self.str_task_date,
+                                             self.list_name,
+                                             self.n_task_level)
+            if req_result is False:
+                snack_bar = SnackBar(Text("添加任务失败!"))
+                e.control.page.overlay.append(snack_bar)
+                snack_bar.open = True
+                e.control.page.update()
+                return
+            # 关闭BottomSheet
+            bs.open = False
+            ex.page.overlay.clear()
+            ex.control.update()
+            ex.control.page.update()
+            # 更新列表
+            self.update_list()
+
+        def on_select_task_date_by_picker(ex):
+            ex.page.overlay.append(task_date_picker)
+            # ex.control.page.open(task_date_picker)
+            ex.control.update()
+            ex.control.page.update()
+
+        # 选择某个日期
+        def on_select_task_date(ex):
+            select_id = ex.data
+            select_text = ''
+            for item in ex.control.items:
+                if select_id == item.uid:
+                    select_text = item.text
+                    break
+            btn_due_date.content.controls[1].value = select_text
+            btn_due_date.content.controls[1].color = Colors.RED
+            ex.control.update()
+            ex.control.page.update()
+            today = datetime.today()
+            match select_text:
+                case '今天':
+                    self.str_task_date = today.strftime('%Y-%m-%d')
+                case '明天':
+                    self.str_task_date = (today + timedelta(days=1)).strftime('%Y-%m-%d')
+                case '下周一':
+                    days_until_monday = (0 - today.weekday()) % 7
+                    next_monday = today + timedelta(days=days_until_monday)
+                    self.str_task_date = next_monday.strftime('%Y-%m-%d')
+
+        def on_select_task_level(ex):
+            select_id = ex.data
+            select_text = ''
+            for item in ex.control.items:
+                if select_id == item.uid:
+                    select_text = item.text
+                    break
+            btn_level.content.controls[1].value = select_text
+            btn_level.content.controls[1].color = Colors.RED
+            ex.control.update()
+            ex.control.page.update()
+            lst_level = ('重要紧急', '重要不紧急', '不重要紧急', '不重要不紧急')
+            self.n_task_level = lst_level.index(select_text)
+
+        def on_select_task_repeat(ex):
+            select_id = ex.data
+            select_text = ''
+            for item in ex.control.items:
+                if select_id == item.uid:
+                    select_text = item.text
+                    break
+            btn_repeat.content.controls[1].value = select_text
+            btn_repeat.content.controls[1].color = Colors.RED
+            lst_repeat = ('无', '每天', '每周工作日', '每周', '每月', '每年')
+            self.n_task_repeat = lst_repeat.index(select_text)
+
+        # 通过日期控件选择日期
+        def on_change_date(ex):
+            dt_selected_date = ex.data
+            self.str_task_date = dt_selected_date.strftime('%Y-%m-%d')
+            btn_level.content.controls[1].value = self.str_task_date
+            btn_level.content.controls[1].color = Colors.RED
+            ex.control.update()
+            ex.control.page.update()
+
+        input_task = TextField(hint_text='添加任务',
+                               prefix_icon=Icons.ADD,
+                               expand=True,
+                               filled=True,
+                               border=InputBorder.NONE,
+                               border_radius=5,
+                               height=40,
+                               bgcolor='#CEE8E8',
+                               autofocus=True,
+                               adaptive=True,
+                               on_submit=on_input_task_submit,
+                               # on_blur=on_input_task_blue,
+                               )
+        btn_add = IconButton(icon=Icons.ARROW_UPWARD,
+                             on_click=on_btn_add_clicked)
+        btn_due_date = PopupMenuButton(icon=Icons.CALENDAR_MONTH_OUTLINED,
+                                       content=Row([Icon(name=Icons.CALENDAR_MONTH),
+                                                    Text('截止日期')]),
+                                       items=[PopupMenuItem(text='今天', icon=Icons.CALENDAR_TODAY),
+                                              PopupMenuItem(text='明天', icon=Icons.CALENDAR_VIEW_DAY),
+                                              PopupMenuItem(text='下周一', icon=Icons.CALENDAR_VIEW_WEEK),
+                                              PopupMenuItem(text='选择日期',
+                                                            icon=Icons.CALENDAR_MONTH,
+                                                            on_click=on_select_task_date_by_picker,
+                                                            )],
+                                       on_select=on_select_task_date
+                                       )
+        btn_level = PopupMenuButton(icon=Icons.LABEL_IMPORTANT,
+                                    content=Row([Icon(name=Icons.LABEL_IMPORTANT),
+                                                 Text('重要程度')]),
+                                    items=[PopupMenuItem(text='重要紧急', icon=Icons.LABEL_IMPORTANT_OUTLINED),
+                                           PopupMenuItem(text='重要不紧急', icon=Icons.LABEL_IMPORTANT_OUTLINE),
+                                           PopupMenuItem(text='不重要紧急', icon=Icons.WARNING),
+                                           PopupMenuItem(text='不重要不紧急', icon=Icons.JOIN_FULL_OUTLINED)],
+                                    on_select=on_select_task_level
+                                    )
+        btn_repeat = PopupMenuButton(icon=Icons.REPEAT,
+                                     content=Row([Icon(name=Icons.REPEAT),
+                                                  Text('重复')]),
+                                     items=[PopupMenuItem(text='无', icon=Icons.REPEAT_OUTLINED),
+                                            PopupMenuItem(text='每天', icon=Icons.EVENT_REPEAT),
+                                            PopupMenuItem(text='每周工作日', icon=Icons.EVENT_REPEAT_OUTLINED),
+                                            PopupMenuItem(text='每周', icon=Icons.EVENT_REPEAT_OUTLINED),
+                                            PopupMenuItem(text='每月', icon=Icons.CALENDAR_MONTH),
+                                            PopupMenuItem(text='每年', icon=Icons.YOUTUBE_SEARCHED_FOR)],
+                                     on_select=on_select_task_repeat
+                                     )
+        row_input = Row(
+            controls=[input_task, btn_add],
+            alignment=MainAxisAlignment.SPACE_BETWEEN
+        )
+        row_ex = Row(
+            controls=[btn_due_date, btn_level, btn_repeat],
+        )
+        bs = BottomSheet(
+            Container(
+                Column(
+                    [
+                        row_input, row_ex
+                    ],
+                    horizontal_alignment=CrossAxisAlignment.CENTER,
+                    tight=True,
+                ),
+                adaptive=True,
+                border_radius=2,
+                padding=15,
+            ),
+            use_safe_area=True,
+            open=True,
+        )
+        e.page.overlay.append(bs)
+        e.control.update()
+        e.control.page.update()
+        # e.page.open(bs)
+        # page.add(
+        #     ft.ElevatedButton("Display bottom sheet", on_click=lambda e: page.open(bs))
+        # )
+        task_date_picker = DatePicker(
+            first_date=datetime(2023, 10, 1),
+            last_date=datetime(2024, 12, 1),
+            open=True,
+            on_change=on_change_date,
+        )
+
     def update_list(self):
         task_list_controls = self.build()
         self.pagelet.content = Container(task_list_controls, padding=padding.all(0))
@@ -190,16 +422,18 @@ class TaskListControl(Column):
                      "all": "全部",
                      self.list_name: self.list_title}
 
-        self.input_task = TextField(hint_text='添加任务',
-                                    prefix_icon=Icons.ADD,
-                                    expand=True,
-                                    filled=True,
-                                    border=InputBorder.NONE,
-                                    border_radius=10,
-                                    height=50,
-                                    bgcolor='#CEE8E8',
-                                    autofocus=True,
-                                    on_submit=self.on_input_task_submit)
+        # self.input_task = TextField(hint_text='添加任务',
+        #                             prefix_icon=Icons.ADD,
+        #                             expand=True,
+        #                             filled=True,
+        #                             border=InputBorder.NONE,
+        #                             border_radius=5,
+        #                             height=40,
+        #                             bgcolor='#CEE8E8',
+        #                             autofocus=True,
+        #                             adaptive=True,
+        #                             on_submit=self.on_input_task_submit)
+
         self.col_task = Column(alignment=MainAxisAlignment.START,
                                # expand=True,
                                spacing=15,
@@ -235,33 +469,36 @@ class TaskListControl(Column):
             [
                 IconButton(Icons.MENU, on_click=self.on_menu_click),
                 Container(content=Row(
-                    [Container(content=Text(dct_title.get(self.list_name), size=24, weight=FontWeight.BOLD)),
-                             Switch(label='显示已完成',
-                                    value=False,
-                                    on_change=self.on_switch_show_finished,
-                                    expand=True,
-                                    adaptive=True,
-                                    scale=0.9)],
-                            alignment=MainAxisAlignment.START,
-                            vertical_alignment=CrossAxisAlignment.CENTER,
-                            # vertical_alignment='start',
-                            spacing=10,
-                            # height=50,
-                            expand=1),
-                    height=80,
-                    padding=padding.only(top=10, bottom=10)),
+                    controls = [
+                        Container(content=Text(dct_title.get(self.list_name), size=24, weight=FontWeight.BOLD)),
+                        Switch(label='显示已完成',
+                            value=False,
+                            on_change=self.on_switch_show_finished,
+                            expand=True,
+                            adaptive=True,
+                            # scale=0.9
+                            )],
+                        alignment=MainAxisAlignment.START,
+                        vertical_alignment=CrossAxisAlignment.CENTER,
+                        # vertical_alignment='start',
+                        spacing=5,
+                        # height=50,
+                        expand=1),
+                    # height=80,
+                    # padding=padding.only(top=2, bottom=2)
+                ),
                 # self.container_empty,
                 self.lv_task,
-                Container(content=Row(controls=[self.input_task],
-                                      alignment=MainAxisAlignment.END,
-                                      # vertical_alignment='end',
-                                      ),
-                          alignment=alignment.top_left,
-                          height=70,
-                          # margin=margin.only(bottom=20,),
-                          padding=padding.only(bottom=20),
-                          # expand=1,
-                          ),
+                # Container(content=Row(controls=[self.input_task],
+                #                       # alignment=MainAxisAlignment.END,
+                #                       # vertical_alignment='end',
+                #                       ),
+                #           alignment=alignment.top_left,
+                #           height=70,
+                #           # margin=margin.only(bottom=20,),
+                #           padding=padding.only(bottom=20),
+                #           # expand=1,
+                #           ),
             ],
             alignment=MainAxisAlignment.SPACE_BETWEEN,
             expand=True,

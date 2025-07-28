@@ -43,15 +43,21 @@ class LoginControl(Column):
         # 切换至短信验证码登录
         self.view_status = LoginViewStatus.ViewLoginSmsView
         # self.tabs_login.tabs[0].content.content = self.card_login_id_code
+        tf_verify_code = TextField(label='验证码',
+                                   width=260,
+                                   prefix_icon=Icons.VERIFIED,
+                                   border=InputBorder.OUTLINE,
+                                   on_change=self.on_tf_verify_code_change)
         card_login_id_code = Card(
             elevation=0,
             content=Container(
                 content=Column(
-                    [
+                    controls = [
                         self.tf_phone_num,
                         Row(
-                            [self.tf_verify_code,
-                             TextButton('获取验证码', on_click=self.on_send_sms)]
+                            controls=[tf_verify_code,
+                             TextButton('获取验证码', on_click=self.on_send_sms)],
+                            alignment=MainAxisAlignment.SPACE_BETWEEN
                         ),
                         FilledButton(text='登录',
                                      icon=Icons.LOGIN,
@@ -60,8 +66,8 @@ class LoginControl(Column):
                         TextButton('密码登录', on_click=self.on_password_login_click)
                     ]
                 ),
-                width=400,
-                padding=10,
+                # width=400,
+                padding=2,
                 bgcolor=Colors.TRANSPARENT
             )
         )
@@ -69,8 +75,8 @@ class LoginControl(Column):
         tabs_login.content = Container(
                         content=card_login_id_code,
                         # alignment=alignment.center,
-                        padding=10,
-                        margin=10,
+                        padding=5,
+                        margin=5,
                         bgcolor=Colors.TRANSPARENT)
         e.page.update()
 
@@ -108,6 +114,12 @@ class LoginControl(Column):
     def on_send_sms(self, e):
         # 发送短信验证码
         phone_num = self.str_username
+        if not phone_num:
+            snack_bar = SnackBar(Text("手机号码不得为空！"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            e.control.page.update()
+            return
         req_result = APIRequest.send_sms(phone_num)
         # if req_result.status_code in [200, 201, 202]:
         str_msg = req_result.text.replace('"', '')
@@ -283,25 +295,25 @@ class LoginControl(Column):
             )
         )
 
-        card_login_id_code = Card(
-            elevation=0,
-            content=Container(
-                content=Column(
-                    [
-                        self.tf_phone_num,
-                        Row(
-                            [self.tf_verify_code,
-                             TextButton('获取验证码', on_click=self.on_send_sms)]
-                        ),
-                        FilledButton(text='登录', width=400, on_click=self.on_code_login_click),
-                        TextButton('密码登录', on_click=self.on_password_login_click)
-                    ]
-                ),
-                width=400,
-                padding=10,
-                bgcolor=Colors.TRANSPARENT
-            )
-        )
+        # card_login_id_code = Card(
+        #     elevation=0,
+        #     content=Container(
+        #         content=Column(
+        #             [
+        #                 self.tf_phone_num,
+        #                 Row(
+        #                     [self.tf_verify_code,
+        #                      TextButton('获取验证码', on_click=self.on_send_sms)]
+        #                 ),
+        #                 FilledButton(text='登录', width=400, on_click=self.on_code_login_click),
+        #                 TextButton('密码登录', on_click=self.on_password_login_click)
+        #             ]
+        #         ),
+        #         width=400,
+        #         padding=10,
+        #         bgcolor=Colors.TRANSPARENT
+        #     )
+        # )
 
         card_reg = Card(
             elevation=0,
@@ -332,8 +344,8 @@ class LoginControl(Column):
                     content=Container(
                         content=card_login,
                         # alignment=alignment.center,
-                        padding=10,
-                        margin=10,
+                        padding=5,
+                        margin=5,
                         bgcolor=Colors.TRANSPARENT
                     ),
                 ),
@@ -342,8 +354,8 @@ class LoginControl(Column):
                     content=Container(
                         content=card_reg,
                         # alignment=alignment.center,
-                        padding=10,
-                        margin=10,
+                        padding=5,
+                        margin=5,
                         bgcolor=Colors.TRANSPARENT
                     ),
                 ),

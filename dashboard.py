@@ -19,8 +19,8 @@ class DashboardControl(Column):
         super().__init__()
         self.page = page
 
-        self.padding = 0
-        self.margin = 0
+        # self.padding = 0
+        # self.margin = 0
         self.adaptive = True
         self.alignment = MainAxisAlignment.START
 
