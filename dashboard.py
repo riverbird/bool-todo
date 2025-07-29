@@ -31,7 +31,7 @@ class DashboardControl(Column):
                 padding=0,
                 # margin=margin.only(right=10, bottom=10),
                 margin=0,
-                bgcolor=Colors.WHITE,
+                # bgcolor=Colors.WHITE,
                 )]
         )
 
@@ -59,7 +59,7 @@ class DashboardControl(Column):
                               # padding=padding.all(0),
                               # margin=0
             ),
-            bgcolor=Colors.WHITE,
+            # bgcolor=Colors.WHITE,
             drawer=self.drawer,
             width=self.page.width,
             height=self.page.height,

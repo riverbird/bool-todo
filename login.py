@@ -68,7 +68,7 @@ class LoginControl(Column):
                 ),
                 # width=400,
                 padding=2,
-                bgcolor=Colors.TRANSPARENT
+                # bgcolor=Colors.TRANSPARENT
             )
         )
         tabs_login = self.controls[0].controls[2].tabs[0]
@@ -77,7 +77,8 @@ class LoginControl(Column):
                         # alignment=alignment.center,
                         padding=5,
                         margin=5,
-                        bgcolor=Colors.TRANSPARENT)
+                        # bgcolor=Colors.TRANSPARENT
+        )
         e.page.update()
 
     def on_password_login_click(self, e):
@@ -99,7 +100,7 @@ class LoginControl(Column):
                 ),
                 width=400,
                 padding=10,
-                bgcolor=Colors.TRANSPARENT
+                # bgcolor=Colors.TRANSPARENT
             )
         )
         tabs_login = self.controls[0].controls[2].tabs[0]
@@ -108,7 +109,8 @@ class LoginControl(Column):
             # alignment=alignment.center,
             padding=10,
             margin=10,
-            bgcolor=Colors.TRANSPARENT)
+            # bgcolor=Colors.TRANSPARENT,
+        )
         e.page.update()
 
     def on_send_sms(self, e):
@@ -286,12 +288,14 @@ class LoginControl(Column):
                                      icon=Icons.LOGIN,
                                      width=400,
                                      on_click=self.on_login_click),
-                        TextButton('验证码登录', on_click=self.on_id_code_login_click)
+                        TextButton(text='验证码登录',
+                                   disabled=True,
+                                   on_click=self.on_id_code_login_click)
                     ],
                 ),
                 width=400,
                 padding=10,
-                bgcolor=Colors.WHITE
+                # bgcolor=Colors.WHITE
             )
         )
 
@@ -331,7 +335,7 @@ class LoginControl(Column):
                 ),
                 width=400,
                 padding=10,
-                bgcolor=Colors.WHITE
+                # bgcolor=Colors.WHITE
             )
         )
 
@@ -346,7 +350,7 @@ class LoginControl(Column):
                         # alignment=alignment.center,
                         padding=5,
                         margin=5,
-                        bgcolor=Colors.WHITE
+                        # bgcolor=Colors.WHITE
                     ),
                 ),
                 Tab(
@@ -356,7 +360,7 @@ class LoginControl(Column):
                         # alignment=alignment.center,
                         padding=5,
                         margin=5,
-                        bgcolor=Colors.WHITE
+                        # bgcolor=Colors.WHITE
                     ),
                 ),
             ],
@@ -368,7 +372,7 @@ class LoginControl(Column):
             controls = [
                 Container(
                     height=80,  # 控制空白高度
-                    bgcolor=Colors.WHITE,  # 透明背景
+                    # bgcolor=Colors.WHITE,  # 透明背景
                 ),
                 Row([
                     Image(src=f'/icons/shiqu-todo-logo.png',

@@ -21,3 +21,13 @@ product = "shiqu-todo"
 company = "浙江舒博特网络科技有限公司"
 copyright = "Copyright (C) 2025 by Superiot"
 product_name = "布尔清单"
+
+[tool.flet.android]
+split_per_abi = true
+
+[tool.flet.splash]   # 原生层
+color   = "#ffffff"
+image   = "assets/splash_android.png"
+android = false
+ios     = false
+

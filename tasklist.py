@@ -14,7 +14,9 @@ from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPositi
 from flet.core.pagelet import Pagelet
 from flet.core.popup_menu_button import PopupMenuButton, PopupMenuItem
 from flet.core.text_button import TextButton
-from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight
+from flet.core.transform import Offset
+from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight, \
+    FloatingActionButtonLocation
 
 from task import Task
 from nav import NavControl
@@ -42,15 +44,11 @@ class TaskListControl(Column):
         self.dlg_rename_cate = AlertDialog(
             modal=True,
             title=Text('重命名清单'),
-            content=Column(controls=[self.tf_cate],
-                           alignment=MainAxisAlignment.START,
-                           width=300,
-                           height=100,
-            ),
+            content=self.tf_cate,
             actions=[TextButton("确定", on_click=self.on_dlg_rename_cate_ok_click),
                      TextButton("取消", on_click=self.on_dlg_rename_cate_cancel_click)],
             actions_alignment=MainAxisAlignment.END,
-            title_padding=20,
+            title_padding=10,
             # on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
 
@@ -58,13 +56,14 @@ class TaskListControl(Column):
         self.dlg_delete_confirm = AlertDialog(
             modal=True,
             title=Text('您确定吗?'),
-            content=Column(controls=[Divider(height=1, color='gray'),
-                                     Text('您确定要删除此清单吗?'),
-                                     ],
-                           alignment=MainAxisAlignment.START,
-                           width=200,
-                           height=50,
-                           ),
+            content=Column(
+                controls=[Divider(height=1, color='gray'),
+                          Text('您确定要删除此清单吗?'),
+                          ],
+                alignment=MainAxisAlignment.START,
+                width=200,
+                height=50,
+            ),
             actions=[TextButton("确定", on_click=self.on_dlg_delete_confirm_ok_click),
                      TextButton('取消', on_click=self.on_dlg_delete_confirm_cancel_click)],
             actions_alignment=MainAxisAlignment.END,
@@ -75,35 +74,45 @@ class TaskListControl(Column):
         # 左侧drawer
         self.drawer = NavigationDrawer(
             position=NavigationDrawerPosition.START,
-            controls=[Container(content=NavControl(page),
-                                expand=1,
-                                padding=padding.only(right=10, top=10, bottom=10),
-                                # margin=margin.only(right=10, bottom=10),
-                                bgcolor=Colors.WHITE,
-                                )]
+            controls=[
+                Container(
+                    content=NavControl(page),
+                    expand=1,
+                    padding=padding.only(right=0, top=0, bottom=0),
+                    # margin=margin.only(right=10, bottom=10),
+                    bgcolor=Colors.WHITE,
+                )
+            ]
         )
 
         # 右侧drawer
         detail_info = TaskDetail(self.page, self, {})
         self.end_drawer = NavigationDrawer(
             position=NavigationDrawerPosition.END,
-            controls=[Container(content=detail_info,
-                               width=300,
-                               # bgcolor=colors.WHITE,
-                               bgcolor='#f2f4f8',
-                               border=border.all(1, Colors.BLACK12),
-                               # on_hover=self.on_detail_hover,
-                               )]
+            controls=[
+                Container(
+                    content=detail_info,
+                    width=300,
+                    # bgcolor=colors.WHITE,
+                    bgcolor='#f2f4f8',
+                    border=border.all(1, Colors.BLACK12),
+                    # on_hover=self.on_detail_hover,
+                )
+            ]
         )
 
         task_list_controls = self.build_interface()
+
         floating_btn = FloatingActionButton(
             icon=Icons.ADD,
             bgcolor=Colors.BLUE,
             foreground_color=Colors.WHITE,
             data=0,
+            # bottom=24,
+            # right=16,
             on_click=self.on_fab_pressed,
         )
+
         self.pagelet = Pagelet(
             # appbar=AppBar(
             #     title=Text(self.list_title),
@@ -116,9 +125,9 @@ class TaskListControl(Column):
             drawer=self.drawer,
             end_drawer=self.end_drawer,
             floating_action_button=floating_btn,
-            # floating_action_button_location=FloatingActionButtonLocation.END_CONTAINED,
+            # floating_action_button_location=Offset(100, 100),
             width=self.page.width,
-            height=self.page.height
+            height=self.page.height - 24
         )
 
         self.controls = [self.pagelet,
@@ -127,23 +136,41 @@ class TaskListControl(Column):
         self.page.drawer = self.drawer
         self.page.end_drawer = self.end_drawer
 
-    def query_tasks_by_list(self, list_name):
+    # 这种方法会被覆蓋，显示不出来。
+    # def did_mount(self):
+    #     self.page.floating_action_button = FloatingActionButton(
+    #         icon=Icons.ADD,
+    #         bgcolor=Colors.BLUE,
+    #         foreground_color=Colors.WHITE,
+    #         data=0,
+    #         # bottom=24,
+    #         # right=16,
+    #         on_click=self.on_fab_pressed,
+    #     )
+    #     self.page.floating_action_button_location = FloatingActionButtonLocation.END_FLOAT
+    #     self.page.update()
+    #
+    # def will_unmount(self):
+    #     self.page.floating_action_button = None
+    #     self.page.update()
+
+    def query_tasks_by_list(self, list_name, task_status=False):
         lst_ret = []
         token = self.page.client_storage.get('token')
         str_today = datetime.now().strftime('%Y-%m-%d')
         # headers = {'Authorization': f'Bearer {token}'}
         if list_name == 'today':
-            lst_ret = APIRequest.query_tasks_by_date(token, str_today)
+            lst_ret = APIRequest.query_tasks_by_date(token, str_today, task_status)
         elif list_name == 'future':
             lst_ret = APIRequest.query_future_tasks(token)
         elif list_name == 'expired':
             lst_ret = APIRequest.query_expired_tasks(token)
         elif isinstance(list_name, int):
-            lst_ret = APIRequest.query_tasks_by_cate_id(token, list_name)
+            lst_ret = APIRequest.query_tasks_by_cate_id(token, list_name, task_status)
         if len(lst_ret) == 0:
             return
-        if self.container_empty in self.col_tasklist.controls:
-            self.col_tasklist.controls.remove(self.container_empty)
+        # if self.container_empty in self.col_tasklist.controls:
+        #     self.col_tasklist.controls.remove(self.container_empty)
         # self.col_task.controls.clear()
         self.lv_task.controls.clear()
         for itm in lst_ret:
@@ -160,7 +187,7 @@ class TaskListControl(Column):
 
     def on_switch_show_finished(self, e):
         self.show_finished = e.control.value
-        self.query_tasks_by_list(self.list_name)
+        self.query_tasks_by_list(self.list_name, task_status=True)
         self.update()
 
     def on_input_task_submit(self, e):
@@ -404,13 +431,14 @@ class TaskListControl(Column):
         btn_due_date = PopupMenuButton(icon=Icons.CALENDAR_MONTH_OUTLINED,
                                        content=Row([Icon(name=Icons.CALENDAR_MONTH),
                                                     Text('截止日期')]),
-                                       items=[PopupMenuItem(text='今天', icon=Icons.CALENDAR_TODAY),
-                                              PopupMenuItem(text='明天', icon=Icons.CALENDAR_VIEW_DAY),
-                                              PopupMenuItem(text='下周一', icon=Icons.CALENDAR_VIEW_WEEK),
+                                       items=[PopupMenuItem(text='今天', icon=Icons.CALENDAR_TODAY_OUTLINED),
+                                              PopupMenuItem(text='明天', icon=Icons.CALENDAR_VIEW_DAY_OUTLINED),
+                                              PopupMenuItem(text='下周一', icon=Icons.CALENDAR_VIEW_WEEK_OUTLINED),
                                               PopupMenuItem(text='选择日期',
-                                                            icon=Icons.CALENDAR_MONTH,
+                                                            icon=Icons.CALENDAR_MONTH_OUTLINED,
                                                             on_click=on_select_task_date_by_picker,
-                                                            )],
+                                                            )
+                                              ],
                                        on_select=on_select_task_date
                                        )
         btn_level = PopupMenuButton(icon=Icons.LABEL_IMPORTANT,
@@ -419,18 +447,18 @@ class TaskListControl(Column):
                                     items=[PopupMenuItem(text='重要紧急', icon=Icons.LABEL_IMPORTANT_OUTLINED),
                                            PopupMenuItem(text='重要不紧急', icon=Icons.LABEL_IMPORTANT_OUTLINE),
                                            PopupMenuItem(text='不重要紧急', icon=Icons.WARNING),
-                                           PopupMenuItem(text='不重要不紧急', icon=Icons.JOIN_FULL_OUTLINED)],
+                                           PopupMenuItem(text='不重要不紧急', icon=Icons.GPP_MAYBE_OUTLINED)],
                                     on_select=on_select_task_level
                                     )
         btn_repeat = PopupMenuButton(icon=Icons.REPEAT,
                                      content=Row([Icon(name=Icons.REPEAT),
                                                   Text('重复')]),
-                                     items=[PopupMenuItem(text='无', icon=Icons.REPEAT_OUTLINED),
+                                     items=[PopupMenuItem(text='无', icon=Icons.NOTIFICATIONS_NONE_OUTLINED),
                                             PopupMenuItem(text='每天', icon=Icons.EVENT_REPEAT),
-                                            PopupMenuItem(text='每周工作日', icon=Icons.EVENT_REPEAT_OUTLINED),
-                                            PopupMenuItem(text='每周', icon=Icons.EVENT_REPEAT_OUTLINED),
+                                            PopupMenuItem(text='每周工作日', icon=Icons.CALENDAR_VIEW_WEEK_OUTLINED),
+                                            PopupMenuItem(text='每周', icon=Icons.WEEKEND_OUTLINED),
                                             PopupMenuItem(text='每月', icon=Icons.CALENDAR_MONTH),
-                                            PopupMenuItem(text='每年', icon=Icons.YOUTUBE_SEARCHED_FOR)],
+                                            PopupMenuItem(text='每年', icon=Icons.REPEAT_OUTLINED)],
                                      on_select=on_select_task_repeat
                                      )
         row_input = Row(
@@ -439,6 +467,7 @@ class TaskListControl(Column):
         )
         row_ex = Row(
             controls=[btn_due_date, btn_level, btn_repeat],
+            alignment=MainAxisAlignment.SPACE_BETWEEN
         )
         bs = BottomSheet(
             Container(
@@ -478,7 +507,7 @@ class TaskListControl(Column):
                                 expand=1,
                                 padding=padding.only(right=10, top=10, bottom=10),
                                 # margin=margin.only(right=10, bottom=10),
-                                bgcolor=Colors.WHITE,
+                                # bgcolor=Colors.WHITE,
                                 )]
         self.page.update()
 
@@ -489,18 +518,6 @@ class TaskListControl(Column):
                      "all": "全部",
                      self.list_name: self.list_title}
 
-        # self.input_task = TextField(hint_text='添加任务',
-        #                             prefix_icon=Icons.ADD,
-        #                             expand=True,
-        #                             filled=True,
-        #                             border=InputBorder.NONE,
-        #                             border_radius=5,
-        #                             height=40,
-        #                             bgcolor='#CEE8E8',
-        #                             autofocus=True,
-        #                             adaptive=True,
-        #                             on_submit=self.on_input_task_submit)
-
         self.col_task = Column(alignment=MainAxisAlignment.START,
                                # expand=True,
                                spacing=15,
@@ -509,41 +526,46 @@ class TaskListControl(Column):
         self.lv_task = ListView(expand=True,
                                 spacing=5,
                                 padding=5,
+                                adaptive=True
                                 # auto_scroll=True,
                                 )
-        col_empty = Column([Icon(name=Icons.LIST_SHARP,
-                                 color=Colors.BLACK12,
-                                 size=128,
-                                 # expand=True,
-                                 ),
-                            Text('没有可完成的任务，加油！',
-                                 size=24,
-                                 text_align=TextAlign.CENTER,
-                                 # expand=True,
-                                 )],
-                           alignment=MainAxisAlignment.CENTER,
-                           horizontal_alignment=CrossAxisAlignment.CENTER,
-                           expand=True,
-                           # height=500,
-                           )
-        self.container_empty = Container(content=col_empty,
-                                         # expand=True,
-                                         # height=500,
-                                         alignment=alignment.center,
-                                         )
+        # 定义了一个任务项为空的组件。
+        # col_empty = Column([Icon(name=Icons.LIST_SHARP,
+        #                          color=Colors.BLACK12,
+        #                          size=128,
+        #                          # expand=True,
+        #                          ),
+        #                     Text('没有可完成的任务，加油！',
+        #                          size=24,
+        #                          text_align=TextAlign.CENTER,
+        #                          # expand=True,
+        #                          )],
+        #                    alignment=MainAxisAlignment.CENTER,
+        #                    horizontal_alignment=CrossAxisAlignment.CENTER,
+        #                    expand=True,
+        #                    # height=500,
+        #                    )
+        # self.container_empty = Container(content=col_empty,
+        #                                  # expand=True,
+        #                                  # height=500,
+        #                                  alignment=alignment.center,
+        #                                  )
+
+        task_list_menu_btn = PopupMenuButton(
+            items=[
+                PopupMenuItem(icon=Icons.EDIT, text='重命名列表',
+                              on_click=self.on_rename_list),
+                PopupMenuItem(icon=Icons.DELETE, text='删除列表',
+                              on_click=self.on_delete_list)
+            ]
+        )
+        task_list_menu_btn.visible = self.list_name not in ['today', 'future', 'expired', 'all']
 
         self.col_tasklist = Column(
-            [
+            controls = [
                 Row(controls=[
-                    IconButton(Icons.MENU, on_click=self.on_menu_click),
-                    PopupMenuButton(
-                                    items=[
-                                        PopupMenuItem(icon=Icons.EDIT,text='重命名列表',
-                                                      on_click=self.on_rename_list),
-                                        PopupMenuItem(icon=Icons.DELETE,text='删除列表',
-                                                      on_click=self.on_delete_list)
-                                    ]
-                        )
+                        IconButton(Icons.MENU, on_click=self.on_menu_click),
+                        task_list_menu_btn,
                     ],
                     alignment=MainAxisAlignment.SPACE_BETWEEN
                 ),
@@ -555,7 +577,6 @@ class TaskListControl(Column):
                             on_change=self.on_switch_show_finished,
                             expand=True,
                             adaptive=True,
-                            # scale=0.9
                             )],
                         alignment=MainAxisAlignment.START,
                         vertical_alignment=CrossAxisAlignment.CENTER,
@@ -568,19 +589,10 @@ class TaskListControl(Column):
                 ),
                 # self.container_empty,
                 self.lv_task,
-                # Container(content=Row(controls=[self.input_task],
-                #                       # alignment=MainAxisAlignment.END,
-                #                       # vertical_alignment='end',
-                #                       ),
-                #           alignment=alignment.top_left,
-                #           height=70,
-                #           # margin=margin.only(bottom=20,),
-                #           padding=padding.only(bottom=20),
-                #           # expand=1,
-                #           ),
             ],
             alignment=MainAxisAlignment.SPACE_BETWEEN,
             expand=True,
+            adaptive=True
             # scroll='hidden',
             # height=800,
             # alignment='start',

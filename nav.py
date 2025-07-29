@@ -33,7 +33,7 @@ class NavControl(Column):
              #                  expand=True),
              actions=[TextButton("确定", on_click=self.on_about_ok_click), ],
              actions_alignment=MainAxisAlignment.END,
-             title_padding=20,
+             # title_padding=20,
              # on_dismiss=lambda e: print("对话框已关闭!"),
         )
 
@@ -242,16 +242,17 @@ class NavControl(Column):
         self.pmi_color = PopupMenuItem(icon=Icons.DARK_MODE,
                                        text='深色模式',
                                        on_click=self.on_dark_click)
-        self.pmb_option = PopupMenuButton(items=[  # self.pmi_color,
-            PopupMenuItem(icon=Icons.HELP,
-                          text='关于我们',
-                          on_click=self.on_about_click),
-            # PopupMenuItem(icon=icons.ACCOUNT_BOX, text='账户安全'),
-            PopupMenuItem(icon=Icons.LOGOUT,
-                          text='退出登录',
-                          on_click=self.on_logout),
-        ],
-            icon=Icons.HELP,
+        self.pmb_option = PopupMenuButton(
+            items=[  # self.pmi_color,
+                PopupMenuItem(icon=Icons.HELP,
+                              text='关于我们',
+                              on_click=self.on_about_click),
+                # PopupMenuItem(icon=icons.ACCOUNT_BOX, text='账户安全'),
+                PopupMenuItem(icon=Icons.LOGOUT,
+                              text='退出登录',
+                              on_click=self.on_logout),
+            ],
+            icon=Icons.SETTINGS,
         )
         self.row_head = Row(controls=[self.img_avatar,
                                       self.text_user,

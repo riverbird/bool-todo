@@ -64,9 +64,13 @@ class APIRequest(object):
         return dct_ret
 
     @staticmethod
-    def query_tasks_by_date(token, str_date):
+    def query_tasks_by_date(token, str_date, task_status):
         headers = {'Authorization': f'Bearer {token}'}
-        req = requests.get(url=f'https://restapi.10qu.com.cn/todo_search/?task_time={str_date}',
+        if task_status is False:
+            url = f'https://restapi.10qu.com.cn/todo_search/?task_time={str_date}&task_status={task_status}'
+        else:
+            url = f'https://restapi.10qu.com.cn/todo_search/?task_time={str_date}'
+        req = requests.get(url=url,
                            headers=headers)
         json_req = json.loads(req.text)
         lst_ret = json_req.get('results')
@@ -91,9 +95,13 @@ class APIRequest(object):
         return lst_ret
 
     @staticmethod
-    def query_tasks_by_cate_id(token, cate_id):
+    def query_tasks_by_cate_id(token, cate_id, task_status=False):
         headers = {'Authorization': f'Bearer {token}'}
-        req = requests.get(url=f'https://restapi.10qu.com.cn/user_todo/?todo_from_id={cate_id}',
+        if task_status is False:
+            url = f'https://restapi.10qu.com.cn/user_todo/?todo_from_id={cate_id}&task_status={task_status}'
+        else:
+            url = f'https://restapi.10qu.com.cn/user_todo/?todo_from_id={cate_id}'
+        req = requests.get(url=url,
                            headers=headers)
         json_req = json.loads(req.text)
         lst_ret = json_req.get('result')
