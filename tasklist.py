@@ -127,7 +127,7 @@ class TaskListControl(Column):
             floating_action_button=floating_btn,
             # floating_action_button_location=Offset(100, 100),
             width=self.page.width,
-            height=self.page.height - 24
+            height=self.page.height - 48
         )
 
         self.controls = [self.pagelet,
@@ -505,7 +505,7 @@ class TaskListControl(Column):
 
         self.drawer.controls = [Container(content=NavControl(self.page),
                                 expand=1,
-                                padding=padding.only(right=10, top=10, bottom=10),
+                                # padding=padding.only(right=10, top=10, bottom=10),
                                 # margin=margin.only(right=10, bottom=10),
                                 # bgcolor=Colors.WHITE,
                                 )]
