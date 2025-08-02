@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flet import Text, Container, Column, Icon, Row, TextField, \
-    Icons, alignment, Colors, padding, \
+    Icons, Colors, padding, \
     Switch, SnackBar, ListView
 from flet.core import border
 from flet.core.alert_dialog import AlertDialog
@@ -14,9 +14,7 @@ from flet.core.navigation_drawer import NavigationDrawer, NavigationDrawerPositi
 from flet.core.pagelet import Pagelet
 from flet.core.popup_menu_button import PopupMenuButton, PopupMenuItem
 from flet.core.text_button import TextButton
-from flet.core.transform import Offset
-from flet.core.types import MainAxisAlignment, ScrollMode, TextAlign, CrossAxisAlignment, FontWeight, \
-    FloatingActionButtonLocation
+from flet.core.types import MainAxisAlignment, ScrollMode, CrossAxisAlignment, FontWeight
 
 from task import Task
 from nav import NavControl
@@ -493,8 +491,9 @@ class TaskListControl(Column):
         #     ft.ElevatedButton("Display bottom sheet", on_click=lambda e: page.open(bs))
         # )
         task_date_picker = DatePicker(
-            first_date=datetime(2023, 10, 1),
-            last_date=datetime(2024, 12, 1),
+            # first_date=datetime(2023, 10, 1),
+            # last_date=datetime(2024, 12, 1),
+            value=datetime.today().date(),
             open=True,
             on_change=on_change_date,
         )

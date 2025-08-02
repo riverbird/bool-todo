@@ -3,9 +3,10 @@ from urllib.parse import urlparse, parse_qs
 
 import flet
 from flet import Page, Theme
-from flet.core import padding
 from flet.core.safe_area import SafeArea
-from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, PagePlatform, ScrollMode
+from flet.core.theme import DatePickerTheme
+from flet.core.types import VisualDensity, MainAxisAlignment, CrossAxisAlignment, ThemeMode, PagePlatform, ScrollMode, \
+    Locale
 from flet.core.view import View
 
 from login import LoginControl
@@ -46,11 +47,13 @@ def main(page: Page):
     page.theme = Theme(
         color_scheme_seed="blue",
         font_family='微软雅黑',
+        date_picker_theme=DatePickerTheme(locale=Locale('zh', 'CN')),
         visual_density=VisualDensity.ADAPTIVE_PLATFORM_DENSITY,
         use_material3=False)
     page.dark_theme = Theme(
         color_scheme_seed="green",
         font_family='微软雅黑',
+        date_picker_theme=DatePickerTheme(locale=Locale('zh', 'CN')),
         visual_density=VisualDensity.ADAPTIVE_PLATFORM_DENSITY,
         use_material3=False)
 

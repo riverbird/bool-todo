@@ -253,13 +253,13 @@ class LoginControl(Column):
         self.tf_phone_num = TextField(label='手机号',
                                       prefix_icon=Icons.PHONE,
                                       border=InputBorder.OUTLINE,
-                                      value='13588459825',
+                                      # value='13588459825',
                                       on_change=self.on_tf_phone_num_change,
                                       )
         self.tf_password = TextField(label='密码',
                                      prefix_icon=Icons.PASSWORD,
                                      border=InputBorder.OUTLINE,
-                                     value='iloveyou365',
+                                     # value='iloveyou365',
                                      password=True,
                                      can_reveal_password=True,
                                      on_change=self.on_tf_password_change)

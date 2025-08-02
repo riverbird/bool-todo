@@ -1,10 +1,10 @@
+from datetime import datetime
+
 from flet import Text, Container, Column, Icon, Row, TextField, \
-    Icons, alignment,  padding, Checkbox,  Card, Page, \
+    Icons, alignment,  padding, Checkbox,  Page, \
     Dropdown, IconButton, dropdown, SnackBar
 from flet.core.colors import Colors
-from flet.core.cupertino_bottom_sheet import CupertinoBottomSheet
-from flet.core.cupertino_colors import CupertinoColors
-from flet.core.cupertino_date_picker import CupertinoDatePickerMode, CupertinoDatePicker
+from flet.core.date_picker import DatePicker
 from flet.core.outlined_button import OutlinedButton
 from flet.core.types import MainAxisAlignment
 
@@ -65,7 +65,7 @@ class TaskDetail(Row):
             e.control.page.update()
             return
         # self.btn_sel_date.text = new_date
-        btn_sel_date = self.controls[0].controls[2].content.content.controls[1]
+        btn_sel_date = self.controls[0].controls[3].content
         if btn_sel_date:
             btn_sel_date.text = new_date
             e.control.page.update()
@@ -210,17 +210,27 @@ class TaskDetail(Row):
         self.dpd_cate.value = self.dct_cates.get(cate_id)
 
         # 任务日期
+        str_task_time = self.task_info.get('task_time', '--')
+        if str_task_time != '--':
+            dt_task_time = datetime.strptime(str_task_time, '%Y-%m-%d')
+        else:
+            dt_task_time = None
         self.btn_sel_date = OutlinedButton(
-            text=self.task_info.get('task_time', '--'),
+            text=str_task_time,
             width=280,
             on_click=lambda e: e.control.page.open(
-               CupertinoBottomSheet(
-                   CupertinoDatePicker(
-                       on_change=self.on_task_date_change,
-                       date_picker_mode=CupertinoDatePickerMode.DATE),
-                   height=216,
-                   bgcolor=CupertinoColors.SYSTEM_BACKGROUND,
-                   padding=padding.only(top=6))
+               # CupertinoBottomSheet(
+               #     CupertinoDatePicker(
+               #         on_change=self.on_task_date_change,
+               #         date_picker_mode=CupertinoDatePickerMode.DATE),
+               #     height=216,
+               #     bgcolor=CupertinoColors.SYSTEM_BACKGROUND,
+               #     padding=padding.only(top=6))
+                DatePicker(
+                    value=dt_task_time,
+                    open=True,
+                    on_change=self.on_task_date_change,
+                )
            )
         )
 
