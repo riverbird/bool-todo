@@ -7,6 +7,7 @@ from flet.core.progress_ring import ProgressRing
 from flet.core.types import MainAxisAlignment, CrossAxisAlignment, FontWeight, ScrollMode, ImageFit
 
 from api_request import APIRequest
+from global_store import GlobalStore
 
 class NavControl(Column):
     def __init__(self, page):
@@ -82,11 +83,22 @@ class NavControl(Column):
                 list_name = 'future'
             case '已过期':
                 list_name = 'expired'
+
+        if list_name == GlobalStore.last_cate_id:
+            e.page.drawer.open = False
+            e.page.update()
+            return
+        GlobalStore.last_cate_id = list_name
+
         self.page.client_storage.set('list_name', list_name)
         self.page.client_storage.set('list_title', list_title_text)
         self.page.client_storage.set('list_show_finished', False)
+        e.control.page.overlay.remove(progress_ring)
+        e.control.page.update()
         self.page.go(f'/tasklist?id={list_name}')
-        progress_ring.visible = False
+
+        # progress_ring.visible = False
+        # progress_ring.did_mount()
 
     def on_about_ok_click(self, e):
         self.dlg_about.open = False
@@ -127,20 +139,31 @@ class NavControl(Column):
         self.page.update()
 
     def on_cate_click(self, e):
+        cate_id = self.dct_cate.get(e.control.data)
+        cate_title = self.dct_cate_title.get(e.control.data)
+
+        if cate_id == GlobalStore.last_cate_id:
+            e.page.drawer.open = False
+            e.page.update()
+            return
+
+        GlobalStore.last_cate_id = cate_id
+
         progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
         progress_ring.top = self.page.height / 2 - progress_ring.height / 2
         progress_ring.left = self.page.width / 2 - progress_ring.width / 2
         e.control.page.overlay.append(progress_ring)
         e.control.page.update()
 
-        cate_id = self.dct_cate.get(e.control.data)
-        cate_title = self.dct_cate_title.get(e.control.data)
         self.page.client_storage.set('list_name', cate_id)
         self.page.client_storage.set('list_title', cate_title)
         self.page.client_storage.set('list_show_finished', False)
+        e.control.page.overlay.remove(progress_ring)
+        e.control.page.update()
         self.page.go(f'/tasklist?id={cate_id}')
 
-        progress_ring.visible = False
+        # progress_ring.visible = False
+        # progress_ring.did_mount()
 
     def on_list_tile_hover(self, e):
         e.control.bgcolor = Colors.BLACK12 if e.data == "true" else Colors.WHITE
