@@ -1,11 +1,11 @@
 [project]
 name = "shiqu-todo"
-version = "2.1.0"
+version = "2.2.0"
 description = "一个轻量级全功能的待办清单软件。"
 authors = [
   {name = "Hunter Zhang", email = "riverbird@aliyun.com"}
 ]
-requires-python = ">=3.12"
+requires-python = "==3.12.*"
 dependencies = [
     "flet==0.28.3",
     "requests>=2.32.4",
@@ -25,13 +25,17 @@ product_name = "布尔清单"
 #template = "./flet-build-template"
 #template_dir = "flet-build-template"
 
+[tool.flet.app]
+path = "src"
+
 [tool.flet.android]
 split_per_abi = true
+assets = ["assets"]
 
 [tool.flet.splash]   # 原生层
 #color   = "#FFFFFF"
-#image   = "assets/icon.png"
-android = false
+image   = "assets/splash_android.png"
+android = true
 #ios     = true
 #
 #[tool.flet.boot]     # Python 层

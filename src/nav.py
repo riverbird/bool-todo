@@ -1,20 +1,21 @@
 # coding:utf-8
+import json
+
+import httpx
 from flet import Text, Container, Column, Icon, Row, TextButton, \
     Icons, border_radius, Image,  \
     ListTile, PopupMenuButton, PopupMenuItem, \
     AlertDialog, Divider, SnackBar, TextField, Colors
 from flet.core.progress_ring import ProgressRing
+from flet.core.safe_area import SafeArea
 from flet.core.types import MainAxisAlignment, CrossAxisAlignment, FontWeight, ScrollMode, ImageFit
 
-from api_request import APIRequest
 from global_store import GlobalStore
 
 class NavControl(Column):
     def __init__(self, page):
         super().__init__()
         self.page = page
-        self.token = self.page.client_storage.get('token')
-
         self.dct_cate = {}  # ListTile:CateId
         self.dct_cate_title = {}  # CateId: CateName
 
@@ -22,7 +23,7 @@ class NavControl(Column):
              modal=True,
              title=Text('关于'),
              content=Column(controls=[Divider(height=1, color='gray'),
-                                      Text('布尔清单v2.1.0'),
+                                      Text('布尔清单v2.2.0'),
                                       Text('浙江舒博特网络科技有限公司 出品'),
                                       Text('官网: http://https://www.zjsbt.cn/service/derivatives'),
                                       ],
@@ -55,19 +56,31 @@ class NavControl(Column):
             # on_dismiss=lambda e: print("Modal dialog dismissed!"),
             )
 
-        nav_controls = self.build_interface()
-        self.controls = [nav_controls, self.dlg_about, self.dlg_add_cate]
+        # nav_controls = self.build_interface()
+        self.controls = [self.dlg_about, self.dlg_add_cate]
+        self.page.run_task(self.build_interface)
 
     def on_dashboard_click(self, e):
-        progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
-        progress_ring.top = self.page.height / 2 - progress_ring.height / 2
-        progress_ring.left = self.page.width / 2 - progress_ring.width / 2
-        e.control.page.overlay.append(progress_ring)
-        e.control.page.update()
-        self.page.go('/dashboard')
-        progress_ring.visible = False
+        # progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
+        # progress_ring.top = self.page.height / 2 - progress_ring.height / 2
+        # progress_ring.left = self.page.width / 2 - progress_ring.width / 2
+        # e.control.page.overlay.append(progress_ring)
+        # e.control.page.update()
+        # self.page.go('/dashboard')
+        # 跳转至统计界面
+        self.page.controls.clear()
+        from dashboard import DashboardControl
+        page_view = SafeArea(
+            DashboardControl(self.page),
+            adaptive=True,
+            expand=True
+        )
+        self.page.controls.append(page_view)
+        # progress_ring.visible = False
+        self.page.update()
 
     def on_list_click(self, e):
+        self.page.drawer.open = False
         progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
         progress_ring.top = self.page.height / 2 - progress_ring.height / 2
         progress_ring.left = self.page.width / 2 - progress_ring.width / 2
@@ -95,10 +108,18 @@ class NavControl(Column):
         self.page.client_storage.set('list_show_finished', False)
         e.control.page.overlay.remove(progress_ring)
         e.control.page.update()
-        self.page.go(f'/tasklist?id={list_name}')
 
-        # progress_ring.visible = False
-        # progress_ring.did_mount()
+        # self.page.go(f'/tasklist?id={list_name}')
+        self.page.controls.clear()
+        from tasklist import TaskListControl
+        page_view = SafeArea(
+            TaskListControl(self.page, list_name),
+            adaptive=True,
+            expand=True
+        )
+        self.page.controls.append(page_view)
+        progress_ring.visible = False
+        self.page.update()
 
     def on_about_ok_click(self, e):
         self.dlg_about.open = False
@@ -124,21 +145,59 @@ class NavControl(Column):
         self.pmi_color.update()
         self.page.update()
 
-    def on_logout(self, e):
-        req_result = APIRequest.logout(self.token)
-        if req_result is True:
-            # self.page.clean()
-            # self.page.bgcolor = '#f2f4f8'
-            # self.page.vertical_alignment = 'center'
-            # self.page.horizontal_alignment = 'center'
-            # self.page.update()
-            self.page.go('/login')
-            return
-        self.page.snack_bar = SnackBar(Text("用户退出登录请求失败!"))
-        self.page.snack_bar.open = True
+    async def on_logout(self, e):
+        url = 'https://restapi.10qu.com.cn/logout/'
+        token = await self.page.client_storage.get_async('token')
+        headers = {"Authorization": f'Bearer {token}'}
+        progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
+        progress_ring.top = self.page.height / 2 - progress_ring.height / 2
+        progress_ring.left = self.page.width / 2 - progress_ring.width / 2
+        e.control.page.overlay.append(progress_ring)
+        e.control.page.update()
+        try:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+                resp = await client.get(
+                    url,
+                    headers=headers,
+                )
+                resp.raise_for_status()
+                if resp.status_code != 200:
+                    snack_bar = SnackBar(Text("退出登录失败，请稍后重新再试。"))
+                    e.control.page.overlay.append(snack_bar)
+                    snack_bar.open = True
+                    progress_ring.visible = False
+                    e.control.page.update()
+                    return
+                data = resp.json()
+                if data.get('code') != '0':
+                    snack_bar = SnackBar(Text("退出登录失败，请稍后重新再试。"))
+                    e.control.page.overlay.append(snack_bar)
+                    snack_bar.open = True
+                    progress_ring.visible = False
+                    e.control.page.update()
+                    return
+        except httpx.HTTPError as ex:
+            snack_bar = SnackBar(Text(f"退出登录失败:{str(ex)}"))
+            e.control.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            progress_ring.visible = False
+            e.control.page.update()
+        progress_ring.visible = False
+        # 跳转至登录界面
+        await self.page.client_storage.clear_async()
+        from login import LoginControl
+        page_view = SafeArea(
+            LoginControl(self.page),
+            adaptive=True,
+            expand=True
+        )
+        self.page.controls.clear()
+        self.page.controls.append(page_view)
         self.page.update()
 
     def on_cate_click(self, e):
+        self.page.drawer.open = False
+
         cate_id = self.dct_cate.get(e.control.data)
         cate_title = self.dct_cate_title.get(e.control.data)
 
@@ -160,23 +219,25 @@ class NavControl(Column):
         self.page.client_storage.set('list_show_finished', False)
         e.control.page.overlay.remove(progress_ring)
         e.control.page.update()
-        self.page.go(f'/tasklist?id={cate_id}')
 
-        # progress_ring.visible = False
-        # progress_ring.did_mount()
+        # self.page.go(f'/tasklist?id={cate_id}')
+        self.page.controls.clear()
+        from tasklist import TaskListControl
+        page_view = SafeArea(
+            TaskListControl(self.page, cate_id),
+            adaptive=True,
+            expand=True
+        )
+        self.page.controls.append(page_view)
+        progress_ring.visible = False
+        self.page.update()
+
 
     def on_list_tile_hover(self, e):
         e.control.bgcolor = Colors.BLACK12 if e.data == "true" else Colors.WHITE
         e.control.update()
 
-    def update_user_info(self):
-        dct_ret = APIRequest.query_user_info(self.token)
-        self.text_user.value = dct_ret.get('nick_name', '用户名')
-        self.img_avatar.src = dct_ret.get('avatar_url', f'/icons/head.png')
-
-    def update_todolist(self):
-        dct_ret = APIRequest.query_todolist(self.token)
-
+    def __handle_update_todolist(self, dct_ret):
         todo_data = dct_ret[0].get('todo_data')
         self.lt_today.title = Text(f'今天 {todo_data[1].get("count")}')
         self.lt_week.title = Text(f'未来七天 {todo_data[3].get("count")}')
@@ -201,34 +262,103 @@ class NavControl(Column):
             self.dct_cate[lt_cate.data] = itm.get('from_id')
             self.dct_cate_title[lt_cate.data] = itm.get("name")
 
-        # self.col_nav.height = self.page.window_height
+    async def update_todolist(self):
+        # dct_ret = APIRequest.query_todolist(self.token)
+        cached_cate_list_value = await self.page.client_storage.get_async('todo_cate_list')
+        cached_note_list = json.loads(cached_cate_list_value) if cached_cate_list_value else []
+        if cached_note_list:
+            self.__handle_update_todolist(cached_note_list)
+            return
 
-    def on_dlg_add_cate_ok_click(self, e):
-        update_status = APIRequest.add_task_list(
-            self.token,
-            self.tf_cate.value)
-        if update_status is False:
-            snack_bar = SnackBar(Text("添加清单失败!"))
+        token = await self.page.client_storage.get_async('token')
+        url = 'https://restapi.10qu.com.cn/todo_profile/?show_expired=1'
+        headers = {'Authorization': f'Bearer {token}'}
+        try:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+                resp = await client.get(
+                    url,
+                    headers=headers,
+                )
+                resp.raise_for_status()
+                if resp.status_code != 200:
+                    snack_bar = SnackBar(Text("获取清单失败."))
+                    self.page.overlay.append(snack_bar)
+                    snack_bar.open = True
+                    self.page.update()
+                    return
+                else:
+                    data = resp.json()
+                    dct_ret = data.get('result')
+                    cached_cate_list_str = json.dumps(dct_ret)
+                    await self.page.client_storage.set_async('todo_cate_list', cached_cate_list_str)
+                    self.__handle_update_todolist(dct_ret)
+        except httpx.HTTPError as ex:
+            snack_bar = SnackBar(Text(f"获取用户清单集异常：{str(ex)}"))
+            self.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            self.page.update()
+
+    async def on_dlg_add_cate_ok_click(self, e):
+        token = await self.page.client_storage.get_async('token')
+        url = 'https://restapi.10qu.com.cn/todo_from/'
+        headers = {'Authorization': f'Bearer {token}'}
+        user_input = {'name': self.tf_cate.value}
+        try:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+                resp = await client.post(
+                    url,
+                    headers=headers,
+                    json=user_input,
+                )
+                resp.raise_for_status()
+                if resp.status_code != 201:
+                    snack_bar = SnackBar(Text("添加清单失败!"))
+                    e.control.page.overlay.append(snack_bar)
+                    snack_bar.open = True
+                    e.control.page.update()
+                    return
+                await self.update_todolist()
+                self.dlg_add_cate.open = False
+                self.page.update()
+        except httpx.HTTPError as ex:
+            snack_bar = SnackBar(Text(f"添加清单失败：{str(ex)}"))
             e.control.page.overlay.append(snack_bar)
             snack_bar.open = True
             e.control.page.update()
-            return
-
-        # nav_control = self.page.controls[0].controls[0].content
-        # nav_control.update_todolist()
-        # nav_control.col_nav.update()
-        # nav_control.update()
-
-        self.update_todolist()
-
-        self.dlg_add_cate.open = False
-        self.page.update()
 
     def on_dlg_add_cate_cancel_click(self, e):
         self.dlg_add_cate.open = False
         self.page.update()
 
-    def build_interface(self):
+    async def get_user_info(self):
+        dct_info = {}
+        token = await self.page.client_storage.get_async('token')
+        url = 'https://restapi.10qu.com.cn/user_info/'
+        headers = {'Authorization': f'Bearer {token}'}
+        try:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+                resp = await client.get(
+                    url,
+                    headers=headers,
+                )
+                resp.raise_for_status()
+                if resp.status_code != 200:
+                    snack_bar = SnackBar(Text("获取用户信息失败."))
+                    self.page.overlay.append(snack_bar)
+                    snack_bar.open = True
+                    self.page.update()
+                    return {}
+                else:
+                    data = resp.json()
+                    dct_info = data.get('results')
+        except httpx.HTTPError as ex:
+            snack_bar = SnackBar(Text(f"获取用户信息异常：{str(ex)}"))
+            self.page.overlay.append(snack_bar)
+            snack_bar.open = True
+            self.page.update()
+        return dct_info
+
+    async def build_interface(self):
         self.lt_today = ListTile(leading=Icon(Icons.TODAY),
                                  title=Text("今天"),
                                  selected=False,
@@ -250,21 +380,22 @@ class NavControl(Column):
                                dense=True,
                                on_click=self.on_list_click)
 
-        dct_ret = APIRequest.query_user_info(self.token)
+        # dct_ret = APIRequest.query_user_info(self.token)
+        dct_ret = await self.get_user_info()
         avatar_url = dct_ret.get('avatar_url', f'/icons/head.png')
-        self.img_avatar = Image(src=avatar_url,
-                                width=32, height=32,
-                                fit=ImageFit.CONTAIN,
-                                border_radius=border_radius.all(30))
-        # self.img_avatar = CircleAvatar(foreground_image_url=f'/icons/head.png',
-        #                                bgcolor=colors.BLACK38,
-        #                                radius=5,
-        #                                content=Text('头像'))
+        self.img_avatar = Image(
+            src=avatar_url,
+            width=32, height=32,
+            fit=ImageFit.CONTAIN,
+            border_radius=border_radius.all(30)
+        )
 
         self.text_user = Text(dct_ret.get('nick_name', '用户名'), size=14)
-        self.pmi_color = PopupMenuItem(icon=Icons.DARK_MODE,
-                                       text='深色模式',
-                                       on_click=self.on_dark_click)
+        self.pmi_color = PopupMenuItem(
+            icon=Icons.DARK_MODE,
+            text='深色模式',
+            on_click=self.on_dark_click
+        )
         self.pmb_option = PopupMenuButton(
             items=[  # self.pmi_color,
                 PopupMenuItem(icon=Icons.HELP,
@@ -283,13 +414,6 @@ class NavControl(Column):
                             alignment=MainAxisAlignment.SPACE_EVENLY,
                             vertical_alignment=CrossAxisAlignment.CENTER,
                             spacing=10)
-
-        # def on_draw_close(e):
-        #     self.page.drawer.open = False
-        #     self.page.update()
-
-        # btn_show_drawer = IconButton(icon=Icons.MENU,
-        #                              on_click=on_draw_close)
 
         self.col_cate = Column(spacing=1)
         self.col_nav = Column(
@@ -331,12 +455,12 @@ class NavControl(Column):
             ],
             spacing=0,
             expand=True,
-            # height=780,
-            # alignment='start',
             scroll=ScrollMode.HIDDEN,
         )
 
         # self.update_user_info()
-        self.update_todolist()
+        await self.update_todolist()
 
-        return self.col_nav
+        # return self.col_nav
+        self.controls.append(self.col_nav)
+        self.page.update()
