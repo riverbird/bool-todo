@@ -80,12 +80,14 @@ class NavControl(Column):
         self.page.update()
 
     def on_list_click(self, e):
-        self.page.drawer.open = False
+        # self.page.drawer.open = False
+        # self.page.update()
+
         progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
         progress_ring.top = self.page.height / 2 - progress_ring.height / 2
         progress_ring.left = self.page.width / 2 - progress_ring.width / 2
         e.control.page.overlay.append(progress_ring)
-        e.control.page.update()
+        # e.control.page.update()
 
         list_title_text = e.control.title.value.split(' ')[0]
         list_name = 'today'
@@ -107,7 +109,7 @@ class NavControl(Column):
         self.page.client_storage.set('list_title', list_title_text)
         self.page.client_storage.set('list_show_finished', False)
         e.control.page.overlay.remove(progress_ring)
-        e.control.page.update()
+        # e.control.page.update()
 
         # self.page.go(f'/tasklist?id={list_name}')
         self.page.controls.clear()
@@ -119,7 +121,7 @@ class NavControl(Column):
         )
         self.page.controls.append(page_view)
         progress_ring.visible = False
-        self.page.update()
+        # self.page.update()
 
     def on_about_ok_click(self, e):
         self.dlg_about.open = False
@@ -196,7 +198,8 @@ class NavControl(Column):
         self.page.update()
 
     def on_cate_click(self, e):
-        self.page.drawer.open = False
+        # self.page.drawer.open = False
+        # self.page.update()
 
         cate_id = self.dct_cate.get(e.control.data)
         cate_title = self.dct_cate_title.get(e.control.data)
@@ -231,7 +234,6 @@ class NavControl(Column):
         self.page.controls.append(page_view)
         progress_ring.visible = False
         self.page.update()
-
 
     def on_list_tile_hover(self, e):
         e.control.bgcolor = Colors.BLACK12 if e.data == "true" else Colors.WHITE

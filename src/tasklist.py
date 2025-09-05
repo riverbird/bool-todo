@@ -196,9 +196,9 @@ class TaskListControl(Column):
             snack_bar.open = True
             self.page.update()
 
-    def on_switch_show_finished(self, e):
+    async def on_switch_show_finished(self, e):
         self.show_finished = e.control.value
-        self.query_tasks_by_list(self.list_name, task_status=True)
+        await self.query_tasks_by_list(self.list_name, task_status=True)
         self.update()
 
     def on_rename_list(self, e):
@@ -574,7 +574,7 @@ class TaskListControl(Column):
         self.page.update()
 
         self.list_title = await self.page.client_storage.get_async('list_title')
-        self.show_finished = self.page.client_storage.get_async('list_show_finished')
+        self.show_finished = await self.page.client_storage.get_async('list_show_finished')
 
         dct_title = {"today": "今天",
                      "future": "未来七天",

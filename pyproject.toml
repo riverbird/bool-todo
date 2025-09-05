@@ -17,7 +17,7 @@ default = true
 
 [tool.flet]
 org = "com.superiot"
-product = "shiqu-todo"
+product = "bool-todo"
 company = "浙江舒博特网络科技有限公司"
 copyright = "Copyright (C) 2025 by Superiot"
 product_name = "布尔清单"
