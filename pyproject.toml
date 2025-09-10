@@ -5,7 +5,7 @@ description = "一个轻量级全功能的待办清单软件。"
 authors = [
   {name = "Hunter Zhang", email = "riverbird@aliyun.com"}
 ]
-requires-python = "==3.12.*"
+requires-python = "==3.13.*"
 dependencies = [
     "flet==0.28.3",
     "requests>=2.32.4",

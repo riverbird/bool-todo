@@ -119,8 +119,8 @@ class TaskListControl(Column):
             on_click=self.on_fab_pressed,
         )
 
-        self.controls = [self.dlg_delete_confirm,
-                         self.dlg_rename_cate]
+        # self.controls = [self.dlg_delete_confirm,
+        #                  self.dlg_rename_cate]
         self.page.drawer = self.drawer
         self.page.end_drawer = self.end_drawer
         self.page.run_task(self.build_interface)
@@ -287,6 +287,12 @@ class TaskListControl(Column):
 
     def on_fab_pressed(self, e):
         async def on_input_task_submit(ex):
+            # 关闭BottomSheet
+            bs.open = False
+            ex.page.overlay.clear()
+            ex.control.update()
+            ex.control.page.update()
+
             input_task.value = ex.data
             task_name = input_task.value
             if len(task_name) == 0:
@@ -296,12 +302,6 @@ class TaskListControl(Column):
                 e.control.page.update()
                 return
             token = await self.page.client_storage.get_async('token')
-            # req_result = APIRequest.add_task(token,
-            #                                  task_name,
-            #                                  self.n_task_repeat,
-            #                                  self.str_task_date,
-            #                                  self.list_name,
-            #                                  self.n_task_level)
             url = 'https://restapi.10qu.com.cn/todo/'
             headers = {'Authorization': f'Bearer {token}'}
             user_input = {'task_name': task_name,
@@ -309,6 +309,11 @@ class TaskListControl(Column):
                           'task_time': self.str_task_date,
                           'todo_from': self.list_name,
                           'type': self.n_task_level}
+            progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
+            progress_ring.top = self.page.height / 2 - progress_ring.height / 2
+            progress_ring.left = self.page.width / 2 - progress_ring.width / 2
+            e.control.page.overlay.append(progress_ring)
+            e.control.page.update()
             try:
                 async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
                     resp = await client.post(
@@ -321,6 +326,7 @@ class TaskListControl(Column):
                         snack_bar = SnackBar(Text("添加任务失败!"))
                         e.control.page.overlay.append(snack_bar)
                         snack_bar.open = True
+                        progress_ring.visible = False
                         e.control.page.update()
                         return
                     snack_bar = SnackBar(Text("任务添加成功!"))
@@ -328,13 +334,7 @@ class TaskListControl(Column):
                     snack_bar.open = True
                     e.control.update()
                     e.control.page.update()
-                    e.control.focus()
-
-                    # 关闭BottomSheet
-                    bs.open = False
-                    ex.page.overlay.clear()
-                    ex.control.update()
-                    ex.control.page.update()
+                    # e.control.focus()
 
                     # 更新列表
                     await self.update_list()
@@ -343,10 +343,18 @@ class TaskListControl(Column):
                 self.page.overlay.append(snack_bar)
                 snack_bar.open = True
                 self.page.update()
+            progress_ring.visible = False
+            e.control.page.update()
 
         async def on_btn_add_clicked(ex):
-            str_task_name = input_task.value
+            # 关闭BottomSheet
+            bs.open = False
+            ex.page.overlay.clear()
+            ex.control.update()
+            ex.control.page.update()
+
             # 提交任务
+            str_task_name = input_task.value
             if len(str_task_name) == 0:
                 snack_bar = SnackBar(Text("任务信息不允许为空!"))
                 e.control.page.overlay.append(snack_bar)
@@ -367,6 +375,11 @@ class TaskListControl(Column):
                           'task_time': self.str_task_date,
                           'todo_from': self.list_name,
                           'type': self.n_task_level}
+            progress_ring = ProgressRing(width=32, height=32, stroke_width=2)
+            progress_ring.top = self.page.height / 2 - progress_ring.height / 2
+            progress_ring.left = self.page.width / 2 - progress_ring.width / 2
+            e.control.page.overlay.append(progress_ring)
+            e.control.page.update()
             try:
                 async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
                     resp = await client.post(
@@ -379,6 +392,7 @@ class TaskListControl(Column):
                         snack_bar = SnackBar(Text("添加任务失败!"))
                         e.control.page.overlay.append(snack_bar)
                         snack_bar.open = True
+                        progress_ring.visible = False
                         e.control.page.update()
                         return
                     snack_bar = SnackBar(Text("任务添加成功!"))
@@ -387,11 +401,7 @@ class TaskListControl(Column):
                     e.control.update()
                     e.control.page.update()
                     # e.control.focus()
-                    # 关闭BottomSheet
-                    bs.open = False
-                    ex.page.overlay.clear()
-                    ex.control.update()
-                    ex.control.page.update()
+
                     # 更新列表
                     await self.update_list()
             except httpx.HTTPError as ex:
@@ -399,6 +409,8 @@ class TaskListControl(Column):
                 self.page.overlay.append(snack_bar)
                 snack_bar.open = True
                 self.page.update()
+            progress_ring.visible = False
+            e.control.page.update()
 
         def on_select_task_date_by_picker(ex):
             task_date_picker.open = True
@@ -652,6 +664,9 @@ class TaskListControl(Column):
         )
         await self.query_tasks_by_list(self.list_name)
         # return self.col_tasklist
-        self.controls.append(self.col_tasklist)
+        # self.controls.append(self.col_tasklist)
+        self.controls = [self.dlg_delete_confirm,
+                         self.dlg_rename_cate,
+                         self.col_tasklist]
         progress_ring.visible = False
         self.page.update()

@@ -339,20 +339,25 @@ class NavControl(Column):
         headers = {'Authorization': f'Bearer {token}'}
         try:
             async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-                resp = await client.get(
-                    url,
-                    headers=headers,
-                )
-                resp.raise_for_status()
-                if resp.status_code != 200:
-                    snack_bar = SnackBar(Text("获取用户信息失败."))
-                    self.page.overlay.append(snack_bar)
-                    snack_bar.open = True
-                    self.page.update()
-                    return {}
+                cached_user_info_value = await self.page.client_storage.get_async('todo_user_info')
+                cached_user_info = json.loads(cached_user_info_value) if cached_user_info_value else {}
+                if cached_user_info:
+                    dct_info = cached_user_info
                 else:
-                    data = resp.json()
-                    dct_info = data.get('results')
+                    resp = await client.get(
+                        url,
+                        headers=headers,
+                    )
+                    resp.raise_for_status()
+                    if resp.status_code != 200:
+                        snack_bar = SnackBar(Text("获取用户信息失败."))
+                        self.page.overlay.append(snack_bar)
+                        snack_bar.open = True
+                        self.page.update()
+                        return {}
+                    else:
+                        data = resp.json()
+                        dct_info = data.get('results')
         except httpx.HTTPError as ex:
             snack_bar = SnackBar(Text(f"获取用户信息异常：{str(ex)}"))
             self.page.overlay.append(snack_bar)

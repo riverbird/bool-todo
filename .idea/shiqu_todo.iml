@@ -5,8 +5,9 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/py310venv" />
       <excludeFolder url="file://$MODULE_DIR$/312venv" />
+      <excludeFolder url="file://$MODULE_DIR$/313venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 (shiqu-todo)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 (shiqu-todo)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
