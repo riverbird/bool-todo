@@ -1,6 +1,6 @@
 [project]
 name = "shiqu-todo"
-version = "2.2.0"
+version = "2.2.1"
 description = "一个轻量级全功能的待办清单软件。"
 authors = [
   {name = "Hunter Zhang", email = "riverbird@aliyun.com"}

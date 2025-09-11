@@ -71,9 +71,6 @@ class TaskDetail(Row):
         token = await self.page.client_storage.get_async('token')
         sel_date = e.control.value.date()
         new_date = sel_date.strftime('%Y-%m-%d')
-        # update_status = APIRequest.update_task_time(token,
-        #                                             self.task_info.get('id'),
-        #                                             new_date)
         headers = {'Authorization': f'Bearer {token}'}
         user_input = {'task_time': new_date}
         url = f'https://restapi.10qu.com.cn/todo/{self.task_info.get('id')}/'
@@ -92,8 +89,8 @@ class TaskDetail(Row):
                     e.control.page.update()
                     return
                 # self.btn_sel_date.text = new_date
-                btn_sel_date = self.controls[0].controls[3].content
-                if btn_sel_date:
+                btn_sel_date = self.controls[0].controls[2].content
+                if btn_sel_date and isinstance(btn_sel_date, OutlinedButton):
                     btn_sel_date.text = new_date
                     e.control.page.update()
                 await self.refresh()

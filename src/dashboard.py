@@ -4,7 +4,6 @@ from datetime import date, datetime
 import httpx
 from flet import Column, Icon, Row, \
     Icons, Colors, padding, Card
-from flet.core import border
 from flet.core.app_bar import AppBar
 from flet.core.border import BorderSide
 from flet.core.charts.bar_chart import BarChart, BarChartEvent
@@ -66,6 +65,7 @@ class DashboardControl(Column):
             color=Colors.WHITE,
             actions=[],
         )
+        self.page.floating_action_button = None
         # count_cards = self.build_interface()
         # self.controls = [count_cards]
         self.page.run_task(self.build_interface)
@@ -231,9 +231,9 @@ class DashboardControl(Column):
             on_chart_event=on_chart_event,
             interactive=True,
             # border=border.all(1, Colors.GREY_400),
-            left_axis=ChartAxis(
-                labels_size=40, title=Text("近七日任务完成统计"), title_size=40
-            ),
+            # left_axis=ChartAxis(
+            #     labels_size=20, title=Text("近七日任务完成统计"), title_size=20
+            # ),
             horizontal_grid_lines=ChartGridLines(
                 color=Colors.WHITE30, width=1, dash_pattern=[3, 3]
             ),
@@ -348,11 +348,13 @@ class DashboardControl(Column):
                 Text(f'欢迎您，{dct_info.get("nickname")}',
                                     weight=FontWeight.BOLD, size=20, ),
                 Text(str_today, size=16),
-                Text('以下是当前任务统计数据',
-                                    weight=FontWeight.BOLD,
-                                    size=16,
-                                    color=Colors.BLACK38),
-                               # Container(content=row_info, expand=True)]
+                # Text(
+                #     '以下是当前任务统计数据',
+                #      weight=FontWeight.BOLD,
+                #      size=16,
+                #      color=Colors.BLACK38
+                # ),
+                # Container(content=row_info, expand=True)]
                 row_stat_1,
                 row_stat_2,
             ],

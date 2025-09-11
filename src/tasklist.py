@@ -334,7 +334,6 @@ class TaskListControl(Column):
                     snack_bar.open = True
                     e.control.update()
                     e.control.page.update()
-                    # e.control.focus()
 
                     # 更新列表
                     await self.update_list()
@@ -345,6 +344,7 @@ class TaskListControl(Column):
                 self.page.update()
             progress_ring.visible = False
             e.control.page.update()
+            self.page.update()
 
         async def on_btn_add_clicked(ex):
             # 关闭BottomSheet
@@ -362,12 +362,6 @@ class TaskListControl(Column):
                 e.control.page.update()
                 return
             token = await self.page.client_storage.get_async('token')
-            # req_result = APIRequest.add_task(token,
-            #                                  str_task_name,
-            #                                  self.n_task_repeat,
-            #                                  self.str_task_date,
-            #                                  self.list_name,
-            #                                  self.n_task_level)
             url = 'https://restapi.10qu.com.cn/todo/'
             headers = {'Authorization': f'Bearer {token}'}
             user_input = {'task_name': str_task_name,
@@ -400,7 +394,6 @@ class TaskListControl(Column):
                     snack_bar.open = True
                     e.control.update()
                     e.control.page.update()
-                    # e.control.focus()
 
                     # 更新列表
                     await self.update_list()
@@ -411,6 +404,7 @@ class TaskListControl(Column):
                 self.page.update()
             progress_ring.visible = False
             e.control.page.update()
+            self.page.update()
 
         def on_select_task_date_by_picker(ex):
             task_date_picker.open = True
@@ -566,13 +560,14 @@ class TaskListControl(Column):
         )
 
     async def update_list(self):
-        # task_list_controls = self.build_interface()
-        # self.pagelet.content = Container(task_list_controls, padding=padding.all(0))
         await self.build_interface()
 
         self.drawer.controls = [
             Container(
-                content=NavControl(self.page),
+                content=NavControl(
+                    self.page,
+                    read_cache=False,
+                ),
                 expand=1,
             )
         ]

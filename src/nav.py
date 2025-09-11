@@ -13,9 +13,10 @@ from flet.core.types import MainAxisAlignment, CrossAxisAlignment, FontWeight, S
 from global_store import GlobalStore
 
 class NavControl(Column):
-    def __init__(self, page):
+    def __init__(self, page, read_cache=True):
         super().__init__()
         self.page = page
+        self.read_cache = read_cache
         self.dct_cate = {}  # ListTile:CateId
         self.dct_cate_title = {}  # CateId: CateName
 
@@ -23,7 +24,7 @@ class NavControl(Column):
              modal=True,
              title=Text('关于'),
              content=Column(controls=[Divider(height=1, color='gray'),
-                                      Text('布尔清单v2.2.0'),
+                                      Text('布尔清单v2.2.1'),
                                       Text('浙江舒博特网络科技有限公司 出品'),
                                       Text('官网: http://https://www.zjsbt.cn/service/derivatives'),
                                       ],
@@ -264,13 +265,13 @@ class NavControl(Column):
             self.dct_cate[lt_cate.data] = itm.get('from_id')
             self.dct_cate_title[lt_cate.data] = itm.get("name")
 
-    async def update_todolist(self):
-        # dct_ret = APIRequest.query_todolist(self.token)
-        cached_cate_list_value = await self.page.client_storage.get_async('todo_cate_list')
-        cached_note_list = json.loads(cached_cate_list_value) if cached_cate_list_value else []
-        if cached_note_list:
-            self.__handle_update_todolist(cached_note_list)
-            return
+    async def update_todolist(self, read_cache=True):
+        if read_cache:
+            cached_cate_list_value = await self.page.client_storage.get_async('todo_cate_list')
+            cached_note_list = json.loads(cached_cate_list_value) if cached_cate_list_value else []
+            if cached_note_list:
+                self.__handle_update_todolist(cached_note_list)
+                return
 
         token = await self.page.client_storage.get_async('token')
         url = 'https://restapi.10qu.com.cn/todo_profile/?show_expired=1'
@@ -404,23 +405,24 @@ class NavControl(Column):
             on_click=self.on_dark_click
         )
         self.pmb_option = PopupMenuButton(
-            items=[  # self.pmi_color,
+            items=[
                 PopupMenuItem(icon=Icons.HELP,
                               text='关于我们',
                               on_click=self.on_about_click),
-                # PopupMenuItem(icon=icons.ACCOUNT_BOX, text='账户安全'),
                 PopupMenuItem(icon=Icons.LOGOUT,
                               text='退出登录',
                               on_click=self.on_logout),
             ],
             icon=Icons.SETTINGS,
         )
-        self.row_head = Row(controls=[self.img_avatar,
-                                      self.text_user,
-                                      self.pmb_option],
-                            alignment=MainAxisAlignment.SPACE_EVENLY,
-                            vertical_alignment=CrossAxisAlignment.CENTER,
-                            spacing=10)
+        self.row_head = Row(
+            controls=[self.img_avatar,
+                      self.text_user,
+                      self.pmb_option],
+            alignment=MainAxisAlignment.SPACE_EVENLY,
+            vertical_alignment=CrossAxisAlignment.CENTER,
+            spacing=10
+        )
 
         self.col_cate = Column(spacing=1)
         self.col_nav = Column(
@@ -466,7 +468,7 @@ class NavControl(Column):
         )
 
         # self.update_user_info()
-        await self.update_todolist()
+        await self.update_todolist(read_cache=self.read_cache)
 
         # return self.col_nav
         self.controls.append(self.col_nav)
