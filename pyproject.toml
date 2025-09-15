@@ -31,6 +31,8 @@ path = "src"
 [tool.flet.android]
 split_per_abi = true
 assets = ["assets"]
+min_sdk_version = 24
+target_sdk_version = 35
 
 [tool.flet.splash]   # 原生层
 #color   = "#FFFFFF"
@@ -41,4 +43,15 @@ android = true
 #[tool.flet.boot]     # Python 层
 #color   = "#FFFFFF"
 #image   = "assets/icon.png"
+
+[tool.uv]
+dev-dependencies = [
+    "flet[all]==0.28.3",
+]
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+flet = {extras = ["all"], version = "0.28.3"}
 

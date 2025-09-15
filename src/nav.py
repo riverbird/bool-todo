@@ -55,7 +55,7 @@ class NavControl(Column):
             actions_alignment=MainAxisAlignment.END,
             title_padding=20,
             # on_dismiss=lambda e: print("Modal dialog dismissed!"),
-            )
+        )
 
         # nav_controls = self.build_interface()
         self.controls = [self.dlg_about, self.dlg_add_cate]

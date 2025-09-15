@@ -27,13 +27,13 @@ def main(page: Page):
         font_family='微软雅黑',
         date_picker_theme=DatePickerTheme(locale=Locale('zh', 'CN')),
         visual_density=VisualDensity.ADAPTIVE_PLATFORM_DENSITY,
-        use_material3=False)
+        use_material3=True)
     page.dark_theme = Theme(
         color_scheme_seed="green",
         font_family='微软雅黑',
         date_picker_theme=DatePickerTheme(locale=Locale('zh', 'CN')),
         visual_density=VisualDensity.ADAPTIVE_PLATFORM_DENSITY,
-        use_material3=False)
+        use_material3=True)
 
     # 路由处理
     # def route_change(e):
