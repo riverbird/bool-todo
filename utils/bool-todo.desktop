@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Bool Todo
+Name[zh_CN]=布尔清单
+Comment=Bool Todo Mobile (Linux Build)
+Exec=/usr/local/bool-todo/shiqu_todo
+Icon=/usr/local/bool-todo/icon.png
+Terminal=false
+Type=Application
+Categories=Office;
+

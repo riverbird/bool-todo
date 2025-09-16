@@ -6,3 +6,4 @@ installer
 main.spec
 output/main.exe
 requests.spec
+*.deb
